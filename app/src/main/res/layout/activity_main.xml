@@ -14,6 +14,7 @@
         android:background="@drawable/text_border"
         android:padding="15dp"
         android:text="@string/dummy_txt_balance"
+        android:textColor="@color/txt_balance"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
