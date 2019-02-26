@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Cash Flow Logger</string>
+    <string name="btn_txt_log_income">Log Income</string>
+    <string name="btn_txt_log_expenses">Log Expenses</string>
+    <string name="btn_txt_view_record">View Record</string>
+    <string name="label_balance">Balance</string>
+    <string name="dummy_txt_balance">₱ XXX,XXX.XX</string>
 </resources>
