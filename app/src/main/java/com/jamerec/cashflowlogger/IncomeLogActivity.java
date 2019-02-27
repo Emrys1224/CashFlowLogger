@@ -35,4 +35,8 @@ public class IncomeLogActivity extends AppCompatActivity {
     public void allocateFund(View view) {
         loadFragment(new FundAllocationFragment());
     }
+
+    public void confirmDetails(View view) {
+        loadFragment(new IncomeDetailsConfirmationFragment());
+    }
 }

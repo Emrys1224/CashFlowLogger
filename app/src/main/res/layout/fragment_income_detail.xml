@@ -65,6 +65,7 @@
         app:layout_constraintStart_toStartOf="@+id/textView" />
 
     <Button
+        android:onClick="confirmDetails"
         android:id="@+id/btn_allocate_auto"
         style="@style/btn_income_detail"
         android:layout_width="wrap_content"
