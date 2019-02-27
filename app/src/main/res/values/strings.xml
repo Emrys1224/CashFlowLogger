@@ -5,4 +5,12 @@
     <string name="btn_txt_view_record">View Record</string>
     <string name="label_balance">Balance</string>
     <string name="dummy_txt_balance">₱ XXX,XXX.XX</string>
+
+    <string name="heading_income_detail">Income Logging</string>
+    <string name="label_source">From</string>
+    <string name="label_amount">Amount</string>
+    <string name="hint_source">Source of income</string>
+    <string name="btn_txt_allocate_auto">Automatically Allocate</string>
+    <string name="btn_txt_allocate_man">Manually Allocate</string>
+    <string name="btn_cancel">Cancel</string>
 </resources>

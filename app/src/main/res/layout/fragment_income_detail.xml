@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".IncomeDetailFragment">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="@string/heading_income_detail"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/label_source"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:text="@string/label_source"
+        android:textSize="@dimen/txtsize_label"
+        app:layout_constraintStart_toStartOf="@+id/label_amount"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <EditText
+        android:id="@+id/input_income_source"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/hint_source"
+        android:inputType="textPersonName"
+        android:textSize="@dimen/txtsize_input"
+        app:layout_constraintBaseline_toBaselineOf="@+id/label_source"
+        app:layout_constraintEnd_toEndOf="@+id/input_amount"
+        app:layout_constraintStart_toStartOf="@+id/input_amount" />
+
+    <TextView
+        android:id="@+id/label_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:text="@string/label_amount"
+        android:textSize="@dimen/txtsize_label"
+        app:layout_constraintEnd_toStartOf="@+id/input_amount"
+        app:layout_constraintHorizontal_bias="0.66"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/label_source" />
+
+    <EditText
+        android:id="@+id/input_amount"
+        android:layout_width="251dp"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/dummy_txt_balance"
+        android:inputType="numberDecimal"
+        android:textSize="@dimen/txtsize_input"
+        app:layout_constraintBaseline_toBaselineOf="@+id/label_amount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.44"
+        app:layout_constraintStart_toStartOf="@+id/textView" />
+
+    <Button
+        android:id="@+id/btn_allocate_auto"
+        style="@style/btn_income_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="@string/btn_txt_allocate_auto"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/input_amount" />
+
+    <Button
+        android:id="@+id/btn_allocate_man"
+        style="@style/btn_income_detail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="@string/btn_txt_allocate_man"
+        app:layout_constraintEnd_toEndOf="@+id/btn_allocate_auto"
+        app:layout_constraintStart_toStartOf="@+id/btn_allocate_auto"
+        app:layout_constraintTop_toBottomOf="@+id/btn_allocate_auto" />
+
+    <Button
+        android:id="@+id/btn_cancel"
+        style="@style/btn_cancel"
+        android:layout_width="265dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="@string/btn_cancel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_allocate_man" />
+
+</android.support.constraint.ConstraintLayout>

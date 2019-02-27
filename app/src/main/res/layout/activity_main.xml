@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/txt_balance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="60dp"
@@ -21,42 +21,51 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/label_balance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="@string/label_balance"
         android:textSize="25sp"
-        app:layout_constraintEnd_toEndOf="@+id/textView2"
-        app:layout_constraintStart_toStartOf="@+id/textView2"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintEnd_toEndOf="@+id/txt_balance"
+        app:layout_constraintStart_toStartOf="@+id/txt_balance"
+        app:layout_constraintTop_toBottomOf="@+id/txt_balance" />
 
     <Button
-        android:id="@+id/button"
-        style="@style/button_main"
+        android:id="@+id/btn_log_income"
+        style="@style/btn_main"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="60dp"
+        android:onClick="logIncome"
         android:text="@string/btn_txt_log_income"
-        app:layout_constraintEnd_toEndOf="@+id/textView"
-        app:layout_constraintStart_toStartOf="@+id/textView"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintEnd_toEndOf="@+id/btn_log_expense"
+        app:layout_constraintStart_toStartOf="@+id/btn_log_expense"
+        app:layout_constraintTop_toBottomOf="@+id/label_balance" />
 
     <Button
-        android:id="@+id/button2"
-        style="@style/button_main"
+        android:id="@+id/btn_log_expense"
+        style="@style/btn_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
+        android:onClick="logExpenses"
         android:text="@string/btn_txt_log_expenses"
-        app:layout_constraintEnd_toEndOf="@+id/button"
-        app:layout_constraintStart_toStartOf="@+id/button"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_log_income" />
 
     <Button
-        android:id="@+id/button3"
-        style="@style/button_main"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:onClick="viewRecord"
+        android:id="@+id/btn_view_record"
+        style="@style/btn_main"
         android:layout_marginTop="50dp"
         android:text="@string/btn_txt_view_record"
-        app:layout_constraintEnd_toEndOf="@+id/button2"
+        app:layout_constraintEnd_toEndOf="@+id/btn_log_expense"
         app:layout_constraintHorizontal_bias="0.533"
-        app:layout_constraintStart_toStartOf="@+id/button2"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
+        app:layout_constraintStart_toStartOf="@+id/btn_log_expense"
+        app:layout_constraintTop_toBottomOf="@+id/btn_log_expense" />
 
 </android.support.constraint.ConstraintLayout>

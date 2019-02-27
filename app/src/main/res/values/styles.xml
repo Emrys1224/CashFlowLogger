@@ -8,13 +8,19 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="button_main">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/button_bg</item>
+    <style name="btn_main">
+        <item name="android:background">@drawable/btn_bg</item>
         <item name="android:padding">15dp</item>
         <item name="android:textSize">25sp</item>
-        <item name="android:textColor">@color/button_text</item>
+        <item name="android:textColor">@color/btn_text</item>
+    </style>
+
+    <style name="btn_income_detail" parent="@style/btn_main">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="btn_cancel" parent="@style/btn_income_detail">
+        <item name="android:background">@drawable/btn_cancel</item>
     </style>
 
 </resources>
