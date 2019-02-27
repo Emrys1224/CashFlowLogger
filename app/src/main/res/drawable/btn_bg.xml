@@ -3,27 +3,20 @@
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
             <solid android:color="@color/button_main_pressed"/>
-            <corners android:radius="3dp" />
-            <!--<gradient-->
-                <!--android:angle="-90"-->
-                <!--android:endColor="#689a92"-->
-                <!--android:startColor="#345953" />-->
+            <corners android:radius="@dimen/radius" />
         </shape>
     </item>
     <item android:state_focused="true">
         <shape android:shape="rectangle">
             <solid android:color="@color/button_main"/>
-            <corners android:radius="3dp" />
+            <corners android:radius="@dimen/radius" />
             <solid android:color="#58857e" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
             <solid android:color="@color/button_main"/>
-            <corners android:radius="3dp" />
-            <!--<gradient android:angle="-90"-->
-                <!--android:endColor="#58857e"-->
-                <!--android:startColor="#8dbab3" />-->
+            <corners android:radius="@dimen/radius" />
         </shape>
     </item>
 </selector>

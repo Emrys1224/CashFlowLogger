@@ -32,7 +32,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:autofillHints=""
-        android:ems="10"
         android:hint="@string/hint_source"
         android:inputType="textPersonName"
         android:textSize="@dimen/txtsize_input"
@@ -57,8 +56,7 @@
         android:layout_width="251dp"
         android:layout_height="wrap_content"
         android:autofillHints=""
-        android:ems="10"
-        android:hint="@string/dummy_txt_balance"
+        android:hint="@string/dummy_txt_amount"
         android:inputType="numberDecimal"
         android:textSize="@dimen/txtsize_input"
         app:layout_constraintBaseline_toBaselineOf="@+id/label_amount"
@@ -78,6 +76,7 @@
         app:layout_constraintTop_toBottomOf="@+id/input_amount" />
 
     <Button
+        android:onClick="allocateFund"
         android:id="@+id/btn_allocate_man"
         style="@style/btn_income_detail"
         android:layout_width="0dp"
@@ -94,6 +93,7 @@
         android:layout_width="265dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
+        android:onClick="cancelLogging"
         android:text="@string/btn_cancel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

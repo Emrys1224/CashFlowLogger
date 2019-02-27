@@ -4,7 +4,7 @@
     <string name="btn_txt_log_expenses">Log Expenses</string>
     <string name="btn_txt_view_record">View Record</string>
     <string name="label_balance">Balance</string>
-    <string name="dummy_txt_balance">₱ XXX,XXX.XX</string>
+    <string name="dummy_txt_amount">₱ XXX,XXX.XX</string>
 
     <string name="heading_income_detail">Income Logging</string>
     <string name="label_source">From</string>
@@ -13,4 +13,10 @@
     <string name="btn_txt_allocate_auto">Automatically Allocate</string>
     <string name="btn_txt_allocate_man">Manually Allocate</string>
     <string name="btn_cancel">Cancel</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="label_remaining">Remaining</string>
+    <string name="dummy_txt_category">Category</string>
+    <string name="btn_done">Done</string>
 </resources>
