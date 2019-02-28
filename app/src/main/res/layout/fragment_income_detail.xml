@@ -21,7 +21,7 @@
         android:id="@+id/label_source"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="@dimen/spacingTop_fromHeading"
         android:text="@string/label_source"
         android:textSize="@dimen/txtsize_label"
         app:layout_constraintStart_toStartOf="@+id/label_amount"
@@ -34,7 +34,7 @@
         android:autofillHints=""
         android:hint="@string/hint_source"
         android:inputType="textPersonName"
-        android:textSize="@dimen/txtsize_input"
+        android:textSize="@dimen/txtsize_detail"
         app:layout_constraintBaseline_toBaselineOf="@+id/label_source"
         app:layout_constraintEnd_toEndOf="@+id/input_amount"
         app:layout_constraintStart_toStartOf="@+id/input_amount" />
@@ -58,14 +58,14 @@
         android:autofillHints=""
         android:hint="@string/dummy_txt_amount"
         android:inputType="numberDecimal"
-        android:textSize="@dimen/txtsize_input"
+        android:textSize="@dimen/txtsize_detail"
         app:layout_constraintBaseline_toBaselineOf="@+id/label_amount"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.44"
         app:layout_constraintStart_toStartOf="@+id/textView" />
 
     <Button
-        android:onClick="confirmDetails"
+        android:onClick="showSummary"
         android:id="@+id/btn_allocate_auto"
         style="@style/btn_income_detail"
         android:layout_width="wrap_content"

@@ -1,15 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     tools:context=".IncomeDetailsConfirmationFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment"
-        android:textSize="30sp"/>
+        android:layout_height="wrap_content">
 
-</FrameLayout>
+        <TextView
+            android:id="@+id/heading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="@string/heading_income_detail"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/label_source"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingTop_fromHeading"
+            android:text="@string/label_source"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="@+id/label_amount"
+            app:layout_constraintTop_toBottomOf="@+id/heading" />
+
+        <TextView
+            android:id="@+id/disp_source"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/dummy_source"
+            android:textSize="@dimen/txtsize_detail"
+            app:layout_constraintBaseline_toBaselineOf="@+id/label_source"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.03"
+            app:layout_constraintStart_toEndOf="@+id/label_allocation" />
+
+        <TextView
+            android:id="@+id/label_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_details_item"
+            android:text="@string/label_amount"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="@+id/label_allocation"
+            app:layout_constraintTop_toBottomOf="@+id/label_source" />
+
+        <TextView
+            android:id="@+id/disp_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/dummy_txt_amount"
+            android:textSize="@dimen/txtsize_detail"
+            app:layout_constraintBaseline_toBaselineOf="@+id/label_amount"
+            app:layout_constraintEnd_toEndOf="@+id/disp_source"
+            app:layout_constraintStart_toStartOf="@+id/disp_source" />
+
+        <TextView
+            android:id="@+id/label_allocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_details_item"
+            android:text="@string/label_allocation"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.09"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_amount" />
+
+        <ListView
+            android:id="@+id/list_categories"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            app:layout_constraintEnd_toEndOf="@+id/disp_amount"
+            app:layout_constraintStart_toStartOf="@+id/label_allocation"
+            app:layout_constraintTop_toBottomOf="@+id/label_allocation" />
+
+        <Button
+            android:id="@+id/btn_done"
+            style="@style/btn_income_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="40dp"
+            android:text="@string/btn_done"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/button2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/list_categories" />
+
+        <Button
+            android:id="@+id/button2"
+            style="@style/btn_income_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_edit"
+            app:layout_constraintBaseline_toBaselineOf="@+id/btn_done"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/btn_done" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</ScrollView>

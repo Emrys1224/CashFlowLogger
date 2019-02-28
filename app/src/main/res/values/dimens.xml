@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="txtsize_label">22sp</dimen>
-    <dimen name="txtsize_input">26sp</dimen>
+    <dimen name="txtsize_detail">26sp</dimen>
     <dimen name="radius">5dp</dimen>
+    <dimen name="spacing_details_item">18dp</dimen>
+    <dimen name="spacingTop_fromHeading">40dp</dimen>
+    <dimen name="txtsize_list_item">24sp</dimen>
 </resources>

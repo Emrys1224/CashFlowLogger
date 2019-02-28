@@ -10,16 +10,36 @@ import android.view.View;
 
 public class IncomeLogActivity extends AppCompatActivity {
 
+    // Categories dummy data
+    // Actual value to be fetched from database
+    private String[] categories = {
+            "Basic Necessity",
+            "Education",
+            "Investment",
+            "Health",
+            "Retirement",
+            "Leisure"
+    };
+
+    private Bundle acctInfo = new Bundle();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Get the account balance and the list of funds from DB here
+
+        // Bundle account info to be passed to the fragment
+        acctInfo.putString("acctBalance", getResources().getString(R.string.dummy_txt_amount));
+        acctInfo.putStringArray("categories", categories);
+
         // Load form for income details
         loadFragment(new IncomeDetailFragment());
-
     }
 
     public void loadFragment(Fragment detailFragment) {
+        detailFragment.setArguments(acctInfo);
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -36,7 +56,7 @@ public class IncomeLogActivity extends AppCompatActivity {
         loadFragment(new FundAllocationFragment());
     }
 
-    public void confirmDetails(View view) {
+    public void showSummary(View view) {
         loadFragment(new IncomeDetailsConfirmationFragment());
     }
 }

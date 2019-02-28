@@ -16,14 +16,7 @@ import android.widget.AutoCompleteTextView;
  */
 public class FundAllocationFragment extends Fragment {
 
-    String[] categories = {
-            "Basic Necessity",
-            "Education",
-            "Investment",
-            "Health",
-            "Retirement",
-            "Leisure"
-    };
+    private String[] mCategories;
 
     public FundAllocationFragment() {
         // Required empty public constructor
@@ -37,8 +30,10 @@ public class FundAllocationFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_fund_allocation, container, false);
 
+        mCategories = getArguments().getStringArray("categories");
+
         // Autocomplete category suggestions
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, categories);
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, mCategories);
         final AutoCompleteTextView catSelection = (AutoCompleteTextView) view.findViewById(R.id.input_category);
 
         // Setup listeners to show all options
