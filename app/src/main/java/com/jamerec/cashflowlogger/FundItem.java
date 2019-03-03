@@ -7,11 +7,15 @@ import java.text.DecimalFormat;
  * income allocation.
  */
 public class FundItem {
+
+    private static final String PESO_PATTERN = "₱ ###,###,###.##";
+
     private String name;
     private Double amount;
 
     /**
      * Constructor...
+     *
      * @param name   of the fund
      * @param amount in the fund
      */
@@ -37,14 +41,12 @@ public class FundItem {
     }
 
     public String getAmountString() {
-        String pesoPattern = "₱ ###,###,###.##";
-        DecimalFormat pesoFormat = new DecimalFormat(pesoPattern);
-
-        return pesoFormat.format(amount);
+        DecimalFormat pesoCurrency = new DecimalFormat(PESO_PATTERN);
+        return pesoCurrency.format(amount);
     }
 
     @Override
     public String toString() {
-        return "Fund name: " + name + "\nFund amount: " + getAmountString();
+        return "\nFund name: " + name + "\nFund amount: " + getAmountString();
     }
 }
