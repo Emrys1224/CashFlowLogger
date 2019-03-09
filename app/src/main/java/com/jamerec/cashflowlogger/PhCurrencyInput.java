@@ -18,11 +18,11 @@ import java.text.DecimalFormat;
  */
 public class PhCurrencyInput extends AppCompatEditText {
     private final static String TAG = "PhPInput";
-    private final static String PESO_SIGN = "₱ ";
+    private final static String HINT = "₱ XXX,XXX.XX";
     private final static DecimalFormat PESO_CURRENCY =
             new DecimalFormat("₱ ###,###,###.##");
 
-    private Editable mValue;
+    private double mAmount = 0d;
 
     public PhCurrencyInput(Context context) {
         super(context);
@@ -43,40 +43,48 @@ public class PhCurrencyInput extends AppCompatEditText {
         // Set input type to "numericDecimal"
         setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
-        Editable.Factory temp = new Editable.Factory();
-        mValue = temp.newEditable("");
+        // Set hint
+        setHint(HINT);
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        boolean handled = super.onKeyDown(keyCode, event);
+        super.onKeyDown(keyCode, event);
 
-        char keyPressed = (char) event.getUnicodeChar();
-        Log.d(TAG, "Key pressed : " + Character.toString(keyPressed));
-        Log.d(TAG, "Value : " + getText().toString());
-        Log.d(TAG, "mValue : " + mValue.toString());
+        String value = getText().toString();
 
-//        String value = getText().toString();
-//        value = value.replaceAll("\\D+", "");
-//        if (!value.equals("")) {
-//            Log.d(TAG, "Value from string: " + value);
-//
-//            double amount = Double.parseDouble(value);
-//            Log.d(TAG, "Value from double: " + amount);
-//
-//            String amountStr = PESO_CURRENCY.format(amount);
-//            Log.d(TAG, "Value from PhPStr: " + amountStr);
-//
-//            setText(amountStr);
-//        }
+        if (value.equals("")) return true;
 
-        return handled;
+        // Get the decimal part of amount
+        String decimalPart = "";
+        if (value.contains("."))
+            decimalPart = value.substring(value.lastIndexOf(".") + 1);
+
+        // Do not update mAmount if the decimal place from input is more than 3
+        if (decimalPart.length() < 3) {
+            value = value.replaceAll("[₱,]+", "");
+            Log.d(TAG, "Value from string: " + value);
+
+            mAmount = Double.parseDouble(value);
+            Log.d(TAG, "Value from double: " + mAmount);
+        }
+
+        // Do not reformat once centavo place is entered
+        if (decimalPart.equals("") || decimalPart.length() >2)
+            value = PESO_CURRENCY.format(mAmount);
+        Log.d(TAG, "Value from PhPStr: " + value);
+
+        setText(value);
+        setSelection(getText().length());
+
+        return true;
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-//        super.onDraw(canvas);
-        canvas.drawText("Test Text", getCompoundPaddingLeft(),
-                getLineBounds(0, null), getPaint());
+    /**
+     * Get the peso amount from this input
+     * @return peso amount
+     */
+    public double getAmount() {
+        return mAmount;
     }
 }

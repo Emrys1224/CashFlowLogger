@@ -60,7 +60,6 @@
         android:layout_marginStart="32dp"
         android:layout_marginLeft="32dp"
         android:autofillHints=""
-        android:hint="@string/hint_amount"
         android:textSize="@dimen/txtsize_detail"
         app:layout_constraintBaseline_toBaselineOf="@+id/label_amount"
         app:layout_constraintEnd_toEndOf="parent"
