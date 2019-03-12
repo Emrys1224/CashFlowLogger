@@ -160,7 +160,7 @@ public class PhCurrency {
         if (amountPeso > 0 ?
                 this.mPesoAmount > PESO_MAX - amountPeso :
                 this.mPesoAmount < PESO_MIN - amountPeso) {
-            throw new ArithmeticException("Peso value overflow. You're too rich for this app! XD");
+            throw new ArithmeticException("Sum peso value overflow. You're too rich for this app! XD");
         }
 
         this.mCentavoAmount += amount.getCentavoAmount();
@@ -207,7 +207,7 @@ public class PhCurrency {
         if (amountPeso > 0 ?
                 this.mPesoAmount < Long.MAX_VALUE + amountPeso :
                 this.mPesoAmount > Long.MIN_VALUE + amountPeso) {
-            throw new ArithmeticException("Peso value overflow. You're crazy! XD");
+            throw new ArithmeticException("Difference peso value overflow. You're crazy!");
         }
 
         // Barrow from mPesoAmount
@@ -220,18 +220,45 @@ public class PhCurrency {
         this.mPesoAmount -= amountPeso;
     }
 
-    public void multiplyBy(double factor) {
+    /**
+     * Get the absolute difference between two PhCurrency values.
+     *
+     * @param amount1 the currency to compare with.
+     * @param amount2 the currency to compare with.
+     * @return new PhCurrency with value of the absolute difference.
+     * @throws ArithmeticException Peso value overflow.
+     */
+    public PhCurrency differenceAbsolute(PhCurrency amount1, PhCurrency amount2) throws ArithmeticException {
+        PhCurrency diffAbs = new PhCurrency();
+
+        if (amount1.equals(amount2))
+            return diffAbs;         // return ₱0.00
+
+        // Subtract from the larger value
+        diffAbs.setValue(amount1.compareTo(amount2) > 0 ? amount1 : amount2);
+        diffAbs.subtract(amount1.compareTo(amount2) < 0 ? amount1 : amount2);
+
+        return diffAbs;
+    }
+
+    /**
+     * Multiply the PhCurrency value by the given factor.
+     *
+     * @param factor to multiply the value with.
+     * @throws ArithmeticException Peso value overflow.
+     */
+    public void multiplyBy(double factor) throws ArithmeticException {
         // Check for overflow
         long factorTest = (long) factor;
         if (factorTest > 0 ?
-                this.mPesoAmount > Long.MAX_VALUE / factorTest ||
-                        this.mPesoAmount < Long.MIN_VALUE / factorTest :
+                this.mPesoAmount > PESO_MAX / factorTest ||
+                        this.mPesoAmount < PESO_MIN / factorTest :
                 (factorTest < -1 ?
-                        this.mPesoAmount > Long.MIN_VALUE / factorTest ||
-                                this.mPesoAmount < Long.MAX_VALUE / factorTest :
+                        this.mPesoAmount > PESO_MIN / factorTest ||
+                                this.mPesoAmount < PESO_MAX / factorTest :
                         factorTest == -1 &&
-                                this.mPesoAmount == Long.MIN_VALUE)) {
-            throw new ArithmeticException("Peso value overflow. Where did money came from?!!");
+                                this.mPesoAmount == PESO_MIN)) {
+            throw new ArithmeticException("Product peso value overflow. Where did that money came from?!!");
         }
 
         this.mCentavoAmount *= factor;
@@ -239,7 +266,7 @@ public class PhCurrency {
         double partialProduct = (double) this.mPesoAmount * factor;
         this.mPesoAmount = (long) partialProduct;
         // add the decimal part to mCentavo
-        this.mCentavoAmount = (byte) Math.round( (partialProduct - this.mPesoAmount) * 100D );
+        this.mCentavoAmount += (byte) Math.round( (partialProduct - this.mPesoAmount) * 100D );
 
         // Carry over to peso value
         if (this.mCentavoAmount > 100L) {
