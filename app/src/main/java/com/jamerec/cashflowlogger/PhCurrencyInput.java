@@ -1,15 +1,11 @@
 package com.jamerec.cashflowlogger;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.support.v7.widget.AppCompatEditText;
-import android.text.Editable;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
-
-import java.text.DecimalFormat;
 
 /**
  * Extends EditText for input of Philippine peso currency.
@@ -19,10 +15,8 @@ import java.text.DecimalFormat;
 public class PhCurrencyInput extends AppCompatEditText {
     private final static String TAG = "PhPInput";
     private final static String HINT = "₱ XXX,XXX.XX";
-    private final static DecimalFormat PESO_CURRENCY =
-            new DecimalFormat("₱ ###,###,###.##");
 
-    private double mAmount = 0d;
+    private PhCurrency mAmount;
 
     public PhCurrencyInput(Context context) {
         super(context);
@@ -40,6 +34,8 @@ public class PhCurrencyInput extends AppCompatEditText {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
+        mAmount = new PhCurrency();
+
         // Set input type to "numericDecimal"
         setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
@@ -51,40 +47,52 @@ public class PhCurrencyInput extends AppCompatEditText {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         super.onKeyDown(keyCode, event);
 
-        String value = getText().toString();
+        String displayValue = getText().toString();
+        if (displayValue.equals("")) return true;
 
-        if (value.equals("")) return true;
-
-        // Get the decimal part of amount
-        String decimalPart = "";
-        if (value.contains("."))
-            decimalPart = value.substring(value.lastIndexOf(".") + 1);
-
-        // Do not update mAmount if the decimal place from input is more than 3
-        if (decimalPart.length() < 3) {
-            value = value.replaceAll("[₱,]+", "");
-            Log.d(TAG, "Value from string: " + value);
-
-            mAmount = Double.parseDouble(value);
-            Log.d(TAG, "Value from double: " + mAmount);
+        // Count the decimal places
+        int decimals = 0;
+        if (displayValue.contains(".")) {
+            String decimalPart = displayValue.substring(displayValue.lastIndexOf(".") + 1);
+            decimals = decimalPart.length();
         }
 
-        // Do not reformat once centavo place is entered
-        if (decimalPart.equals("") || decimalPart.length() >2)
-            value = PESO_CURRENCY.format(mAmount);
-        Log.d(TAG, "Value from PhPStr: " + value);
+        // Remove the third decimal place and don't update the value
+        if (decimals > 2) {
+            displayValue = displayValue.substring(0, displayValue.length() - 1);
+            setText(displayValue);
+            setSelection(getText().length());
+            return true;
+        }
 
-        setText(value);
-        setSelection(getText().length());
+        // Update peso currency value
+        String plainNum = displayValue.replaceAll("[₱,]+", "");
+        Log.d(TAG, "Value from string: " + plainNum);
+        mAmount.setValue(Double.parseDouble(plainNum));
+        Log.d(TAG, "Value from double: " + mAmount.toDouble());
+
+        // Update displayed value
+        displayValue = mAmount.toString();
+        Log.d(TAG, "Value from PhPStr 1: " + displayValue);
+        if (decimals == 0)
+            // Remove the decimal places ( n.00 to n )
+            displayValue = displayValue.substring(0, displayValue.length() - 3);
+        else if (decimals < 2)
+            // Remove the tenths place zero ( n.m0 to n.m )
+            displayValue = displayValue.substring(0, displayValue.length() - 1);
+        Log.d(TAG, "Value from PhPStr 2: " + displayValue);
+        setText(displayValue);
+        setSelection(getText().length());   // Move cursor to the end
 
         return true;
     }
 
     /**
      * Get the peso amount from this input
+     *
      * @return peso amount
      */
-    public double getAmount() {
+    public PhCurrency getAmount() {
         return mAmount;
     }
 }
