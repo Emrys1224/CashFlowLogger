@@ -235,13 +235,14 @@ public class PhCurrency {
             throw new ArithmeticException("Difference peso value overflow. You're crazy!");
         }
 
+        int thisCent = this.mCentavoAmount;
         // Barrow from mPesoAmount
-        if (this.mCentavoAmount < amountCent) {
+        if (thisCent < amountCent) {
             this.mPesoAmount -= 1;
-            this.mCentavoAmount += 100;
+            thisCent += 100;
         }
 
-        this.mCentavoAmount -= amountCent;
+        this.mCentavoAmount = (byte) (thisCent - amountCent);
         this.mPesoAmount -= amountPeso;
     }
 
