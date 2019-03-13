@@ -67,20 +67,20 @@ public class PhCurrencyInput extends AppCompatEditText {
 
         // Update peso currency value
         String plainNum = displayValue.replaceAll("[₱,]+", "");
-        Log.d(TAG, "Value from string: " + plainNum);
+//        Log.d(TAG, "Value from string: " + plainNum);
         mAmount.setValue(Double.parseDouble(plainNum));
-        Log.d(TAG, "Value from double: " + mAmount.toDouble());
+//        Log.d(TAG, "Value from double: " + mAmount.toDouble());
 
         // Update displayed value
         displayValue = mAmount.toString();
-        Log.d(TAG, "Value from PhPStr 1: " + displayValue);
+//        Log.d(TAG, "Value from PhPStr 1: " + displayValue);
         if (decimals == 0)
             // Remove the decimal places ( n.00 to n )
             displayValue = displayValue.substring(0, displayValue.length() - 3);
         else if (decimals < 2)
             // Remove the tenths place zero ( n.m0 to n.m )
             displayValue = displayValue.substring(0, displayValue.length() - 1);
-        Log.d(TAG, "Value from PhPStr 2: " + displayValue);
+//        Log.d(TAG, "Value from PhPStr 2: " + displayValue);
         setText(displayValue);
         setSelection(getText().length());   // Move cursor to the end
 
