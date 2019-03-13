@@ -64,7 +64,9 @@ public class PhCurrency {
      */
     public void setValue(double amount) {
         this.mPesoAmount = (long) amount;
-        this.mCentavoAmount = (byte) Math.round((amount - mPesoAmount) * 100D);
+        this.mCentavoAmount = amount > 0 ?
+                (byte) Math.floor((amount - mPesoAmount) * 100D) :
+                (byte) Math.ceil((amount - mPesoAmount) * 100D);
     }
 
     /**
@@ -295,8 +297,10 @@ public class PhCurrency {
     public void divideBy(double divisor) throws ArithmeticException {
         // Check for overflow
         if (divisor > 0 ?
-                divisor < 1 && this.mPesoAmount > PESO_MAX * divisor :
-                divisor > -1 && this.mPesoAmount < PESO_MIN * divisor) {
+                divisor < 1 && this.mPesoAmount > PESO_MAX * divisor ||
+                        this.mPesoAmount < PESO_MIN * divisor:
+                divisor > -1 && this.mPesoAmount > PESO_MIN * divisor ||
+                        this.mPesoAmount < PESO_MAX * divisor) {
             throw new ArithmeticException("Quotient peso value overflow.");
         }
 

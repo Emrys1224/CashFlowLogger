@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 public class PhCurrencyTest {
     private double DELTA = 0.009;
+
     @Test
     public void creation_is_correct() {
         double testNum = 12345.90d;
@@ -118,7 +119,7 @@ public class PhCurrencyTest {
 
     @Test
     public void multiplication_is_correct() {
-        double ansTemp = 0D;
+        double ansTemp;
         double factor1 = 12.45D;
         double factor2 = -54.5;
         double baseVal1 = 1234.34;
@@ -157,7 +158,49 @@ public class PhCurrencyTest {
         System.out.println("val2 *= factor2: " + val2.toDouble());
         assertEquals(ansTemp, val2.toDouble(), DELTA);
         val2.setValue(baseVal2);        // reset value
+    }
 
+    @Test
+    public void division_is_correct() {
+        double ansTemp;
+        double factor1 = 12.45D;
+        double factor2 = -54.5;
+        double baseVal1 = 1234.34;
+        double baseVal2 = -6454.23;
+        PhCurrency val1 = new PhCurrency(baseVal1);
+        PhCurrency val2 = new PhCurrency(baseVal2);
+
+        // Positive value divided by positive factor
+        ansTemp = baseVal1 / factor1;
+        System.out.println("baseVal1 /= factor1: " + ansTemp);
+        val1.divideBy(factor1);
+        System.out.println("val1 /= factor1: " + val1.toDouble());
+        assertEquals(ansTemp, val1.toDouble(), DELTA);
+        val1.setValue(baseVal1);        // reset value
+
+        // Positive value multiplied by negative factor
+        ansTemp = baseVal1 / factor2;
+        System.out.println("baseVal1 /= factor2: " + ansTemp);
+        val1.divideBy(factor2);
+        System.out.println("val1 /= factor2: " + val1.toDouble());
+        assertEquals(ansTemp, val1.toDouble(), DELTA);
+        val1.setValue(baseVal1);        // reset value
+
+        // Negative value multiplied by positive factor
+        ansTemp = baseVal2 / factor1;
+        System.out.println("baseVal2 /= factor1: " + ansTemp);
+        val2.divideBy(factor1);
+        System.out.println("val2 /= factor1: " + val2.toDouble());
+        assertEquals(ansTemp, val2.toDouble(), DELTA);
+        val2.setValue(baseVal2);        // reset value
+
+        // Negative value multiplied by negative factor
+        ansTemp = baseVal2 / factor2;
+        System.out.println("baseVal2 /= factor2: " + ansTemp);
+        val2.divideBy(factor2);
+        System.out.println("val2 /= factor2: " + val2.toDouble());
+        assertEquals(ansTemp, val2.toDouble(), DELTA);
+        val2.setValue(baseVal2);        // reset value
     }
 }
 
