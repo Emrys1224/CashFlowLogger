@@ -7,6 +7,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class PhCurrencyTest {
+    private double DELTA = 0.009;
     @Test
     public void creation_is_correct() {
         double testNum = 12345.90d;
@@ -50,28 +51,28 @@ public class PhCurrencyTest {
         System.out.println("val1 += val2: " + val1);
         amt1.add(amt2);
         System.out.println("amt1 += amt2: " + amt1.toDouble());
-        assertEquals(val1, amt1.toDouble(), 0.001);
+        assertEquals(val1, amt1.toDouble(), DELTA);
 
         // Add a negative value to a positive value
         val1 += val3;
         System.out.println("val1 += val3: " + val1);
         amt1.add(amt3);
         System.out.println("amt1 += amt3: " + amt1.toDouble());
-        assertEquals(val1, amt1.toDouble(), 0.001);
+        assertEquals(val1, amt1.toDouble(), DELTA);
 
         // Add of two negative values
         val3 += val4;
         System.out.println("val3 += val4: " + val3);
         amt3.add(amt4);
         System.out.println("amt3 += amt4: " + amt3.toDouble());
-        assertEquals(val3, amt3.toDouble(), 0.001);
+        assertEquals(val3, amt3.toDouble(), DELTA);
 
         // Add positive value to negative value
         val3 += val2;
         System.out.println("val3 += val2: " + val3);
         amt3.add(amt2);
         System.out.println("amt3 += amt2: " + amt3.toDouble());
-        assertEquals(val3, amt3.toDouble(), 0.001);
+        assertEquals(val3, amt3.toDouble(), DELTA);
     }
 
     @Test
@@ -114,4 +115,63 @@ public class PhCurrencyTest {
         System.out.println("amt3 -= amt2: " + amt3.toDouble());
         assertEquals(val3, amt3.toDouble(), 0.001);
     }
+
+    @Test
+    public void multiplication_is_correct() {
+        double ansTemp = 0D;
+        double factor1 = 12.45D;
+        double factor2 = -54.5;
+        double baseVal1 = 1234.34;
+        double baseVal2 = -6454.23;
+        PhCurrency val1 = new PhCurrency(baseVal1);
+        PhCurrency val2 = new PhCurrency(baseVal2);
+
+        // Positive value multiplied by positive factor
+        ansTemp = baseVal1 * factor1;
+        System.out.println("baseVal1 *= factor1: " + ansTemp);
+        val1.multiplyBy(factor1);
+        System.out.println("val1 *= factor1: " + val1.toDouble());
+        assertEquals(ansTemp, val1.toDouble(), DELTA);
+        val1.setValue(baseVal1);        // reset value
+
+        // Positive value multiplied by negative factor
+        ansTemp = baseVal1 * factor2;
+        System.out.println("baseVal1 *= factor2: " + ansTemp);
+        val1.multiplyBy(factor2);
+        System.out.println("val1 *= factor2: " + val1.toDouble());
+        assertEquals(ansTemp, val1.toDouble(), DELTA);
+        val1.setValue(baseVal1);        // reset value
+
+        // Negative value multiplied by positive factor
+        ansTemp = baseVal2 * factor1;
+        System.out.println("baseVal2 *= factor1: " + ansTemp);
+        val2.multiplyBy(factor1);
+        System.out.println("val2 *= factor1: " + val2.toDouble());
+        assertEquals(ansTemp, val2.toDouble(), DELTA);
+        val2.setValue(baseVal2);        // reset value
+
+        // Negative value multiplied by negative factor
+        ansTemp = baseVal2 * factor2;
+        System.out.println("baseVal2 *= factor2: " + ansTemp);
+        val2.multiplyBy(factor2);
+        System.out.println("val2 *= factor2: " + val2.toDouble());
+        assertEquals(ansTemp, val2.toDouble(), DELTA);
+        val2.setValue(baseVal2);        // reset value
+
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

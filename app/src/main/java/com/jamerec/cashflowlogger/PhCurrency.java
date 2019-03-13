@@ -275,9 +275,11 @@ public class PhCurrency {
      */
     public void multiplyBy(double factor) throws ArithmeticException {
         // Check for overflow
-        if (factor > 1 ?
-                this.mPesoAmount > PESO_MAX / factor :
-                this.mPesoAmount < PESO_MIN / factor) {
+        if (factor > 0 ?
+                this.mPesoAmount > PESO_MAX / factor ||
+                        this.mPesoAmount < PESO_MIN / factor :
+                this.mPesoAmount < PESO_MAX / factor ||
+                        this.mPesoAmount > PESO_MIN / factor) {
             throw new ArithmeticException("Product peso value overflow.");
         }
 
