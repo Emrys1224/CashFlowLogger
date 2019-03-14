@@ -2,6 +2,10 @@ package com.jamerec.cashflowlogger;
 
 import org.junit.Test;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Locale;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -11,15 +15,44 @@ public class PhCurrencyTest {
 
     @Test
     public void creation_is_correct() {
-        double testNum = 12345.90d;
-        PhCurrency test = new PhCurrency(testNum);
-        PhCurrency test2 = new PhCurrency(test);
+        DecimalFormat pesoCurrency =
+                new DecimalFormat("₱ ###,###,###.##");
 
-        assertEquals(12345, test.getPesoAmount());
-        assertEquals(90, test.getCentavoAmount());
-        assertEquals(testNum, test.toDouble(), 0.001);
-        assertEquals("₱ 12,345.90", test.toString());
-        assertEquals(test.toDouble(), test2.toDouble(), 0.001);
+        double[] testNumSet = {
+                12345.90D,
+                2354.4546D,
+                4534D,
+                5745.06D,
+        };
+
+        for (double testNum : testNumSet) {
+            long wholeNum = (long) testNum;
+
+            String amtStr = String.valueOf(testNum);
+            String decimalStr = amtStr.substring(
+                    amtStr.lastIndexOf(".") + 1) + 0;
+
+            byte decimal = 0;
+            decimal = Byte.parseByte(
+                    decimalStr.length() < 3 ?
+                            decimalStr : decimalStr.substring(0, 2));
+
+            String amtPhPFormat = String.format(
+                    Locale.ENGLISH, "%s.%02d",
+                    pesoCurrency.format(wholeNum), decimal);
+
+            PhCurrency test = new PhCurrency(testNum);
+            PhCurrency test2 = new PhCurrency(test);
+
+            System.out.println(String.valueOf(testNum));
+            System.out.println(test.toString() + "\n");
+
+            assertEquals(wholeNum, test.getPesoAmount());
+            assertEquals(decimal, test.getCentavoAmount());
+            assertEquals(testNum, test.toDouble(), 0.009);
+            assertEquals(amtPhPFormat, test.toString());
+            assertEquals(test.toDouble(), test2.toDouble(), 0.009);
+        }
     }
 
     @Test
@@ -48,31 +81,31 @@ public class PhCurrencyTest {
         PhCurrency amt4 = new PhCurrency(val4);
 
         // Addition of two positive values
-        val1 += val2;
-        System.out.println("val1 += val2: " + val1);
         amt1.add(amt2);
         System.out.println("amt1 += amt2: " + amt1.toDouble());
+        val1 += val2;
+        System.out.println("val1 += val2: " + val1 + "\n");
         assertEquals(val1, amt1.toDouble(), DELTA);
 
         // Add a negative value to a positive value
-        val1 += val3;
-        System.out.println("val1 += val3: " + val1);
         amt1.add(amt3);
         System.out.println("amt1 += amt3: " + amt1.toDouble());
+        val1 += val3;
+        System.out.println("val1 += val3: " + val1 + "\n");
         assertEquals(val1, amt1.toDouble(), DELTA);
 
         // Add of two negative values
-        val3 += val4;
-        System.out.println("val3 += val4: " + val3);
         amt3.add(amt4);
         System.out.println("amt3 += amt4: " + amt3.toDouble());
+        val3 += val4;
+        System.out.println("val3 += val4: " + val3 + "\n");
         assertEquals(val3, amt3.toDouble(), DELTA);
 
         // Add positive value to negative value
-        val3 += val2;
-        System.out.println("val3 += val2: " + val3);
         amt3.add(amt2);
         System.out.println("amt3 += amt2: " + amt3.toDouble());
+        val3 += val2;
+        System.out.println("val3 += val2: " + val3 + "\n");
         assertEquals(val3, amt3.toDouble(), DELTA);
     }
 
@@ -201,6 +234,37 @@ public class PhCurrencyTest {
         System.out.println("val2 /= factor2: " + val2.toDouble());
         assertEquals(ansTemp, val2.toDouble(), DELTA);
         val2.setValue(baseVal2);        // reset value
+    }
+
+    @Test
+    public void average_is_correct() {
+        double average = 0;
+        PhCurrency averageAmt = new PhCurrency();
+
+        double[] valSet = {
+                1234.4,
+                1423.55,
+                5675.23,
+                6576.87
+        };
+
+        ArrayList<PhCurrency> amountSet = new ArrayList<>();
+
+        for (double val : valSet) {
+            amountSet.add(new PhCurrency(val));
+            average += val;
+            System.out.println(
+                    "Amount to add D: " + val +
+                            "\t\tRunning Sum D: " + average);
+        }
+        System.out.println("Sum Total D: " + average);
+
+        average /= valSet.length;
+        System.out.println("Average D: " + average);
+
+        averageAmt.setValue(PhCurrency.averageOf(amountSet));
+
+        assertEquals(average, averageAmt.toDouble(), 0.009);
     }
 }
 

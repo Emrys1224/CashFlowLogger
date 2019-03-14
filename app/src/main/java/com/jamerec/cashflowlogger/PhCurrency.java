@@ -63,10 +63,17 @@ public class PhCurrency {
      * @param amount new value.
      */
     public void setValue(double amount) {
+        String amtStr = String.valueOf(amount);
+        String decimalStr = amtStr.substring(
+                amtStr.lastIndexOf(".") + 1) + 0;   // Append 0 for values such as n.m0 (e.g. 3.90, 45.00, etc)
+
         this.mPesoAmount = (long) amount;
-        this.mCentavoAmount = amount > 0 ?
-                (byte) Math.floor((amount - mPesoAmount) * 100D) :
-                (byte) Math.ceil((amount - mPesoAmount) * 100D);
+        this.mCentavoAmount = Byte.parseByte(
+                decimalStr.length() < 3 ?
+                        decimalStr : decimalStr.substring(0, 2));
+
+        if (amount < 1)
+            this.mCentavoAmount *= -1;      // For negative values
     }
 
     /**
@@ -298,13 +305,33 @@ public class PhCurrency {
         // Check for overflow
         if (divisor > 0 ?
                 divisor < 1 && this.mPesoAmount > PESO_MAX * divisor ||
-                        this.mPesoAmount < PESO_MIN * divisor:
+                        this.mPesoAmount < PESO_MIN * divisor :
                 divisor > -1 && this.mPesoAmount > PESO_MIN * divisor ||
                         this.mPesoAmount < PESO_MAX * divisor) {
             throw new ArithmeticException("Quotient peso value overflow.");
         }
 
         this.setValue(this.toDouble() / divisor);
+    }
+
+    public static PhCurrency averageOf(@NonNull ArrayList<PhCurrency> amountSet) throws ArithmeticException {
+        PhCurrency average = new PhCurrency();
+
+        if (amountSet.isEmpty()) return average;
+
+        for (int i = 0; i < amountSet.size(); i++) {
+            average.add(amountSet.get(i));
+            System.out.println(
+                    "Amount to add:" + amountSet.get(i).toDouble() +
+                            "\t\tRunning Sum: " + average.toDouble());
+
+        }
+        System.out.println("Sum Total: " + average.toDouble());
+
+        average.divideBy(amountSet.size());
+        System.out.println("Average: " + average.toDouble());
+
+        return average;
     }
 }
 
