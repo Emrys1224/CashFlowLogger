@@ -32,8 +32,7 @@ public class PhCurrencyTest {
             String decimalStr = amtStr.substring(
                     amtStr.lastIndexOf(".") + 1) + 0;
 
-            byte decimal = 0;
-            decimal = Byte.parseByte(
+            byte decimal = Byte.parseByte(
                     decimalStr.length() < 3 ?
                             decimalStr : decimalStr.substring(0, 2));
 
@@ -148,6 +147,90 @@ public class PhCurrencyTest {
         amt3.subtract(amt2);
         System.out.println("amt3 -= amt2: " + amt3.toDouble());
         assertEquals(val3, amt3.toDouble(), 0.001);
+    }
+
+    @Test
+    public void differenceAbsolute_is_correct() {
+        double absDiffNum;
+        PhCurrency absDiffVal = new PhCurrency();
+
+        double[] testNumSet = {
+                3145.54,
+                567.56,
+                -1334.5,
+                -435.74
+        };
+
+        ArrayList<PhCurrency> testVal = new ArrayList<>();
+
+        for (double testNum : testNumSet) {
+            testVal.add(new PhCurrency(testNum));
+        }
+
+        // Absolute difference between positive numbers
+        System.out.println("\nAbsolute difference between positive numbers, " +
+                "\nwhere the first argument is larger than the second....");
+        absDiffNum = differenceAbs(testNumSet[0], testNumSet[1]);
+        System.out.println("AbsDiffNum1(" + testNumSet[0] + ", " + testNumSet[1] + ") = " + absDiffNum);
+        absDiffVal.setValue(
+                PhCurrency.differenceAbsolute(testVal.get(0), testVal.get(1)));
+        System.out.println("AbsDiffVal1(" + testVal.get(0).toDouble() + ", " +
+                testVal.get(1).toDouble() + ") = " + absDiffNum);
+
+        // Absolute difference between positive numbers
+        System.out.println("\nAbsolute difference between positive numbers, " +
+                "\nwhere the second argument is larger than the first....");
+        absDiffNum = differenceAbs(testNumSet[1], testNumSet[0]);
+        System.out.println("AbsDiffNum1(" + testNumSet[1] + ", " + testNumSet[0] + ") = " + absDiffNum);
+        absDiffVal.setValue(
+                PhCurrency.differenceAbsolute(testVal.get(1), testVal.get(0)));
+        System.out.println("AbsDiffVal1(" + testVal.get(1).toDouble() + ", " +
+                testVal.get(0).toDouble() + ") = " + absDiffNum);
+
+        // Absolute difference between negative numbers
+        System.out.println("\nAbsolute difference between negative numbers, " +
+                "\nwhere the first argument is larger than the second....");
+        absDiffNum = differenceAbs(testNumSet[3], testNumSet[2]);
+        System.out.println("AbsDiffNum1(" + testNumSet[3] + ", " + testNumSet[2] + ") = " + absDiffNum);
+        absDiffVal.setValue(
+                PhCurrency.differenceAbsolute(testVal.get(3), testVal.get(2)));
+        System.out.println("AbsDiffVal1(" + testVal.get(3).toDouble() + ", " +
+                testVal.get(2).toDouble() + ") = " + absDiffNum);
+
+        // Absolute difference between negative numbers
+        System.out.println("\nAbsolute difference between negative numbers, " +
+                "\nwhere the second argument is larger than the first....");
+        absDiffNum = differenceAbs(testNumSet[2], testNumSet[3]);
+        System.out.println("AbsDiffNum1(" + testNumSet[2] + ", " + testNumSet[3] + ") = " + absDiffNum);
+        absDiffVal.setValue(
+                PhCurrency.differenceAbsolute(testVal.get(2), testVal.get(3)));
+        System.out.println("AbsDiffVal1(" + testVal.get(2).toDouble() + ", " +
+                testVal.get(3).toDouble() + ") = " + absDiffNum);
+
+        // Absolute difference between positive and negative number
+        System.out.println("\nAbsolute difference between positive and negative number....");
+        absDiffNum = differenceAbs(testNumSet[0], testNumSet[3]);
+        System.out.println("AbsDiffNum1(" + testNumSet[0] + ", " + testNumSet[3] + ") = " + absDiffNum);
+        absDiffVal.setValue(
+                PhCurrency.differenceAbsolute(testVal.get(0), testVal.get(3)));
+        System.out.println("AbsDiffVal1(" + testVal.get(0).toDouble() + ", " +
+                testVal.get(3).toDouble() + ") = " + absDiffNum);
+
+        // Absolute difference between negative and positive number
+        System.out.println("\nAbsolute difference between negative and positive number....");
+        absDiffNum = differenceAbs(testNumSet[3], testNumSet[0]);
+        System.out.println("AbsDiffNum1(" + testNumSet[3] + ", " + testNumSet[0] + ") = " + absDiffNum);
+        absDiffVal.setValue(
+                PhCurrency.differenceAbsolute(testVal.get(3), testVal.get(0)));
+        System.out.println("AbsDiffVal1(" + testVal.get(3).toDouble() + ", " +
+                testVal.get(0).toDouble() + ") = " + absDiffNum);
+    }
+
+    @org.jetbrains.annotations.Contract(pure = true)
+    private double differenceAbs(double val1, double val2) {
+        return val1 > val2 ?
+                val1 - val2 :
+                val2 -val1;
     }
 
     @Test

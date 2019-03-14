@@ -153,7 +153,7 @@ public class PhCurrency {
         if (pesoDiff < 0) return -1;    // this is less than compared value
 
         int centDiff = this.mCentavoAmount - amount.getCentavoAmount();
-        if (centDiff > 0) return 1;     // this is greater than compares value
+        if (centDiff > 0) return 1;     // this is greater than compared value
         if (centDiff < 0) return -1;    // this is less than compared value
 
         return 0;   // values are equal
@@ -246,8 +246,8 @@ public class PhCurrency {
 
         // Check for overflow
         if (amountPeso > 0 ?
-                this.mPesoAmount < Long.MAX_VALUE + amountPeso :
-                this.mPesoAmount > Long.MIN_VALUE + amountPeso) {
+                this.mPesoAmount < PESO_MIN + amountPeso :
+                this.mPesoAmount > PESO_MAX + amountPeso) {
             throw new ArithmeticException("Difference peso value overflow. You're crazy!");
         }
 
@@ -270,7 +270,7 @@ public class PhCurrency {
      * @return new PhCurrency with value of the absolute difference.
      * @throws ArithmeticException Difference peso value overflow.
      */
-    public PhCurrency differenceAbsolute(PhCurrency amount1, PhCurrency amount2) throws ArithmeticException {
+    public static PhCurrency differenceAbsolute(PhCurrency amount1, PhCurrency amount2) throws ArithmeticException {
         PhCurrency diffAbs = new PhCurrency();
 
         if (amount1.equals(amount2))
