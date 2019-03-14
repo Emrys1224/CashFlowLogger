@@ -15,12 +15,13 @@ import java.util.Locale;
 public class PhCurrency {
     private final static String TAG = "PhCurrency";
 
-    // Thw maximum integer that a double can represent without
+    // The maximum integer that a double can represent without
     // losing precision is 2^53. Used as the maximum value for
-    // storing the currency value. Since negative value
-    // for double is same with the positive value with
-    // only the sign bit changed, -PESO_MAX is
-    // the minimum that can be stored.
+    // storing the currency value. Since negative value for
+    // double is same with the positive value with only the
+    // sign bit changed, -PESO_MAX is the minimum that can be stored.
+    // This will be the range of values for this data model.
+    // Values outside of these will cause an ArithmeticException.
     private final static long PESO_MAX = (long) Math.pow(2, 53);
     private final static long PESO_MIN = PESO_MAX * -1;
 
@@ -63,6 +64,12 @@ public class PhCurrency {
      * @param amount new value.
      */
     public void setValue(double amount) {
+        // Check if value is within the permissible range (-2^53 to 2^53)
+        if (amount > PESO_MAX || amount < PESO_MIN)
+            throw new ArithmeticException("Set peso value overflow. " +
+                    "Consider donating the excess to 'Charity'. " +
+                    "Contact jamerec1224@gmail.com for further instructions....");
+
         String amtStr = String.valueOf(amount);
         String decimalStr = amtStr.substring(
                 amtStr.lastIndexOf(".") + 1) + 0;   // Append 0 for values such as n.m0 (e.g. 3.90, 45.00, etc)
