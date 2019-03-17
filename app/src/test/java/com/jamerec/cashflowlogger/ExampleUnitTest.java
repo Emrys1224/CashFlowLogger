@@ -1,6 +1,8 @@
 package com.jamerec.cashflowlogger;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Locale;
 
@@ -50,6 +52,23 @@ public class ExampleUnitTest {
         System.out.println(printNum);
 
         assertTrue(true);
+    }
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Test
+    public void creation_exception_test() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Set peso value overflow." +
+                " Consider donating the excess to 'Charity'." +
+                " Contact jamerec1224@gmail.com for further instructions....");
+
+        double illegalValue = Math.pow(2, 54);      // Value greater than range
+        System.out.println("This did run...");
+
+        PhCurrency badValue = new PhCurrency(illegalValue);
+        System.out.println("Finished run...");      // Not executed
     }
 
 }

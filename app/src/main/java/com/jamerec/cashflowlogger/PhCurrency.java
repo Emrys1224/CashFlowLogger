@@ -19,11 +19,11 @@ public class PhCurrency {
     // losing precision is 2^53. Used as the maximum value for
     // storing the currency value. Since negative value for
     // double is same with the positive value with only the
-    // sign bit changed, -PESO_MAX is the minimum that can be stored.
+    // sign bit changed, -PESO_MAX_VALUE is the minimum that can be stored.
     // This will be the range of values for this data model.
     // Values outside of these will cause an ArithmeticException.
-    private final static long PESO_MAX = (long) Math.pow(2, 53);
-    private final static long PESO_MIN = PESO_MAX * -1;
+    public final static long PESO_MAX_VALUE = (long) Math.pow(2, 53);
+    public final static long PESO_MIN_VALUE = PESO_MAX_VALUE * -1;
 
     private long mPesoAmount;
     private byte mCentavoAmount;
@@ -65,14 +65,17 @@ public class PhCurrency {
      */
     public void setValue(double amount) {
         // Check if value is within the permissible range (-2^53 to 2^53)
-        if (amount > PESO_MAX || amount < PESO_MIN)
-            throw new ArithmeticException("Set peso value overflow. " +
+        if (amount >= PESO_MAX_VALUE || amount <= PESO_MIN_VALUE)
+            throw new IllegalArgumentException("Set peso value overflow. " +
                     "Consider donating the excess to 'Charity'. " +
                     "Contact jamerec1224@gmail.com for further instructions....");
 
-        String amtStr = String.valueOf(amount);
+        String amtStr = new DecimalFormat("#.0#").format(amount);
         String decimalStr = amtStr.substring(
                 amtStr.lastIndexOf(".") + 1) + 0;   // Append 0 for values such as n.m0 (e.g. 3.90, 45.00, etc)
+
+//        System.out.println("Amount: " + amtStr);
+//        System.out.println("Decimal: " + decimalStr);
 
         this.mPesoAmount = (long) amount;
         this.mCentavoAmount = Byte.parseByte(
@@ -133,7 +136,8 @@ public class PhCurrency {
                 new DecimalFormat("₱ ###,###,###.##");
         return String.format(
                 Locale.ENGLISH, "%s.%02d",
-                pesoCurrency.format(mPesoAmount), mCentavoAmount);
+                pesoCurrency.format(mPesoAmount),
+                mCentavoAmount > 0 ? mCentavoAmount : -mCentavoAmount);
     }
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Comparators ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -189,9 +193,15 @@ public class PhCurrency {
 //                "\naddend.centavo: " + amount.getCentavoAmount());
 
         // Check for overflow
+        // Overflow conditions:
+        //  ** When the sum of two positive values exceeds or equal to PESO_MAX_VALUE.
+        //          A + B >= PESO_MAX_VALUE where A > 0 and B > 0
+        //  ** When the sum of two negative values is less than or equal to PESO_MIN_VALUE.
+        //          A + B <= PESO_MIN_VALUE where A < 0 and B < 0
         if (amountPeso > 0 ?
-                this.mPesoAmount > PESO_MAX - amountPeso :
-                this.mPesoAmount < PESO_MIN - amountPeso) {
+                this.mPesoAmount >= PESO_MAX_VALUE - amountPeso :
+                this.mPesoAmount <= PESO_MIN_VALUE - amountPeso
+        ) {
             throw new ArithmeticException("Sum peso value overflow. You're too rich for this app! XD");
         }
 
@@ -245,9 +255,17 @@ public class PhCurrency {
         byte amountCent = amount.getCentavoAmount();
 
         // Check for overflow
+        // Overflow conditions:
+        //  ** When the difference of a positive value subtracted from a negative value
+        //      is less than or equal to PESO_MIN_VALUE.
+        //          A - B <= PESO_MIN_VALUE where A < 0 and B > 0;
+        //  ** When the difference of a negative value subtracted from a positive value
+        //      exceeds or equal to PESO_MAX_VALUE.
+        //          A - B >= PESO_MAX_VALUE where A > 0 and B < 0
         if (amountPeso > 0 ?
-                this.mPesoAmount < PESO_MIN + amountPeso :
-                this.mPesoAmount > PESO_MAX + amountPeso) {
+                this.mPesoAmount <= PESO_MIN_VALUE + amountPeso :
+                this.mPesoAmount >= PESO_MAX_VALUE + amountPeso
+        ) {
             throw new ArithmeticException("Difference peso value overflow. You're crazy!");
         }
 
@@ -270,7 +288,7 @@ public class PhCurrency {
      * @return new PhCurrency with value of the absolute difference.
      * @throws ArithmeticException Difference peso value overflow.
      */
-    public static PhCurrency differenceAbsolute(PhCurrency amount1, PhCurrency amount2) throws ArithmeticException {
+    public static PhCurrency differenceAbsolute(@NonNull PhCurrency amount1, PhCurrency amount2) throws ArithmeticException {
         PhCurrency diffAbs = new PhCurrency();
 
         if (amount1.equals(amount2))
@@ -290,16 +308,34 @@ public class PhCurrency {
      * @throws ArithmeticException Product peso value overflow.
      */
     public void multiplyBy(double factor) throws ArithmeticException {
+        double currentAmount = this.toDouble();
+
         // Check for overflow
-        if (factor > 0 ?
-                this.mPesoAmount > PESO_MAX / factor ||
-                        this.mPesoAmount < PESO_MIN / factor :
-                this.mPesoAmount < PESO_MAX / factor ||
-                        this.mPesoAmount > PESO_MIN / factor) {
+        // Overflow conditions where A is the currency value and B is the factor:
+        //  ** When the positive value multiplied by a positive factor exceeds or
+        //      equal to PESO_MAX_VALUE.
+        //          A * B >= PESO_MAX_VALUE where A > 0 and B > 0
+        //  ** When the positive value multiplied by a negative factor is less
+        //      than or equal to PESO_MIN_VALUE.
+        //          A * B <= PESO_MIN_VALUE where A > 0 and B < 0
+        //  ** When the negative value multiplied by a negative factor exceeds or
+        //      equal to PESO_MAX_VALUE.
+        //          A * B >= PESO_MAX_VALUE where A < 0 and B < 0
+        //  ** When the negative value multiplied by a positive factor is less
+        //      than or equal to PESO_MIN_VALUE.
+        //          A * B <= PESO_MIN_VALUE where A < 0 and B > 0
+        if (currentAmount > 0
+                ? factor > 0 ?
+                currentAmount >= PESO_MAX_VALUE / factor :
+                currentAmount >= PESO_MIN_VALUE / factor
+                : factor < 0 ?
+                currentAmount <= PESO_MAX_VALUE / factor :
+                currentAmount <= PESO_MIN_VALUE / factor
+        ) {
             throw new ArithmeticException("Product peso value overflow.");
         }
 
-        this.setValue(this.toDouble() * factor);
+        this.setValue(currentAmount * factor);
     }
 
     /**
@@ -309,16 +345,31 @@ public class PhCurrency {
      * @throws ArithmeticException Quotient peso value overflow.
      */
     public void divideBy(double divisor) throws ArithmeticException {
+        double currentAmount = this.toDouble();
         // Check for overflow
-        if (divisor > 0 ?
-                divisor < 1 && this.mPesoAmount > PESO_MAX * divisor ||
-                        this.mPesoAmount < PESO_MIN * divisor :
-                divisor > -1 && this.mPesoAmount > PESO_MIN * divisor ||
-                        this.mPesoAmount < PESO_MAX * divisor) {
+        // Overflow conditions where A is the currency value and B is the divisor:
+        //  ** When the positive value divided by a positive divisor exceeds or
+        //      equal to PESO_MAX_VALUE.
+        //          A / B >= PESO_MAX_VALUE where A > 0 and 1 > B > 0
+        //  ** When the positive value divided by a negative divisor is less
+        //      than or equal to PESO_MIN_VALUE.
+        //          A / B <= PESO_MIN_VALUE where A > 0 and 0 > B > -1
+        //  ** When the negative value divided by a negative divisor exceeds or
+        //      equal to PESO_MAX_VALUE.
+        //          A / B >= PESO_MAX_VALUE where A < 0 and 0 > B > -1
+        //  ** When the negative value divided by a positive divisor is less
+        //      than or equal to PESO_MIN_VALUE.
+        //          A / B <= PESO_MIN_VALUE where A < 0 and 1 > B > 0
+        if (currentAmount > 0 ?
+                (divisor > 0 && divisor <  1 && currentAmount >= PESO_MAX_VALUE * divisor) ||
+                (divisor < 0 && divisor > -1 && currentAmount >= PESO_MIN_VALUE * divisor) :
+                (divisor < 0 && divisor > -1 && currentAmount <= PESO_MAX_VALUE * divisor) ||
+                (divisor > 0 && divisor <  1 && currentAmount <= PESO_MIN_VALUE * divisor)
+        ) {
             throw new ArithmeticException("Quotient peso value overflow.");
         }
 
-        this.setValue(this.toDouble() / divisor);
+        this.setValue(currentAmount / divisor);
     }
 
     public static PhCurrency averageOf(@NonNull ArrayList<PhCurrency> amountSet) throws ArithmeticException {

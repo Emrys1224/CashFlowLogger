@@ -23,12 +23,13 @@ public class PhCurrencyTest {
                 2354.4546D,
                 4534D,
                 5745.06D,
+                12423765.34D
         };
 
         for (double testNum : testNumSet) {
             long wholeNum = (long) testNum;
 
-            String amtStr = String.valueOf(testNum);
+            String amtStr = new DecimalFormat("#.0#").format(testNum);
             String decimalStr = amtStr.substring(
                     amtStr.lastIndexOf(".") + 1) + 0;
 
@@ -226,13 +227,6 @@ public class PhCurrencyTest {
                 testVal.get(0).toDouble() + ") = " + absDiffNum);
     }
 
-    @org.jetbrains.annotations.Contract(pure = true)
-    private double differenceAbs(double val1, double val2) {
-        return val1 > val2 ?
-                val1 - val2 :
-                val2 -val1;
-    }
-
     @Test
     public void multiplication_is_correct() {
         double ansTemp;
@@ -348,6 +342,13 @@ public class PhCurrencyTest {
         averageAmt.setValue(PhCurrency.averageOf(amountSet));
 
         assertEquals(average, averageAmt.toDouble(), 0.009);
+    }
+
+    @org.jetbrains.annotations.Contract(pure = true)
+    private double differenceAbs(double val1, double val2) {
+        return val1 > val2 ?
+                val1 - val2 :
+                val2 -val1;
     }
 }
 
