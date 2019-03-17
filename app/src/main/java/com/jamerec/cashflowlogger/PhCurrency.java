@@ -360,7 +360,7 @@ public class PhCurrency {
         //  ** When the negative value divided by a positive divisor is less
         //      than or equal to PESO_MIN_VALUE.
         //          A / B <= PESO_MIN_VALUE where A < 0 and 1 > B > 0
-        if (currentAmount > 0 ?
+        if (divisor == 0 || currentAmount > 0 ?
                 (divisor > 0 && divisor <  1 && currentAmount >= PESO_MAX_VALUE * divisor) ||
                 (divisor < 0 && divisor > -1 && currentAmount >= PESO_MIN_VALUE * divisor) :
                 (divisor < 0 && divisor > -1 && currentAmount <= PESO_MAX_VALUE * divisor) ||
