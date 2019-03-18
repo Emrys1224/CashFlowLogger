@@ -27,13 +27,15 @@
         app:layout_constraintStart_toStartOf="@+id/label_amount"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/input_income_source"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:autofillHints=""
         android:hint="@string/hint_source"
-        android:inputType="textPersonName"
+        android:imeOptions="actionNext"
+        android:inputType="text"
+        android:maxLines="1"
         android:textSize="@dimen/txtsize_detail"
         app:layout_constraintBaseline_toBaselineOf="@+id/label_source"
         app:layout_constraintEnd_toEndOf="@+id/input_amount"
@@ -93,13 +95,13 @@
     <Button
         android:id="@+id/btn_cancel"
         style="@style/btn_cancel"
-        android:layout_width="265dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:onClick="cancelLogging"
         android:text="@string/btn_cancel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/btn_allocate_man"
+        app:layout_constraintStart_toStartOf="@+id/btn_allocate_man"
         app:layout_constraintTop_toBottomOf="@+id/btn_allocate_man" />
 
 </android.support.constraint.ConstraintLayout>

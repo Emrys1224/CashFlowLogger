@@ -16,6 +16,8 @@ import android.widget.AutoCompleteTextView;
  */
 public class FundAllocationFragment extends Fragment {
 
+    private final String TAG = getClass().getSimpleName();
+
     private String[] mCategories;
 
     public FundAllocationFragment() {
@@ -27,23 +29,27 @@ public class FundAllocationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        // Categories dummy data from preference setting
+        // To be used for selection in allocating funds from the income.
+        String[] categories = {
+                "Basic Necessity",
+                "Education",
+                "Investment",
+                "Health",
+                "Retirement",
+                "Leisure"
+        };
+
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_fund_allocation, container, false);
 
-        mCategories = getArguments().getStringArray("categories");
+        mCategories = categories;
 
         // Autocomplete category suggestions
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, mCategories);
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, mCategories);
         final AutoCompleteTextView catSelection = (AutoCompleteTextView) view.findViewById(R.id.input_category);
 
         // Setup listeners to show all options
-        catSelection.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus)
-                    catSelection.showDropDown();
-            }
-        });
         catSelection.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {

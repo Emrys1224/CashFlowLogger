@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 /**
- * Extends EditText for input of Philippine peso currency.
+ * Extends (@link AppCompatEditText) for input of Philippine peso currency.
  * -- Set the input type to "numberDecimal"
  * -- Formats the display to "₱ ###,###,###.##"
  */
@@ -39,7 +39,7 @@ public class PhCurrencyInput extends AppCompatEditText {
         // Set input type to "numericDecimal"
         setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
-        // Set hint
+        // Set hint text to "₱ XXX,XXX.XX"
         setHint(HINT);
     }
 

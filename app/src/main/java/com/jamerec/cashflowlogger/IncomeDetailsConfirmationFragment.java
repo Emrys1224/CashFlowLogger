@@ -37,9 +37,17 @@ public class IncomeDetailsConfirmationFragment extends Fragment {
 
         // Dummy values
         // To be replaced with values from FundAllocationFragment
-        String[] categories = getArguments().getStringArray("categories");
-        for (int i = 0; i < categories.length; i++) {
-            funds.add( new FundItem(categories[i], 888888.88d) );
+        String[] categories = {
+                "Basic Necessity",
+                "Education",
+                "Investment",
+                "Health",
+                "Retirement",
+                "Leisure"
+        };
+
+        for (String category : categories) {
+            funds.add(new FundItem(category, 888888.88d));
         }
 
         // Populate allocation list

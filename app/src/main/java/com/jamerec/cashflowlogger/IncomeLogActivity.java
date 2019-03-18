@@ -1,46 +1,29 @@
 package com.jamerec.cashflowlogger;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 
 public class IncomeLogActivity extends AppCompatActivity {
 
-    // Categories dummy data
-    // Actual value to be fetched from database
-    private String[] categories = {
-            "Basic Necessity",
-            "Education",
-            "Investment",
-            "Health",
-            "Retirement",
-            "Leisure"
-    };
-
-    private Bundle acctInfo = new Bundle();
+    private FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Get the account balance and the list of funds from DB here
+        fragmentManager  = getSupportFragmentManager();
 
-        // Bundle account info to be passed to the fragment
-        acctInfo.putString("acctBalance", getResources().getString(R.string.dummy_txt_amount));
-        acctInfo.putStringArray("categories", categories);
-
-        // Load form for income details
+        // Get the account balance, list of income sources and the list of funds from DB here....
+        // Account balance dummy data
         loadFragment(new IncomeDetailFragment());
     }
 
     public void loadFragment(Fragment detailFragment) {
-        detailFragment.setArguments(acctInfo);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         fragmentTransaction.replace(android.R.id.content, detailFragment);
