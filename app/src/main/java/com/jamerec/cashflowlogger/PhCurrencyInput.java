@@ -2,10 +2,11 @@ package com.jamerec.cashflowlogger;
 
 import android.content.Context;
 import android.support.v7.widget.AppCompatEditText;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.KeyEvent;
 
 /**
  * Extends (@link AppCompatEditText) for input of Philippine peso currency.
@@ -13,7 +14,7 @@ import android.view.KeyEvent;
  * -- Formats the display to "₱ ###,###,###.##"
  */
 public class PhCurrencyInput extends AppCompatEditText {
-    private final static String TAG = "PhPInput";
+    private final String TAG = getClass().getSimpleName();
     private final static String HINT = "₱ XXX,XXX.XX";
 
     private PhCurrency mAmount;
@@ -31,8 +32,8 @@ public class PhCurrencyInput extends AppCompatEditText {
     }
 
     @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
 
         mAmount = new PhCurrency();
 
@@ -41,50 +42,86 @@ public class PhCurrencyInput extends AppCompatEditText {
 
         // Set hint text to "₱ XXX,XXX.XX"
         setHint(HINT);
+
+        addTextChangedListener(onTextChangeListener());
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        super.onKeyDown(keyCode, event);
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
 
-        String displayValue = getText().toString();
-        if (displayValue.equals("")) return true;
+        removeTextChangedListener(onTextChangeListener());
+    }
 
-        // Count the decimal places
-        int decimals = 0;
-        if (displayValue.contains(".")) {
-            String decimalPart = displayValue.substring(displayValue.lastIndexOf(".") + 1);
-            decimals = decimalPart.length();
-        }
+    private TextWatcher onTextChangeListener() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-        // Remove the third decimal place and don't update the value
-        if (decimals > 2) {
-            displayValue = displayValue.substring(0, displayValue.length() - 1);
-            setText(displayValue);
-            setSelection(getText().length());
-            return true;
-        }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
-        // Update peso currency value
-        String plainNum = displayValue.replaceAll("[₱,]+", "");
-//        Log.d(TAG, "Value from string: " + plainNum);
-        mAmount.setValue(Double.parseDouble(plainNum));
-//        Log.d(TAG, "Value from double: " + mAmount.toDouble());
+            @Override
+            public void afterTextChanged(Editable s) {
+//                Log.d(TAG, "Editable: " + s);
+                removeTextChangedListener(this);
 
-        // Update displayed value
-        displayValue = mAmount.toString();
-//        Log.d(TAG, "Value from PhPStr 1: " + displayValue);
-        if (decimals == 0)
-            // Remove the decimal places ( n.00 to n )
-            displayValue = displayValue.substring(0, displayValue.length() - 3);
-        else if (decimals < 2)
-            // Remove the tenths place zero ( n.m0 to n.m )
-            displayValue = displayValue.substring(0, displayValue.length() - 1);
-//        Log.d(TAG, "Value from PhPStr 2: " + displayValue);
-        setText(displayValue);
-        setSelection(getText().length());   // Move cursor to the end
+                // Get the numerical value in decimal format
+                String displayValue = s.toString();
+                displayValue = displayValue.replaceAll("[ ₱,]+", "");
+//                Log.d(TAG, "Value from string: " + displayValue);
 
-        return true;
+                if (displayValue.length() == 0) {
+                    setText(displayValue);
+                    mAmount.setValue(0);                    // amount is ₱0.00
+                    addTextChangedListener(this);
+                    return;
+                }
+
+                // Count the decimal places
+                int decimals = 0;
+                if (displayValue.contains(".")) {
+                    String decimalPart = displayValue.substring(displayValue.lastIndexOf(".") + 1);
+                    decimals = decimalPart.length();
+
+                    // Do not alter the display
+                    if (decimals == 0) {
+                        addTextChangedListener(this);
+                        return;
+                    }
+                }
+
+                // Don't update the value
+                if (decimals > 2) {
+                    displayValue = mAmount.toString();
+                    setText(displayValue);
+                    setSelection(displayValue.length());
+                    addTextChangedListener(this);
+                    return;
+                }
+
+                // Update peso currency value
+                mAmount.setValue(Double.parseDouble(displayValue));
+//                Log.d(TAG, "Value from double: " + mAmount.toDouble());
+
+                // Update displayed value
+                displayValue = mAmount.toString();
+//                Log.d(TAG, "Value from PhPStr 1: " + displayValue);
+                if (decimals == 0)
+                    // Remove the decimal places ( n.00 to n )
+                    displayValue = displayValue.substring(0, displayValue.length() - 3);
+                else if (decimals < 2)
+                    // Remove the tenths place zero ( n.m0 to n.m )
+                    displayValue = displayValue.substring(0, displayValue.length() - 1);
+//                Log.d(TAG, "Value from PhPStr 2: " + displayValue);
+                setText(displayValue);
+                setSelection(displayValue.length());   // Move cursor to the end
+
+                addTextChangedListener(this);
+            }
+        };
     }
 
     /**

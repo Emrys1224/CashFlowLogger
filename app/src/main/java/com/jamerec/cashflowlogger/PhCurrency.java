@@ -176,6 +176,17 @@ public class PhCurrency {
         return this.mCentavoAmount == amount.getCentavoAmount();
     }
 
+    /**
+     * Checks if the amount is not zero
+     * @return false if not zero;
+     *         true if zero.
+     */
+    public boolean isNotZero() {
+        if (this.mPesoAmount == 0 && this.mCentavoAmount == 0)
+            return false;
+        return true;
+    }
+
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Arithmetic Operations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
     /**

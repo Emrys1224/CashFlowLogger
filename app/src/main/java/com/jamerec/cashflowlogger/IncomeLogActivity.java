@@ -37,9 +37,6 @@ public class IncomeLogActivity extends AppCompatActivity
         fragmentTransaction.commit();
     }
 
-    public void cancelLogging(View view) {
-    }
-
     public void allocateFund(View view) {
         loadFragment(new FundAllocationFragment());
     }

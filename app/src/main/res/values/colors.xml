@@ -6,5 +6,6 @@
   <color name="button_main">#01FFD4</color>
   <color name="button_main_pressed">#00DBC4</color>
   <color name="btn_text">#535353</color>
+  <color name="btn_txt_disabled">#8A8989</color>
   <color name="txt_balance">#4A4A4A</color>
 </resources>
