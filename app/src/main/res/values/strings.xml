@@ -16,10 +16,11 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="label_remaining">Remaining</string>
-    <string name="dummy_txt_category">Category</string>
-    <string name="btn_done">Done</string>
+    <string name="dummy_txt_fund_name">E.g. Daily Needs</string>
+    <string name="btn_allocate">Allocate</string>
     <string name="dummy_source">JAMEREC Industries</string>
     <string name="label_allocation">Allocation</string>
     <string name="btn_edit">Edit</string>
     <string name="hint_amount">XXX,XXX.XX</string>
+    <string name="label_fund">Fund</string>
 </resources>

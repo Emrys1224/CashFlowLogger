@@ -26,6 +26,7 @@ public class IncomeDetailFragment extends Fragment
         implements TextView.OnEditorActionListener, View.OnClickListener {
 
     private final String TAG = getClass().getSimpleName();
+    private Context mContext;
 
     // Text Fields
     private AutoCompleteTextView mIncomeSourceSelection;
@@ -62,6 +63,7 @@ public class IncomeDetailFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mContext = getContext();
 
         // Income source dummy data fetched from DB
         // To be used for selection for income source data input.
@@ -75,9 +77,9 @@ public class IncomeDetailFragment extends Fragment
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_income_detail, container, false);
 
-        // Autocomplete category suggestions
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, mIncomeSources);
-        mIncomeSourceSelection = (AutoCompleteTextView) view.findViewById(R.id.input_income_source);
+        // Autocomplete income source suggestions
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(mContext, android.R.layout.simple_list_item_1, mIncomeSources);
+        mIncomeSourceSelection = view.findViewById(R.id.input_income_source);
 
         // Setup listener to show all options
         mIncomeSourceSelection.setOnTouchListener(new View.OnTouchListener() {
@@ -100,12 +102,12 @@ public class IncomeDetailFragment extends Fragment
         mIncomeSourceSelection.setAdapter(catAdapter);
         mIncomeSourceSelection.setOnEditorActionListener(this);
 
-        mIncomeAmountInput = (PhCurrencyInput) view.findViewById(R.id.input_amount);
+        mIncomeAmountInput = view.findViewById(R.id.input_amount);
         mIncomeAmountInput.setOnEditorActionListener(this);
 
-        mBtnAllocateAuto = (Button) view.findViewById(R.id.btn_allocate_auto);
-        mBtnAllocateManual = (Button) view.findViewById(R.id.btn_allocate_man);
-        mBtnCancel = (Button) view.findViewById(R.id.btn_cancel);
+        mBtnAllocateAuto = view.findViewById(R.id.btn_allocate_auto);
+        mBtnAllocateManual = view.findViewById(R.id.btn_allocate_man);
+        mBtnCancel = view.findViewById(R.id.btn_cancel);
 
         // Setup button click listeners
         mBtnAllocateAuto.setOnClickListener(this);
@@ -157,7 +159,7 @@ public class IncomeDetailFragment extends Fragment
             mBtnAllocateAuto.setEnabled(false);
             mBtnAllocateManual.setEnabled(false);
 
-            Toast.makeText(getContext(),
+            Toast.makeText(mContext,
                     "An input detail is missing.\nPlease completely fill up the form.",
                     Toast.LENGTH_SHORT).show();
         }

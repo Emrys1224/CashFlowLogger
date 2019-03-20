@@ -1,9 +1,9 @@
 package com.jamerec.cashflowlogger;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 
 
@@ -21,7 +22,10 @@ public class IncomeDetailsConfirmationFragment extends Fragment {
 
     private final static String TAG = "DetailsConfirmFragment";
 
-    ArrayList<FundItem> funds = new ArrayList<>();
+    private ListView mCategoriesLV;
+
+    private Context mContext;
+    private ArrayList<SimpleEntry<String, PhCurrency>> mFundList;
 
     public IncomeDetailsConfirmationFragment() {
         // Required empty public constructor
@@ -35,9 +39,12 @@ public class IncomeDetailsConfirmationFragment extends Fragment {
         View view = inflater.inflate(
                 R.layout.fragment_income_details_confirmation, container, false);
 
+        mContext = getContext();
+        mFundList = new ArrayList<>();
+
         // Dummy values
         // To be replaced with values from FundAllocationFragment
-        String[] categories = {
+        String[] fundNames = {
                 "Basic Necessity",
                 "Education",
                 "Investment",
@@ -46,24 +53,24 @@ public class IncomeDetailsConfirmationFragment extends Fragment {
                 "Leisure"
         };
 
-        for (String category : categories) {
-            funds.add(new FundItem(category, 888888.88d));
+        for (String fundName : fundNames) {
+            mFundList.add(new SimpleEntry<>(fundName, new PhCurrency()));
         }
 
         // Populate allocation list
-        FundListAdapter adapter = new FundListAdapter(getContext(), funds);
-        ListView categoriesLV = view.findViewById(R.id.list_categories);
-        categoriesLV.setAdapter(adapter);
+        FundListAdapter adapter = new FundListAdapter(mContext, mFundList);
+        mCategoriesLV = view.findViewById(R.id.list_funds);
+        mCategoriesLV.setAdapter(adapter);
 
         // Disable scrolling of list
-        categoriesLV.setOnTouchListener(new View.OnTouchListener() {
+        mCategoriesLV.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return (event.getAction() == MotionEvent.ACTION_MOVE);
             }
         });
 
-        setListViewHeightBasedOnChildren(categoriesLV);
+        setListViewHeightBasedOnChildren(mCategoriesLV);
 
         return view;
     }

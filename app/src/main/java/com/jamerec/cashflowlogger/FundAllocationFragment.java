@@ -1,6 +1,7 @@
 package com.jamerec.cashflowlogger;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -9,6 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.Spinner;
+
+import java.util.ArrayList;
+import java.util.AbstractMap.SimpleEntry;
+
 
 
 /**
@@ -18,7 +26,12 @@ public class FundAllocationFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
 
-    private String[] mCategories;
+    private ListView mFundAllocationLV;
+    private Spinner mCatSelection;
+
+    private Context mContext;
+    private ArrayList<SimpleEntry<String, PhCurrency>> mFundList;
+    private String[] mFundNames;
 
     public FundAllocationFragment() {
         // Required empty public constructor
@@ -29,9 +42,15 @@ public class FundAllocationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_fund_allocation, container, false);
+
+        mContext = getContext();
+        mFundList = new ArrayList<>();
+
         // Categories dummy data from preference setting
         // To be used for selection in allocating funds from the income.
-        String[] categories = {
+        String[] fundNames = {
                 "Basic Necessity",
                 "Education",
                 "Investment",
@@ -39,29 +58,58 @@ public class FundAllocationFragment extends Fragment {
                 "Retirement",
                 "Leisure"
         };
+        mFundNames = fundNames;
 
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_fund_allocation, container, false);
+        for (String fundName: fundNames) {
+            mFundList.add(new SimpleEntry<>(fundName, new PhCurrency()));
+        }
 
-        mCategories = categories;
-
-        // Autocomplete category suggestions
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, mCategories);
-        final AutoCompleteTextView catSelection = (AutoCompleteTextView) view.findViewById(R.id.input_category);
-
-        // Setup listeners to show all options
-        catSelection.setOnTouchListener(new View.OnTouchListener() {
+        // Setup fund allocation ListView
+        FundListAdapter adapter = new FundListAdapter(mContext, mFundList);
+        mFundAllocationLV = view.findViewById(R.id.list_funds);
+        mFundAllocationLV.setAdapter(adapter);
+        mFundAllocationLV.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                catSelection.showDropDown();
-                return false;
+                return (event.getAction() == MotionEvent.ACTION_MOVE);
             }
         });
+        setListViewHeightBasedOnChildren(mFundAllocationLV);
 
-        catSelection.setThreshold(1);
-        catSelection.setAdapter(catAdapter);
+        // Autocomplete category suggestions
+        mCatSelection = view.findViewById(R.id.selection_fund_name);
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<String>(
+                mContext, R.layout.spinner_item, mFundNames);
+        mCatSelection.setAdapter(catAdapter);
 
         return view;
+    }
+
+    /**** Method for Setting the Height of the ListView dynamically.
+     **** Hack to fix the issue of not showing all the items of the ListView
+     **** when placed inside a ScrollView  ****/
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null)
+            return;
+
+        int desiredWidth = View.MeasureSpec
+                .makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
+        int totalHeight = 0;
+        View view = null;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            view = listAdapter.getView(i, view, listView);
+            if (i == 0)
+                view.setLayoutParams(new ViewGroup
+                        .LayoutParams(desiredWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            view.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += view.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight
+                + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
     }
 
 }

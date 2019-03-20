@@ -7,26 +7,29 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 
 public class FundListAdapter extends BaseAdapter {
 
     private Context context;
-    private ArrayList<FundItem> categories;
+    private ArrayList<SimpleEntry<String, PhCurrency>> mFundList;
 
-    public FundListAdapter(Context context, ArrayList<FundItem> categories) {
+    FundListAdapter(
+            Context context,
+            ArrayList<SimpleEntry<String, PhCurrency>> mFundList) {
         this.context = context;
-        this.categories = categories;
+        this.mFundList = mFundList;
     }
 
     @Override
     public int getCount() {
-        return categories.size();
+        return mFundList.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return categories.get(position);
+        return mFundList.get(position);
     }
 
     @Override
@@ -42,13 +45,13 @@ public class FundListAdapter extends BaseAdapter {
                     .inflate(R.layout.list_item_fund, parent, false);
         }
 
-        FundItem fundItem = categories.get(position);
+        SimpleEntry fundItem = (SimpleEntry) getItem(position);
 
-        TextView fundNameTV = (TextView) convertView.findViewById(R.id.label_category);
+        TextView fundNameTV = (TextView) convertView.findViewById(R.id.label_fund);
         TextView fundAmtTV = (TextView) convertView.findViewById(R.id.amount);
 
-        fundNameTV.setText(fundItem.getName());
-        fundAmtTV.setText(fundItem.getAmountString());
+        fundNameTV.setText((String)fundItem.getKey());
+        fundAmtTV.setText(fundItem.getValue().toString());
 
         return convertView;
     }

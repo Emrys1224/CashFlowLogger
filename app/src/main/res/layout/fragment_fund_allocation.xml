@@ -1,99 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     tools:context=".FundAllocationFragment">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="@string/heading_income_detail"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/txt_balance"
-        android:layout_width="315dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacingTop_fromHeading"
-        android:background="@drawable/text_border"
-        android:padding="10dp"
-        android:text="@string/dummy_txt_amount"
-        android:textColor="@color/txt_balance"
-        android:textSize="26sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="@string/heading_income_detail"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/label_remaining"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/label_remaining"
-        android:textSize="@dimen/txtsize_label"
-        app:layout_constraintStart_toStartOf="@+id/txt_balance"
-        app:layout_constraintTop_toBottomOf="@+id/txt_balance" />
+        <TextView
+            android:id="@+id/txt_remaining"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/dummy_txt_amount"
+            android:textColor="@color/txt_balance"
+            android:textSize="26sp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/label_remaining"
+            app:layout_constraintEnd_toEndOf="@+id/list_funds"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/label_remaining" />
 
-    <AutoCompleteTextView
-        android:id="@+id/input_category"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:background="@drawable/text_border"
-        android:hint="@string/dummy_txt_category"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:maxLines="1"
-        android:padding="10dp"
-        android:textSize="@dimen/txtsize_detail"
-        app:layout_constraintEnd_toEndOf="@+id/txt_balance"
-        app:layout_constraintStart_toStartOf="@+id/txt_balance"
-        app:layout_constraintTop_toBottomOf="@+id/label_remaining" />
+        <TextView
+            android:id="@+id/label_remaining"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="20dp"
+            android:text="@string/label_remaining"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintEnd_toStartOf="@+id/txt_remaining"
+            app:layout_constraintHorizontal_bias="0.45"
+            app:layout_constraintStart_toStartOf="@+id/list_funds"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-    <TextView
-        android:id="@+id/label_amount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="@string/label_amount"
-        android:textSize="@dimen/txtsize_label"
-        app:layout_constraintStart_toStartOf="@+id/input_category"
-        app:layout_constraintTop_toBottomOf="@+id/input_category" />
+        <TextView
+            android:id="@+id/label_allocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/label_allocation"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="@+id/list_funds"
+            app:layout_constraintTop_toBottomOf="@+id/label_remaining" />
 
-    <EditText
-        android:id="@+id/input_amount"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
-        android:autofillHints=""
-        android:background="@drawable/text_border"
-        android:hint="@string/dummy_txt_amount"
-        android:inputType="numberDecimal"
-        android:padding="6dp"
-        android:textSize="24sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/label_amount"
-        app:layout_constraintEnd_toEndOf="@+id/input_category"
-        app:layout_constraintStart_toEndOf="@+id/label_amount" />
+        <ListView
+            android:id="@+id/list_funds"
+            android:layout_width="355dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_allocation" />
 
-    <Button
-        android:onClick="showSummary"
-        android:id="@+id/btn_done"
-        style="@style/btn_income_detail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
-        android:text="@string/btn_done"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/input_amount" />
+        <Spinner
+            android:id="@+id/selection_fund_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/label_fund"
+            app:layout_constraintEnd_toEndOf="@+id/txt_remaining"
+            app:layout_constraintStart_toStartOf="@+id/txt_remaining" />
 
-</android.support.constraint.ConstraintLayout>
+        <TextView
+            android:id="@+id/label_fund"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="@string/label_fund"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="@+id/list_funds"
+            app:layout_constraintTop_toBottomOf="@+id/list_funds" />
+
+        <TextView
+            android:id="@+id/label_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/label_amount"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="@+id/label_fund"
+            app:layout_constraintTop_toBottomOf="@+id/label_fund" />
+
+        <com.jamerec.cashflowlogger.PhCurrencyInput
+            android:id="@+id/input_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:textSize="@dimen/txtsize_detail"
+            app:layout_constraintBaseline_toBaselineOf="@+id/label_amount"
+            app:layout_constraintEnd_toEndOf="@+id/selection_fund_name"
+            app:layout_constraintStart_toStartOf="@+id/selection_fund_name" />
+
+        <Button
+            android:id="@+id/btn_done"
+            style="@style/btn_income_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"
+            android:text="@string/btn_allocate"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_amount" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</ScrollView>
