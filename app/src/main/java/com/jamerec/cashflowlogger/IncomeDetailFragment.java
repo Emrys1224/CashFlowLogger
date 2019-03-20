@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -17,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -121,7 +121,7 @@ public class IncomeDetailFragment extends Fragment
             mIncomeSource = mIncomeSourceSelection.getText().toString();
             mIncomeAmount = mIncomeAmountInput.getAmount();
 
-            Log.d(TAG, "Income source: " + mIncomeSource + "\t\tIncome amount: " + mIncomeAmount);
+//            Log.d(TAG, "Income source: " + mIncomeSource + "\t\tIncome amount: " + mIncomeAmount);
 
             if (!mIncomeSource.equals("") && mIncomeAmount.isNotZero()) {
                 mBtnAllocateAuto.setEnabled(true);
@@ -144,8 +144,23 @@ public class IncomeDetailFragment extends Fragment
             return;
         }
 
+        // Without this it is possible to submit the values even if the display in the EditText
+        // has been changed or cleared, with the values being the last updated value by pressing
+        // the return key.
+        mIncomeSource = mIncomeSourceSelection.getText().toString();
+        mIncomeAmount = mIncomeAmountInput.getAmount();
+
         if (!mIncomeSource.equals("") && mIncomeAmount.isNotZero())
             submitListener.submitIncomeDetailListener(mIncomeSource, mIncomeAmount, btnID);
+
+        else {
+            mBtnAllocateAuto.setEnabled(false);
+            mBtnAllocateManual.setEnabled(false);
+
+            Toast.makeText(getContext(),
+                    "An input detail is missing.\nPlease completely fill up the form.",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -159,6 +174,6 @@ public class IncomeDetailFragment extends Fragment
          * @param incomeAmount income amount
          * @param btnID        id of the button that calls this method
          */
-        public void submitIncomeDetailListener(String incomeSource, PhCurrency incomeAmount, int btnID);
+        void submitIncomeDetailListener(String incomeSource, PhCurrency incomeAmount, int btnID);
     }
 }
