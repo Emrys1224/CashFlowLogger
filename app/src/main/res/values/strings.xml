@@ -4,7 +4,7 @@
     <string name="btn_txt_log_expenses">Log Expenses</string>
     <string name="btn_txt_view_record">View Record</string>
     <string name="label_balance">Balance</string>
-    <string name="dummy_txt_amount">₱ XXX,XXX.XX</string>
+    <string name="dummy_txt_amount">₱ 888,888.88</string>
 
     <string name="heading_income_detail">Income Logging</string>
     <string name="label_source">From</string>
@@ -23,4 +23,5 @@
     <string name="btn_edit">Edit</string>
     <string name="hint_amount">XXX,XXX.XX</string>
     <string name="label_fund">Fund</string>
+    <string name="btn_done">Done</string>
 </resources>

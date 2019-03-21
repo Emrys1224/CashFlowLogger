@@ -1,5 +1,7 @@
 package com.jamerec.cashflowlogger;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import java.text.DecimalFormat;
@@ -12,7 +14,7 @@ import java.util.Locale;
  * using double/float. This includes the methods for comparisons
  * and arithmetic operations for this data model.
  */
-public class PhCurrency {
+public class PhCurrency implements Parcelable {
     private final static String TAG = "PhCurrency";
 
     // The maximum integer that a double can represent without
@@ -27,6 +29,24 @@ public class PhCurrency {
 
     private long mPesoAmount;
     private byte mCentavoAmount;
+
+
+    protected PhCurrency(Parcel in) {
+        mPesoAmount = in.readLong();
+        mCentavoAmount = in.readByte();
+    }
+
+    public static final Creator<PhCurrency> CREATOR = new Creator<PhCurrency>() {
+        @Override
+        public PhCurrency createFromParcel(Parcel in) {
+            return new PhCurrency(in);
+        }
+
+        @Override
+        public PhCurrency[] newArray(int size) {
+            return new PhCurrency[size];
+        }
+    };
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Constructors ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -56,7 +76,6 @@ public class PhCurrency {
     }
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Setters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 
     /**
      * Change the current value to the given value.
@@ -130,6 +149,7 @@ public class PhCurrency {
      *
      * @return Philippine peso formatted string.
      */
+    @NonNull
     @Override
     public String toString() {
         DecimalFormat pesoCurrency =
@@ -181,10 +201,10 @@ public class PhCurrency {
      * @return false if not zero;
      *         true if zero.
      */
-    public boolean isNotZero() {
+    public boolean isZero() {
         if (this.mPesoAmount == 0 && this.mCentavoAmount == 0)
-            return false;
-        return true;
+            return true;
+        return false;
     }
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Arithmetic Operations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -401,6 +421,17 @@ public class PhCurrency {
         System.out.println("Average: " + average.toDouble());
 
         return average;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mPesoAmount);
+        dest.writeByte(mCentavoAmount);
     }
 }
 

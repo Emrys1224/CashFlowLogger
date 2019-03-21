@@ -40,10 +40,6 @@ public class IncomeDetailFragment extends Fragment
     private OnSubmitIncomeDetailListener submitListener;
     private String[] mIncomeSources;
 
-    // Income Details
-    private String mIncomeSource;
-    private PhCurrency mIncomeAmount;
-
     public IncomeDetailFragment() {
         // Required empty public constructor
     }
@@ -56,7 +52,7 @@ public class IncomeDetailFragment extends Fragment
             submitListener = (OnSubmitIncomeDetailListener) context;
         } else {
             throw new ClassCastException(context.toString()
-                    + " must implement OnSubmitIncomeDetailListener.submitIncomeDetailListener");
+                    + " must implement OnSubmitIncomeDetailListener.submitIncomeDetails");
         }
     }
 
@@ -120,12 +116,9 @@ public class IncomeDetailFragment extends Fragment
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
-            mIncomeSource = mIncomeSourceSelection.getText().toString();
-            mIncomeAmount = mIncomeAmountInput.getAmount();
 
-//            Log.d(TAG, "Income source: " + mIncomeSource + "\t\tIncome amount: " + mIncomeAmount);
-
-            if (!mIncomeSource.equals("") && mIncomeAmount.isNotZero()) {
+            if (!mIncomeSourceSelection.getText().toString().equals("")
+                    && !mIncomeAmountInput.getAmount().isZero()) {
                 mBtnAllocateAuto.setEnabled(true);
                 mBtnAllocateManual.setEnabled(true);
             } else {
@@ -146,14 +139,12 @@ public class IncomeDetailFragment extends Fragment
             return;
         }
 
-        // Without this it is possible to submit the values even if the display in the EditText
-        // has been changed or cleared, with the values being the last updated value by pressing
-        // the return key.
-        mIncomeSource = mIncomeSourceSelection.getText().toString();
-        mIncomeAmount = mIncomeAmountInput.getAmount();
+        // Income details
+        String  incomeSource = mIncomeSourceSelection.getText().toString();
+        PhCurrency incomeAmount = mIncomeAmountInput.getAmount();
 
-        if (!mIncomeSource.equals("") && mIncomeAmount.isNotZero())
-            submitListener.submitIncomeDetailListener(mIncomeSource, mIncomeAmount, btnID);
+        if (!incomeSource.equals("") && !incomeAmount.isZero())
+            submitListener.submitIncomeDetails(incomeSource, incomeAmount, btnID);
 
         else {
             mBtnAllocateAuto.setEnabled(false);
@@ -161,7 +152,7 @@ public class IncomeDetailFragment extends Fragment
 
             Toast.makeText(mContext,
                     "An input detail is missing.\nPlease completely fill up the form.",
-                    Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_LONG).show();
         }
     }
 
@@ -176,6 +167,6 @@ public class IncomeDetailFragment extends Fragment
          * @param incomeAmount income amount
          * @param btnID        id of the button that calls this method
          */
-        void submitIncomeDetailListener(String incomeSource, PhCurrency incomeAmount, int btnID);
+        void submitIncomeDetails(String incomeSource, PhCurrency incomeAmount, int btnID);
     }
 }

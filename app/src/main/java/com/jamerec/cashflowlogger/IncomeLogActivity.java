@@ -8,8 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
+
 public class IncomeLogActivity extends AppCompatActivity
-        implements IncomeDetailFragment.OnSubmitIncomeDetailListener {
+        implements
+        IncomeDetailFragment.OnSubmitIncomeDetailListener,
+        FundAllocationFragment.OnSubmitFundAllocationListener {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -46,7 +51,7 @@ public class IncomeLogActivity extends AppCompatActivity
     }
 
     @Override
-    public void submitIncomeDetailListener(String incomeSource, PhCurrency incomeAmount, int btnID) {
+    public void submitIncomeDetails(String incomeSource, PhCurrency incomeAmount, int btnID) {
         this.mIncomeSource = incomeSource;
         this.mIncomeAmount = incomeAmount;
 
@@ -57,11 +62,22 @@ public class IncomeLogActivity extends AppCompatActivity
             case R.id.btn_allocate_auto:
                 loadFragment(new IncomeDetailsConfirmationFragment());
                 break;
+
             case R.id.btn_allocate_man:
-                loadFragment(new FundAllocationFragment());
+                Bundle incomeDetail = new Bundle();
+                incomeDetail.putParcelable("incomeAmount", mIncomeAmount);
+                FundAllocationFragment fundAllocationFragment = new FundAllocationFragment();
+                fundAllocationFragment.setArguments(incomeDetail);
+                loadFragment(fundAllocationFragment);
                 break;
+
             default:
                 loadFragment(new IncomeDetailFragment());
         }
+    }
+
+    @Override
+    public void submitFundAllocation(ArrayList<AbstractMap.SimpleEntry<String, PhCurrency>> fundList) {
+
     }
 }

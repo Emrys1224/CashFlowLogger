@@ -47,8 +47,8 @@ public class FundListAdapter extends BaseAdapter {
 
         SimpleEntry fundItem = (SimpleEntry) getItem(position);
 
-        TextView fundNameTV = (TextView) convertView.findViewById(R.id.label_fund);
-        TextView fundAmtTV = (TextView) convertView.findViewById(R.id.amount);
+        TextView fundNameTV = convertView.findViewById(R.id.label_fund);
+        TextView fundAmtTV = convertView.findViewById(R.id.amount);
 
         fundNameTV.setText((String)fundItem.getKey());
         fundAmtTV.setText(fundItem.getValue().toString());
