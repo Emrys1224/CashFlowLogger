@@ -7,17 +7,16 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 
 public class FundListAdapter extends BaseAdapter {
 
     private Context context;
-    private ArrayList<SimpleEntry<String, PhCurrency>> mFundList;
+    private ArrayList<FundItem> mFundList;
 
     FundListAdapter(
             Context context,
-            ArrayList<SimpleEntry<String, PhCurrency>> mFundList) {
+            ArrayList<FundItem> mFundList) {
         this.context = context;
         this.mFundList = mFundList;
     }
@@ -45,13 +44,13 @@ public class FundListAdapter extends BaseAdapter {
                     .inflate(R.layout.list_item_fund, parent, false);
         }
 
-        SimpleEntry fundItem = (SimpleEntry) getItem(position);
+        FundItem fundItem = (FundItem) getItem(position);
 
         TextView fundNameTV = convertView.findViewById(R.id.label_fund);
         TextView fundAmtTV = convertView.findViewById(R.id.amount);
 
-        fundNameTV.setText((String)fundItem.getKey());
-        fundAmtTV.setText(fundItem.getValue().toString());
+        fundNameTV.setText(fundItem.getName());
+        fundAmtTV.setText(fundItem.getAmount().toString());
 
         return convertView;
     }

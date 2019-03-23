@@ -47,6 +47,17 @@ public class PhCurrencyInput extends AppCompatEditText {
     }
 
     @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+
+        if (!enabled) {
+            setText("-----");
+            return;
+        }
+        setText("");
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
@@ -66,6 +77,9 @@ public class PhCurrencyInput extends AppCompatEditText {
             @Override
             public void afterTextChanged(Editable s) {
 //                Log.d(TAG, "Editable: " + s);
+
+                if (!isEnabled()) return;
+
                 removeTextChangedListener(this);
 
                 // Get the numerical value in decimal format

@@ -25,7 +25,7 @@ public class IncomeDetailsConfirmationFragment extends Fragment {
     private ListView mCategoriesLV;
 
     private Context mContext;
-    private ArrayList<SimpleEntry<String, PhCurrency>> mFundList;
+    private ArrayList<FundItem> mFundList;
 
     public IncomeDetailsConfirmationFragment() {
         // Required empty public constructor
@@ -54,7 +54,7 @@ public class IncomeDetailsConfirmationFragment extends Fragment {
         };
 
         for (String fundName : fundNames) {
-            mFundList.add(new SimpleEntry<>(fundName, new PhCurrency()));
+            mFundList.add(new FundItem(fundName, new PhCurrency()));
         }
 
         // Populate allocation list

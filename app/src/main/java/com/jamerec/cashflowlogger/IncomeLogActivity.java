@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 
 public class IncomeLogActivity extends AppCompatActivity
@@ -23,6 +22,7 @@ public class IncomeLogActivity extends AppCompatActivity
     // Income details
     private String mIncomeSource;
     private PhCurrency mIncomeAmount;
+    private ArrayList<FundItem> mFundsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,14 +40,6 @@ public class IncomeLogActivity extends AppCompatActivity
 
         fragmentTransaction.replace(android.R.id.content, detailFragment);
         fragmentTransaction.commit();
-    }
-
-    public void allocateFund(View view) {
-        loadFragment(new FundAllocationFragment());
-    }
-
-    public void showSummary(View view) {
-        loadFragment(new IncomeDetailsConfirmationFragment());
     }
 
     @Override
@@ -77,7 +69,12 @@ public class IncomeLogActivity extends AppCompatActivity
     }
 
     @Override
-    public void submitFundAllocation(ArrayList<AbstractMap.SimpleEntry<String, PhCurrency>> fundList) {
-
+    public void submitFundAllocation(ArrayList<FundItem> fundList) {
+        this.mFundsList = fundList;
+        Bundle incomeLogDetails = new Bundle();
+        incomeLogDetails.putString("incomeSource", mIncomeSource);
+        incomeLogDetails.putParcelable("incomeAmount", mIncomeAmount);
+        incomeLogDetails.putParcelableArrayList("fundAllocation", mFundsList);
+        IncomeDetailsConfirmationFragment confirmationFragment= new IncomeDetailsConfirmationFragment();
     }
 }

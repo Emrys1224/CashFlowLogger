@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -12,15 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 
 
@@ -33,17 +31,17 @@ public class FundAllocationFragment extends Fragment {
     private Context mContext;
 
     private TextView mRemainingAmountTV;
+    private TextView mFundNameTV;
     private ListView mFundAllocationLV;
-    private Spinner mCatSelection;
     private PhCurrencyInput mAllocateAmountPCI;
     private Button mBtnAddAllocation;
 
     private OnSubmitFundAllocationListener submitListener;
     private FundListAdapter mFundListAdapter;
-    private ArrayAdapter<String> mSelectionAdapter;
     private PhCurrency mIncomeAmount;
     private PhCurrency mRemainingAmount;
-    private ArrayList<SimpleEntry<String, PhCurrency>> mFundList;
+    private ArrayList<FundItem> mFundsList;
+    private int mFundSelectedIndex;
 
     public FundAllocationFragment() {
         // Required empty public constructor
@@ -72,7 +70,8 @@ public class FundAllocationFragment extends Fragment {
         mIncomeAmount = getArguments() != null ?
                 (PhCurrency) getArguments().getParcelable("incomeAmount") : new PhCurrency();
         mRemainingAmount = new PhCurrency(mIncomeAmount);
-        mFundList = new ArrayList<>();
+        mFundsList = new ArrayList<>();
+        mFundSelectedIndex = 0;
 
         // Categories dummy data from preference setting
         // To be used for selection in allocating funds from the income.
@@ -85,28 +84,25 @@ public class FundAllocationFragment extends Fragment {
                 "Leisure"
         };
         for (String fundName : fundNames) {
-            mFundList.add(new SimpleEntry<>(fundName, new PhCurrency()));
+            mFundsList.add(new FundItem(fundName, new PhCurrency()));
         }
 
         // Initialize widgets
         mRemainingAmountTV = view.findViewById(R.id.txt_remaining);
+        mFundNameTV = view.findViewById(R.id.item_fund_name);
         mFundAllocationLV = view.findViewById(R.id.list_funds);
-        mCatSelection = view.findViewById(R.id.selection_fund_name);
         mAllocateAmountPCI = view.findViewById(R.id.input_amount);
         mBtnAddAllocation = view.findViewById(R.id.btn_allocate);
 
         // Setup display text
         mRemainingAmountTV.setText(mIncomeAmount.toString());
+        mFundNameTV.setText(
+                mFundsList.get(mFundSelectedIndex).getName());
 
         // Setup fund allocation ListView
-        mFundListAdapter = new FundListAdapter(mContext, mFundList);
+        mFundListAdapter = new FundListAdapter(mContext, mFundsList);
         mFundAllocationLV.setAdapter(mFundListAdapter);
         setListViewHeightBasedOnChildren(mFundAllocationLV);
-
-        // Funds selection spinner
-        mSelectionAdapter = new ArrayAdapter<>(
-                mContext, R.layout.spinner_item, fundNames);
-        mCatSelection.setAdapter(mSelectionAdapter);
 
         // Setup listeners
         mFundAllocationLV.setOnTouchListener(new View.OnTouchListener() {
@@ -115,19 +111,24 @@ public class FundAllocationFragment extends Fragment {
                 return (event.getAction() == MotionEvent.ACTION_MOVE);
             }
         });
-
-        mCatSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mFundAllocationLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            // Select a fund from the list view to set/change the amount allocation.
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (mAllocateAmountPCI.getText().length() > 0)
-                    mBtnAddAllocation.setEnabled(true);
-                else
-                    mBtnAddAllocation.setEnabled(false);
-            }
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Log.d(TAG, "Clicked fund: " + mFundsList.get(position).getName());
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+                mFundSelectedIndex = position;
+                FundItem fundItem = mFundsList.get(position);
 
+                // Set the amount of this fund to ₱0.00 and add it back to the remaining amount.
+                mRemainingAmount.add(fundItem.getAmount());
+                fundItem.resetAmount();
+                mFundListAdapter.notifyDataSetChanged();
+
+                // Update text display
+                mRemainingAmountTV.setText(mRemainingAmount.toString());
+                mFundNameTV.setText(fundItem.getName());
+                if (!mAllocateAmountPCI.isEnabled()) mAllocateAmountPCI.setEnabled(true);
             }
         });
 
@@ -146,6 +147,13 @@ public class FundAllocationFragment extends Fragment {
         mBtnAddAllocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Fund allocation is done.
+                // Pass the funds allocation list to IncomeLogActivity.
+                if (mFundSelectedIndex < 0) {
+                    submitListener.submitFundAllocation(mFundsList);
+                    return;
+                }
+
                 if (mAllocateAmountPCI.getText().length() <= 0) {
                     mBtnAddAllocation.setEnabled(false);
                     Toast.makeText(mContext,
@@ -154,40 +162,29 @@ public class FundAllocationFragment extends Fragment {
                     return;
                 }
 
-                // Get the fund details
-                String fundName = mCatSelection.getSelectedItem().toString();
-                PhCurrency fundAmount = new PhCurrency(
-                        mAllocateAmountPCI.getAmount());
-
-                // Clear fund amount input
+                PhCurrency fundAmount = new PhCurrency(mAllocateAmountPCI.getAmount());
                 mAllocateAmountPCI.setText("");
 
-                // Notify if the remaining amount is less than the amount to allocate.
+                // Notify if the remaining amount is less than the amount to be allocated.
                 if (mRemainingAmount.compareTo(fundAmount) < 0) {
                     Toast.makeText(mContext,
                             "Allocated amount is more than the remaining amount.",
                             Toast.LENGTH_SHORT).show();
                     Toast.makeText(mContext,
-                            "Please enter a value less than or equal to the" +
+                            "Please enter a value less than or equal to the " +
                                     "remaining amount.",
                             Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 int fundsWithAllocation = 0;
-                PhCurrency fundAmountUpdate = new PhCurrency();
                 PhCurrency totalAllocatedAmount = new PhCurrency();
 
-                for (SimpleEntry<String, PhCurrency> fundItem : mFundList) {
-                    PhCurrency fundValue = fundItem.getValue();
+                for (FundItem fundItem : mFundsList) {
+                    PhCurrency fundValue = fundItem.getAmount();
 
                     // Current total from funds
                     totalAllocatedAmount.add(fundValue);
-
-                    // Reference to the fund to be updated
-                    if (fundItem.getKey().equals(fundName)) {
-                        fundAmountUpdate = fundValue;
-                    }
 
                     if (!fundValue.isZero())
                         fundsWithAllocation++;
@@ -195,8 +192,9 @@ public class FundAllocationFragment extends Fragment {
 
                 totalAllocatedAmount.add(fundAmount);
 
-                // Notify that the income amount has not all been  allocated
-                if (fundsWithAllocation == mFundList.size() - 1 &&
+                // Notify that the income amount has not all been  allocated  while
+                // all funds have amount allocation already.
+                if (fundsWithAllocation == mFundsList.size() - 1 &&
                         totalAllocatedAmount.compareTo(mIncomeAmount) < 0) {
                     Toast.makeText(mContext,
                             "This is the last item." +
@@ -205,8 +203,8 @@ public class FundAllocationFragment extends Fragment {
                     return;
                 }
 
-                // Update funds allocation list display
-                fundAmountUpdate.setValue(fundAmount);
+                // Update funds allocation list
+                mFundsList.get(mFundSelectedIndex).updateAmount(fundAmount);
                 mFundListAdapter.notifyDataSetChanged();
 
                 // Update remaining amount display
@@ -217,15 +215,17 @@ public class FundAllocationFragment extends Fragment {
                 // Check if all the income has been allocated
                 if (mRemainingAmount.isZero()) {
                     mBtnAddAllocation.setText(R.string.btn_done);
+                    mFundSelectedIndex = -1;
+                    mFundNameTV.setText("-----");
+                    mAllocateAmountPCI.setEnabled(false);
                     return;
                 }
 
-                // Change Spinner value to the next fund with ₱0.00 value
-                for (SimpleEntry fundItem : mFundList) {
-                    if (((PhCurrency) fundItem.getValue()).isZero()) {
-                        mCatSelection.setSelection(
-                                mSelectionAdapter.getPosition((String) fundItem.getKey())
-                        );
+                // Change input display value to the next fund with ₱0.00 value.
+                for (FundItem fundItem : mFundsList) {
+                    if (fundItem.getAmount().isZero()) {
+                        mFundSelectedIndex = mFundsList.indexOf(fundItem);
+                        mFundNameTV.setText(fundItem.getName());
                         break;
                     }
                 }
@@ -273,7 +273,7 @@ public class FundAllocationFragment extends Fragment {
          *
          * @param fundList list of fund with its amount allocation.
          */
-        void submitFundAllocation(ArrayList<SimpleEntry<String, PhCurrency>> fundList);
+        void submitFundAllocation(ArrayList<FundItem> fundList);
     }
 
 }
