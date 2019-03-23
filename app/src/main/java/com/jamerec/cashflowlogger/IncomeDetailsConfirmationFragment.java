@@ -3,61 +3,71 @@ package com.jamerec.cashflowlogger;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class IncomeDetailsConfirmationFragment extends Fragment {
+public class IncomeDetailsConfirmationFragment extends Fragment
+        implements View.OnClickListener {
 
     private final static String TAG = "DetailsConfirmFragment";
 
     private ListView mCategoriesLV;
+    private Button mBtnLog;
+    private Button mBtnEdit;
 
     private Context mContext;
     private ArrayList<FundItem> mFundList;
+    private OnConfirmIncomeLogListener logListener;
 
     public IncomeDetailsConfirmationFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof OnConfirmIncomeLogListener) {
+            logListener = (OnConfirmIncomeLogListener) context;
+        } else {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnConfirmIncomeLogListener.confirmIncomeLog");
+        }
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(
                 R.layout.fragment_income_details_confirmation, container, false);
 
         mContext = getContext();
-        mFundList = new ArrayList<>();
 
-        // Dummy values
-        // To be replaced with values from FundAllocationFragment
-        String[] fundNames = {
-                "Basic Necessity",
-                "Education",
-                "Investment",
-                "Health",
-                "Retirement",
-                "Leisure"
-        };
-
-        for (String fundName : fundNames) {
-            mFundList.add(new FundItem(fundName, new PhCurrency()));
-        }
+        // Setup display
+        String incomeSource = getArguments().getString("incomeSource");
+        PhCurrency incomeAmount = getArguments().getParcelable("incomeAmount");
+        TextView incomeSourceTV = view.findViewById(R.id.disp_source);
+        TextView incomeAmountTV = view.findViewById(R.id.disp_amount);
+        incomeSourceTV.setText(incomeSource);
+        incomeAmountTV.setText(incomeAmount.toString());
 
         // Populate allocation list
+        mFundList = getArguments().getParcelableArrayList("fundAllocation");
         FundListAdapter adapter = new FundListAdapter(mContext, mFundList);
         mCategoriesLV = view.findViewById(R.id.list_funds);
         mCategoriesLV.setAdapter(adapter);
@@ -69,8 +79,13 @@ public class IncomeDetailsConfirmationFragment extends Fragment {
                 return (event.getAction() == MotionEvent.ACTION_MOVE);
             }
         });
-
         setListViewHeightBasedOnChildren(mCategoriesLV);
+
+        mBtnLog = view.findViewById(R.id.btn_log);
+        mBtnEdit= view.findViewById(R.id.btn_edit);
+
+        mBtnLog.setOnClickListener(this);
+        mBtnEdit.setOnClickListener(this);
 
         return view;
     }
@@ -99,4 +114,13 @@ public class IncomeDetailsConfirmationFragment extends Fragment {
         listView.setLayoutParams(params);
     }
 
+    @Override
+    public void onClick(View view) {
+        int btnID = view.getId();
+        logListener.confirmIncomeLog(btnID);
+    }
+
+    public interface OnConfirmIncomeLogListener {
+        void confirmIncomeLog(int buttonID);
+    }
 }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -16,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +30,7 @@ public class FundAllocationFragment extends Fragment {
     private final String TAG = getClass().getSimpleName();
     private Context mContext;
 
+    private ScrollView mWindow;
     private TextView mRemainingAmountTV;
     private TextView mFundNameTV;
     private ListView mFundAllocationLV;
@@ -88,11 +89,12 @@ public class FundAllocationFragment extends Fragment {
         }
 
         // Initialize widgets
+        mWindow = view.findViewById(R.id.scroll_view);
         mRemainingAmountTV = view.findViewById(R.id.txt_remaining);
         mFundNameTV = view.findViewById(R.id.item_fund_name);
         mFundAllocationLV = view.findViewById(R.id.list_funds);
         mAllocateAmountPCI = view.findViewById(R.id.input_amount);
-        mBtnAddAllocation = view.findViewById(R.id.btn_allocate);
+        mBtnAddAllocation = view.findViewById(R.id.btn_log);
 
         // Setup display text
         mRemainingAmountTV.setText(mIncomeAmount.toString());
@@ -135,6 +137,9 @@ public class FundAllocationFragment extends Fragment {
         mAllocateAmountPCI.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                // Scroll to bottom
+                mWindow.fullScroll(View.FOCUS_DOWN);
+
                 if (actionId == EditorInfo.IME_ACTION_DONE &&
                         mAllocateAmountPCI.getText().length() > 0)
                     mBtnAddAllocation.setEnabled(true);
