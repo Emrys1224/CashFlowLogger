@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -63,12 +64,12 @@ public class IncomeDetailFragment extends Fragment
 
         // Income source dummy data fetched from DB
         // To be used for selection for income source data input.
-        String[] incomeSource = {
+        String[] incomeSources = {
                 "Youtube",
                 "TuloyPoKayo.com",
                 "Salary"
         };
-        mIncomeSources = incomeSource;
+        mIncomeSources = incomeSources;
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_income_detail, container, false);
@@ -111,6 +112,24 @@ public class IncomeDetailFragment extends Fragment
         mBtnCancel.setOnClickListener(this);
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        // For when edit is selected in IncomeDetailsConfirmationFragment
+        if (getArguments() != null) {
+            String incomeSource = getArguments().getString("incomeSource", "");
+            PhCurrency incomeAmount = getArguments().getParcelable("incomeAmount");
+
+            mIncomeSourceSelection.setText(incomeSource);
+            mIncomeAmountInput.setAmount(incomeAmount);
+
+            mBtnAllocateAuto.setEnabled(true);
+            mBtnAllocateManual.setEnabled(true);
+        }
+
+        super.onViewCreated(view, savedInstanceState);
     }
 
     @Override

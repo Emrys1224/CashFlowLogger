@@ -146,4 +146,13 @@ public class PhCurrencyInput extends AppCompatEditText {
     public PhCurrency getAmount() {
         return mAmount;
     }
+
+    /**
+     * Provide a pre-set value.
+     * @param amount value currency
+     */
+    public void setAmount(PhCurrency amount) {
+        setText(amount.toString());
+        mAmount.setValue(amount);
+    }
 }

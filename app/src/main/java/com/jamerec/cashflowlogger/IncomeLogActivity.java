@@ -145,7 +145,14 @@ public class IncomeLogActivity extends AppCompatActivity
                 break;
 
             case R.id.btn_edit:
-                loadFragment(new IncomeDetailFragment());
+                Bundle incomeDetails = new Bundle();
+                incomeDetails.putString("incomeSource", mIncomeSource);
+                incomeDetails.putParcelable("incomeAmount", mIncomeAmount);
+
+                IncomeDetailFragment incomeDetailFragment = new IncomeDetailFragment();
+                incomeDetailFragment.setArguments(incomeDetails);
+
+                loadFragment(incomeDetailFragment);
         }
     }
 }
