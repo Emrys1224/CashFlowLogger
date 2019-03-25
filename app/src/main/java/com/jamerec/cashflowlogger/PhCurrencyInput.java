@@ -52,6 +52,7 @@ public class PhCurrencyInput extends AppCompatEditText {
 
         if (!enabled) {
             setText("-----");
+            mAmount.setValue(0);
             return;
         }
         setText("");

@@ -152,6 +152,7 @@ public class IncomeDetailFragment extends Fragment
     public void onClick(View v) {
         int btnID = v.getId();
 
+        // Exit IncomeLogActivity
         if (btnID == R.id.btn_cancel) {
             Intent intent = new Intent(getContext(), MainActivity.class);
             startActivity(intent);

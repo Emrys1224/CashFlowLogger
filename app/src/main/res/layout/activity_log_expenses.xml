@@ -1,19 +1,228 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     tools:context=".ExpensesLogActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Expenses Log Activity"
-        android:textSize="40dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-</android.support.constraint.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/heading_income_logging"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="@string/heading_expense_logging"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/label_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginTop="30dp"
+            android:text="@string/label_item"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/heading_income_logging" />
+
+        <AutoCompleteTextView
+            android:id="@+id/input_item"
+            android:layout_width="@dimen/log_expense_input"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginRight="@dimen/margin_right"
+            android:ems="10"
+            android:hint="@string/hint_item"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textSize="@dimen/txtsize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_item" />
+
+        <TextView
+            android:id="@+id/label_brand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginTop="@dimen/margin_item_vert"
+            android:text="@string/label_brand"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/input_item" />
+
+        <AutoCompleteTextView
+            android:id="@+id/input_brand"
+            android:layout_width="@dimen/log_expense_input"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginRight="@dimen/margin_right"
+            android:ems="10"
+            android:hint="@string/hint_brand"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textSize="@dimen/txtsize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_brand" />
+
+        <TextView
+            android:id="@+id/label_price_per_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginTop="@dimen/margin_item_vert"
+            android:text="@string/label_price_per_item"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/input_brand" />
+
+        <com.jamerec.cashflowlogger.PhCurrencyInput
+            android:id="@+id/phCurrencyInput"
+            android:layout_width="@dimen/log_expense_input"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginRight="@dimen/margin_right"
+            android:textSize="@dimen/txtsize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_price_per_item" />
+
+        <TextView
+            android:id="@+id/label_item_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginTop="@dimen/margin_item_vert"
+            android:text="@string/label_item_size"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/phCurrencyInput" />
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView"
+            android:layout_width="@dimen/log_expense_input"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginRight="@dimen/margin_right"
+            android:ems="10"
+            android:hint="@string/hint_item_size"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textSize="@dimen/txtsize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_item_size" />
+
+        <TextView
+            android:id="@+id/label_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginTop="@dimen/margin_item_vert"
+            android:text="@string/label_quantity"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView" />
+
+        <EditText
+            android:id="@+id/input_quantity"
+            android:layout_width="@dimen/log_expense_input"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginRight="@dimen/margin_right"
+            android:autofillHints=""
+            android:ems="10"
+            android:hint="@string/hint_quantity"
+            android:inputType="numberDecimal"
+            android:textSize="@dimen/txtsize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_quantity"
+            tools:targetApi="o" />
+
+        <TextView
+            android:id="@+id/label_total_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginTop="@dimen/margin_item_vert"
+            android:text="@string/label_total_price"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/input_quantity" />
+
+        <TextView
+            android:id="@+id/disp_total_price"
+            android:layout_width="@dimen/log_expense_input"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginRight="@dimen/margin_right"
+            android:padding="8dp"
+            android:text="@string/dummy_txt_amount"
+            android:textSize="@dimen/txtsize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_total_price" />
+
+        <TextView
+            android:id="@+id/label_deduct_from"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginTop="@dimen/margin_item_vert"
+            android:text="@string/label_deduct_from"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/disp_total_price" />
+
+        <Spinner
+            android:id="@+id/selection_fund"
+            android:layout_width="@dimen/log_expense_input"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginRight="@dimen/margin_right"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_deduct_from" />
+
+        <TextView
+            android:id="@+id/label_tags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_left"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginTop="@dimen/margin_item_vert"
+            android:text="@string/label_tags"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/selection_fund" />
+
+        <AutoCompleteTextView
+            android:id="@+id/input_tags"
+            android:layout_width="@dimen/log_expense_input"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="@dimen/margin_right"
+            android:layout_marginRight="@dimen/margin_right"
+            android:hint="@string/hint_tags"
+            android:textSize="@dimen/txtsize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_tags" />
+    </android.support.constraint.ConstraintLayout>
+
+</ScrollView>

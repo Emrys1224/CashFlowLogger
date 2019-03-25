@@ -24,4 +24,18 @@
     <string name="hint_amount">XXX,XXX.XX</string>
     <string name="label_fund">Fund</string>
     <string name="btn_done">Done</string>
+    <string name="heading_expense_logging">Expense Logging</string>
+    <string name="hint_item">E.g. Rice, Fish, etc.</string>
+    <string name="label_item">Item</string>
+    <string name="label_brand">Brand</string>
+    <string name="hint_brand">Brand Name</string>
+    <string name="label_price_per_item">Price per Item</string>
+    <string name="hint_item_size">E.g. 1kg, 1/2gal., 1order</string>
+    <string name="label_quantity">Quantity</string>
+    <string name="hint_quantity">Quantity of items</string>
+    <string name="label_item_size">Item Size</string>
+    <string name="label_total_price">Total Price</string>
+    <string name="label_deduct_from">Deduct From</string>
+    <string name="label_tags">Tags</string>
+    <string name="hint_tags">E.g. food, clothes, utilities</string>
 </resources>
