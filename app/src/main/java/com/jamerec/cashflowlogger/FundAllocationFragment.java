@@ -191,6 +191,7 @@ public class FundAllocationFragment extends Fragment {
                     // Current total from funds
                     totalAllocatedAmount.add(fundValue);
 
+                    // Count how many funds have allocation.
                     if (!fundValue.isZero())
                         fundsWithAllocation++;
                 }
