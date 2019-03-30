@@ -15,7 +15,7 @@
             android:id="@+id/heading_income_logging"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="@dimen/spacingTop_ofHeading"
             android:text="@string/heading_income_detail"
             android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"

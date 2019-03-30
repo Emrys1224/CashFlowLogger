@@ -38,4 +38,7 @@
     <string name="label_deduct_from">Deduct From</string>
     <string name="label_tags">Tags</string>
     <string name="hint_tags">E.g. food, clothes, utilities</string>
+    <string name="dummy_err_msg">This is an error message :p </string>
+    <string name="err_msg_from_isEmpty">Please enter the source of income.</string>
+    <string name="err_msg_amountIsZero">Income amount cannot be empty/zero.</string>
 </resources>

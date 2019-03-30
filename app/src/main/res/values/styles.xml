@@ -23,4 +23,9 @@
     <item name="android:background">@drawable/btn_cancel</item>
   </style>
 
+    <style name="error_msg">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/txtSize_err_msg</item>
+    </style>
+
 </resources>

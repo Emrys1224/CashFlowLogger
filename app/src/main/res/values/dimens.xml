@@ -4,10 +4,14 @@
     <dimen name="txtsize_detail">26sp</dimen>
     <dimen name="radius">5dp</dimen>
     <dimen name="spacing_details_item">18dp</dimen>
-    <dimen name="spacingTop_fromHeading">40dp</dimen>
+    <dimen name="spacingTop_fromHeading">30dp</dimen>
     <dimen name="txtsize_list_item">24sp</dimen>
     <dimen name="log_expense_input">330dp</dimen>
     <dimen name="margin_left">35dp</dimen>
     <dimen name="margin_right">35dp</dimen>
     <dimen name="margin_item_vert">15dp</dimen>
+    <dimen name="spacingTop_ofHeading">30dp</dimen>
+    <dimen name="txtSize_err_msg">16sp</dimen>
+    <dimen name="spacingTop_bottonGrp">30dp</dimen>
+    <dimen name="spacingVert_button">25dp</dimen>
 </resources>

@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -24,7 +23,7 @@ import android.widget.Toast;
  * A simple {@link Fragment} subclass.
  */
 public class IncomeDetailFragment extends Fragment
-        implements TextView.OnEditorActionListener, View.OnClickListener {
+        implements View.OnClickListener {
 
     private final String TAG = getClass().getSimpleName();
     private Context mContext;
@@ -32,6 +31,8 @@ public class IncomeDetailFragment extends Fragment
     // Text Fields
     private AutoCompleteTextView mIncomeSourceSelection;
     private PhCurrencyInput mIncomeAmountInput;
+    private TextView mFromErrMsg;
+    private TextView mAmountErrMsg;
 
     // Buttons
     private Button mBtnAllocateAuto;
@@ -97,10 +98,15 @@ public class IncomeDetailFragment extends Fragment
         });
         mIncomeSourceSelection.setThreshold(1);
         mIncomeSourceSelection.setAdapter(catAdapter);
-        mIncomeSourceSelection.setOnEditorActionListener(this);
 
         mIncomeAmountInput = view.findViewById(R.id.input_amount);
-        mIncomeAmountInput.setOnEditorActionListener(this);
+
+        mFromErrMsg = view.findViewById(R.id.err_msg_from);
+        mAmountErrMsg = view.findViewById(R.id.err_msg_amount);
+
+        // Clear error message.
+        mFromErrMsg.setText("");
+        mAmountErrMsg.setText("");
 
         mBtnAllocateAuto = view.findViewById(R.id.btn_allocate_auto);
         mBtnAllocateManual = view.findViewById(R.id.btn_allocate_man);
@@ -133,22 +139,6 @@ public class IncomeDetailFragment extends Fragment
     }
 
     @Override
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
-
-            if (!mIncomeSourceSelection.getText().toString().equals("")
-                    && !mIncomeAmountInput.getAmount().isZero()) {
-                mBtnAllocateAuto.setEnabled(true);
-                mBtnAllocateManual.setEnabled(true);
-            } else {
-                mBtnAllocateAuto.setEnabled(false);
-                mBtnAllocateManual.setEnabled(false);
-            }
-        }
-        return false;
-    }
-
-    @Override
     public void onClick(View v) {
         int btnID = v.getId();
 
@@ -160,20 +150,26 @@ public class IncomeDetailFragment extends Fragment
         }
 
         // Income details
-        String  incomeSource = mIncomeSourceSelection.getText().toString();
+        boolean hasError = false;
+        String incomeSource = mIncomeSourceSelection.getText().toString();
         PhCurrency incomeAmount = mIncomeAmountInput.getAmount();
 
-        if (!incomeSource.equals("") && !incomeAmount.isZero())
-            submitListener.submitIncomeDetails(incomeSource, incomeAmount, btnID);
+        // Clear error messages.
+        mFromErrMsg.setText("");
+        mAmountErrMsg.setText("");
 
-        else {
-            mBtnAllocateAuto.setEnabled(false);
-            mBtnAllocateManual.setEnabled(false);
-
-            Toast.makeText(mContext,
-                    "An input detail is missing.\nPlease completely fill up the form.",
-                    Toast.LENGTH_LONG).show();
+        // Validate inputs and display error message accordingly.
+        if (incomeSource.isEmpty()) {
+            mFromErrMsg.setText(R.string.err_msg_from_isEmpty);
+            hasError = true;
         }
+        if (incomeAmount.isZero()) {
+            mAmountErrMsg.setText(R.string.err_msg_amountIsZero);
+            hasError = true;
+        }
+        if (hasError) return;
+
+        submitListener.submitIncomeDetails(incomeSource, incomeAmount, btnID);
     }
 
     /**
