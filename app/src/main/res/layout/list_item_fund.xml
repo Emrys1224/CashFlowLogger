@@ -2,7 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
+    android:layout_marginTop="2dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingStart="15dp"
     android:paddingLeft="15dp">
 
     <TextView
@@ -18,6 +21,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="@dimen/txtsize_list_item"
-        android:text="@string/dummy_txt_amount" />
+        android:text="@string/dummy_txt_amount"
+        android:textSize="@dimen/txtsize_list_item" />
 </LinearLayout>

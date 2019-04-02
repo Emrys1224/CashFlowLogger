@@ -12,6 +12,10 @@
     <dimen name="margin_item_vert">15dp</dimen>
     <dimen name="spacingTop_ofHeading">30dp</dimen>
     <dimen name="txtSize_err_msg">16sp</dimen>
-    <dimen name="spacingTop_bottonGrp">30dp</dimen>
+    <dimen name="spacingTop_buttonGrp">30dp</dimen>
     <dimen name="spacingVert_button">25dp</dimen>
+    <dimen name="spacingVert_fieldGrp">10dp</dimen>
+    <dimen name="width_inputField">320dp</dimen>
+    <dimen name="spacingBottom_buttonGrp">30dp</dimen>
+    <dimen name="spacingVert_fieldItem">3dp</dimen>
 </resources>

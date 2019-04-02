@@ -133,7 +133,7 @@ public class IncomeLogActivity extends AppCompatActivity
     @Override
     public void confirmIncomeLog(int buttonID) {
         switch (buttonID) {
-            case R.id.btn_log:
+            case R.id.btn_allocate:
                 // Add the income data entry to the DB here....
 
                 Toast.makeText(this,

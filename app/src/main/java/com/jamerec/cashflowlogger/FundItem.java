@@ -13,7 +13,7 @@ public class FundItem implements Parcelable {
     private PhCurrency mFundAmount;
 
     /**
-     * Create a new FundItem
+     * Create a new FundListItem
      * @param fundName name of the fund
      * @param fundAmount amount allocated in the fund
      */

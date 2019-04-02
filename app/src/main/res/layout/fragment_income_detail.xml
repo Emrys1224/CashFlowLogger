@@ -29,8 +29,8 @@
 
     <AutoCompleteTextView
         android:id="@+id/input_income_source"
-        android:layout_width="320dp"
-        android:layout_height="56dp"
+        android:layout_width="@dimen/width_inputField"
+        android:layout_height="wrap_content"
         android:hint="@string/hint_source"
         android:imeOptions="actionNext"
         android:inputType="text"
@@ -54,7 +54,7 @@
         android:id="@+id/label_amount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/spacingVert_fieldGrp"
         android:text="@string/label_amount"
         android:textSize="@dimen/txtsize_label"
         app:layout_constraintStart_toStartOf="@+id/input_amount"
@@ -62,7 +62,7 @@
 
     <com.jamerec.cashflowlogger.PhCurrencyInput
         android:id="@+id/input_amount"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/width_inputField"
         android:layout_height="wrap_content"
         android:imeOptions="actionDone"
         android:textSize="@dimen/txtsize_detail"
@@ -86,7 +86,7 @@
         style="@style/btn_income_detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacingTop_bottonGrp"
+        android:layout_marginTop="@dimen/spacingTop_buttonGrp"
         android:text="@string/btn_txt_allocate_auto"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

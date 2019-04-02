@@ -81,7 +81,7 @@ public class IncomeDetailsConfirmationFragment extends Fragment
         });
         setListViewHeightBasedOnChildren(mCategoriesLV);
 
-        mBtnLog = view.findViewById(R.id.btn_log);
+        mBtnLog = view.findViewById(R.id.btn_allocate);
         mBtnEdit= view.findViewById(R.id.btn_edit);
 
         mBtnLog.setOnClickListener(this);

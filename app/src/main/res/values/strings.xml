@@ -41,4 +41,7 @@
     <string name="dummy_err_msg">This is an error message :p </string>
     <string name="err_msg_from_isEmpty">Please enter the source of income.</string>
     <string name="err_msg_amountIsZero">Income amount cannot be empty/zero.</string>
+    <string name="err_msg_amountZero">Amount should not be empty/zero.</string>
+    <string name="err_msg_amountTooBig">Amount should not be more than the remaining amount.</string>
+    <string name="err_msg_allocationIncomplete">Income amount should all be allocated.</string>
 </resources>
