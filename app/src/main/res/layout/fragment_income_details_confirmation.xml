@@ -26,25 +26,25 @@
             android:id="@+id/label_source"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingTop_fromHeading"
             android:text="@string/label_source"
             android:textSize="@dimen/txtsize_label"
-            app:layout_constraintStart_toStartOf="@+id/label_amount"
-            app:layout_constraintTop_toBottomOf="@+id/heading_income_logging" />
+            app:layout_constraintBaseline_toBaselineOf="@+id/disp_source"
+            app:layout_constraintStart_toStartOf="@+id/label_amount" />
 
         <TextView
             android:id="@+id/disp_source"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
-            android:padding="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="@dimen/spacingTop_fromHeading"
+            android:padding="2dp"
             android:text="@string/dummy_source"
             android:textSize="@dimen/txtsize_detail"
-            app:layout_constraintBaseline_toBaselineOf="@+id/label_source"
             app:layout_constraintEnd_toEndOf="@+id/list_funds"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/label_allocation" />
+            app:layout_constraintStart_toEndOf="@+id/label_allocation"
+            app:layout_constraintTop_toBottomOf="@+id/heading_income_logging" />
 
         <TextView
             android:id="@+id/label_amount"
@@ -52,36 +52,35 @@
             android:layout_height="wrap_content"
             android:text="@string/label_amount"
             android:textSize="@dimen/txtsize_label"
-            app:layout_constraintStart_toStartOf="@+id/label_allocation"
-            app:layout_constraintTop_toBottomOf="@+id/disp_source" />
+            app:layout_constraintBaseline_toBaselineOf="@+id/disp_amount"
+            app:layout_constraintStart_toStartOf="@+id/label_allocation" />
 
         <TextView
             android:id="@+id/disp_amount"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="10dp"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:padding="2dp"
             android:text="@string/dummy_txt_amount"
             android:textSize="@dimen/txtsize_detail"
-            app:layout_constraintBaseline_toBaselineOf="@+id/label_amount"
             app:layout_constraintEnd_toEndOf="@+id/disp_source"
-            app:layout_constraintStart_toStartOf="@+id/disp_source" />
+            app:layout_constraintStart_toStartOf="@+id/disp_source"
+            app:layout_constraintTop_toBottomOf="@+id/disp_source" />
 
         <TextView
             android:id="@+id/label_allocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
             android:text="@string/label_allocation"
             android:textSize="@dimen/txtsize_label"
             app:layout_constraintStart_toStartOf="@+id/list_funds"
             app:layout_constraintTop_toBottomOf="@+id/disp_amount" />
 
-        <ListView
+        <android.support.v7.widget.RecyclerView
             android:id="@+id/list_funds"
-            android:layout_width="355dp"
+            android:layout_width="@dimen/width_inputField"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:divider="@null"
             android:dividerHeight="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -93,13 +92,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacingTop_buttonGrp"
-            android:layout_marginBottom="@dimen/spacingTop_buttonGrp"
+            android:layout_marginBottom="@dimen/spacingBottom_buttonGrp"
             android:text="@string/btn_txt_log_income"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_edit"
-            app:layout_constraintHorizontal_bias="0.52"
             app:layout_constraintStart_toStartOf="@+id/list_funds"
-            app:layout_constraintTop_toBottomOf="@+id/list_funds" />
+            app:layout_constraintTop_toBottomOf="@+id/list_funds"
+            app:layout_constraintVertical_bias="1.0" />
 
         <Button
             android:id="@+id/btn_edit"
