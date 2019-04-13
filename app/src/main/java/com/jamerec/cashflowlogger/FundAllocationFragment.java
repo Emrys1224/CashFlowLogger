@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -24,7 +23,7 @@ import java.util.ArrayList;
  * A simple {@link Fragment} subclass.
  */
 public class FundAllocationFragment extends Fragment
-        implements FundListAdapterRV.FundItemClickListener {
+        implements FundListAdapter.FundItemClickListener {
 
     private final String TAG = getClass().getSimpleName();
     private Context mContext;
@@ -102,7 +101,7 @@ public class FundAllocationFragment extends Fragment
         mFundAllocationRV.setHasFixedSize(true);
         mLayoutMgr = new LinearLayoutManager(mContext);
         mFundAllocationRV.setLayoutManager(mLayoutMgr);
-        mFundListAdapter = new FundListAdapterRV(mContext, mFundsList, this);
+        mFundListAdapter = new FundListAdapter(mContext, mFundsList, this);
         mFundAllocationRV.setAdapter(mFundListAdapter);
 
         // Setup display text

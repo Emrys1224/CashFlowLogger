@@ -172,6 +172,12 @@ public class IncomeDetailFragment extends Fragment
         submitListener.submitIncomeDetails(incomeSource, incomeAmount, btnID);
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        submitListener = null;
+    }
+
     /**
      * This interface submits the income details for further processing...
      */

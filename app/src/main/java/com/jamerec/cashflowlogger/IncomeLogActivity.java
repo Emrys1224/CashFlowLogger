@@ -19,7 +19,7 @@ public class IncomeLogActivity extends AppCompatActivity
 
     private final String TAG = getClass().getSimpleName();
 
-    private FragmentManager fragmentManager;
+    private FragmentManager mFragmentManager;
 
     // Income details
     private String mIncomeSource;
@@ -30,7 +30,7 @@ public class IncomeLogActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        fragmentManager = getSupportFragmentManager();
+        mFragmentManager = getSupportFragmentManager();
 
         // Get the account balance, list of income sources and the list of funds from DB here....
         // Account balance dummy data
@@ -38,7 +38,7 @@ public class IncomeLogActivity extends AppCompatActivity
     }
 
     public void loadFragment(Fragment detailFragment) {
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
 
         fragmentTransaction.replace(android.R.id.content, detailFragment);
         fragmentTransaction.commit();

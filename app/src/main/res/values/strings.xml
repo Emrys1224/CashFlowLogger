@@ -44,4 +44,5 @@
     <string name="err_msg_amountZero">Amount should not be empty/zero.</string>
     <string name="err_msg_amountTooBig">Amount should not be more than the remaining amount.</string>
     <string name="err_msg_allocationIncomplete">Income amount should all be allocated.</string>
+    <string name="dummy_product_tag">Product Tag</string>
 </resources>

@@ -71,4 +71,18 @@ public class ExampleUnitTest {
         System.out.println("Finished run...");      // Not executed
     }
 
+    @Test
+    public void replace_string_test() {
+        String test1 = "12312.23kilo";
+
+        String test2 = test1.replaceAll("[^\\d.]", "");
+        String test3 = test1.replaceAll("[\\d.]", "");
+
+        System.out.println("Test 1: " + test1);
+        System.out.println("Test 2: " + test2);
+        System.out.println("Test 3: " + test3);
+
+        assertTrue(true);
+    }
+
 }

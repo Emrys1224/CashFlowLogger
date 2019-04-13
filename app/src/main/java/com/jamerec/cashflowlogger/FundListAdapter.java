@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class FundListAdapterRV extends RecyclerView.Adapter<FundListAdapterRV.FundListItem> {
+public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundListItem> {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -18,9 +18,9 @@ public class FundListAdapterRV extends RecyclerView.Adapter<FundListAdapterRV.Fu
     private LayoutInflater mInflater;
     private FundItemClickListener mListener;
 
-    FundListAdapterRV(Context context,
-                      ArrayList<com.jamerec.cashflowlogger.FundItem> fundsList,
-                      FundItemClickListener listener) {
+    FundListAdapter(Context context,
+                    ArrayList<com.jamerec.cashflowlogger.FundItem> fundsList,
+                    FundItemClickListener listener) {
         this.mFundsList = fundsList;
         this.mInflater = LayoutInflater.from(context);
         this.mListener = listener;

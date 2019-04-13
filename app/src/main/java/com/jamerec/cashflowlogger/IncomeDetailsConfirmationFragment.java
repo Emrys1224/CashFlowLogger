@@ -8,12 +8,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -73,7 +70,7 @@ public class IncomeDetailsConfirmationFragment extends Fragment
         mCategoriesRV = view.findViewById(R.id.list_funds);
         LinearLayoutManager layoutMgr = new LinearLayoutManager(mContext);
         mCategoriesRV.setLayoutManager(layoutMgr);
-        FundListAdapterRV adapter = new FundListAdapterRV(mContext, mFundList, null);
+        FundListAdapter adapter = new FundListAdapter(mContext, mFundList, null);
         mCategoriesRV.setAdapter(adapter);
 
         mBtnLog = view.findViewById(R.id.btn_allocate);

@@ -1,5 +1,9 @@
 package com.jamerec.cashflowlogger;
 
+import android.net.Uri;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -8,25 +12,31 @@ import android.widget.Spinner;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExpensesLogActivity extends AppCompatActivity {
+public class ExpensesLogActivity extends AppCompatActivity
+implements ExpenseLogDetailsFragment.OnSubmitExpenseDetailsListener {
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_log_expenses);
+    private final String TAG = getClass().getSimpleName();
 
-    Spinner fundSelection = findViewById(R.id.selection_fund);
+    private FragmentManager mFragmentManager;
 
-    // List of funds retrieved from SharedPreference.
-    List<String> funds = new ArrayList<>();
-    funds.add("Basic Needs");
-    funds.add("Education");
-    funds.add("Investment");
-    funds.add("Retirement");
-    funds.add("Leisure");
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, funds);
+        mFragmentManager = getSupportFragmentManager();
 
-    fundSelection.setAdapter(adapter);
-  }
+        loadFragment(new ExpenseLogDetailsFragment());
+    }
+
+    public void loadFragment(Fragment detailFragment) {
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(android.R.id.content, detailFragment);
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public void submitExpenseDetails(Uri uri) {
+        // submit details....
+    }
 }

@@ -30,7 +30,6 @@ public class PhCurrency implements Parcelable {
     private long mPesoAmount;
     private byte mCentavoAmount;
 
-
     protected PhCurrency(Parcel in) {
         mPesoAmount = in.readLong();
         mCentavoAmount = in.readByte();
@@ -198,8 +197,9 @@ public class PhCurrency implements Parcelable {
 
     /**
      * Checks if the amount is not zero
+     *
      * @return false if not zero;
-     *         true if zero.
+     * true if zero.
      */
     public boolean isZero() {
         if (this.mPesoAmount == 0 && this.mCentavoAmount == 0)
@@ -358,10 +358,10 @@ public class PhCurrency implements Parcelable {
         if (currentAmount > 0
                 ? factor > 0 ?
                 currentAmount >= PESO_MAX_VALUE / factor :
-                currentAmount >= PESO_MIN_VALUE / factor
+                factor != 0 && currentAmount >= PESO_MIN_VALUE / factor
                 : factor < 0 ?
                 currentAmount <= PESO_MAX_VALUE / factor :
-                currentAmount <= PESO_MIN_VALUE / factor
+                factor != 0 && currentAmount <= PESO_MIN_VALUE / factor
         ) {
             throw new ArithmeticException("Product peso value overflow.");
         }
@@ -392,10 +392,10 @@ public class PhCurrency implements Parcelable {
         //      than or equal to PESO_MIN_VALUE.
         //          A / B <= PESO_MIN_VALUE where A < 0 and 1 > B > 0
         if (divisor == 0 || currentAmount > 0 ?
-                (divisor > 0 && divisor <  1 && currentAmount >= PESO_MAX_VALUE * divisor) ||
-                (divisor < 0 && divisor > -1 && currentAmount >= PESO_MIN_VALUE * divisor) :
+                (divisor > 0 && divisor < 1 && currentAmount >= PESO_MAX_VALUE * divisor) ||
+                        (divisor < 0 && divisor > -1 && currentAmount >= PESO_MIN_VALUE * divisor) :
                 (divisor < 0 && divisor > -1 && currentAmount <= PESO_MAX_VALUE * divisor) ||
-                (divisor > 0 && divisor <  1 && currentAmount <= PESO_MIN_VALUE * divisor)
+                        (divisor > 0 && divisor < 1 && currentAmount <= PESO_MIN_VALUE * divisor)
         ) {
             throw new ArithmeticException("Quotient peso value overflow.");
         }

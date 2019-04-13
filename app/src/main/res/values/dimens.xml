@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="txtsize_label">22sp</dimen>
-    <dimen name="txtsize_detail">26sp</dimen>
+    <dimen name="txtSize_detail">26sp</dimen>
     <dimen name="radius">5dp</dimen>
     <dimen name="spacing_details_item">18dp</dimen>
     <dimen name="spacingTop_fromHeading">30dp</dimen>
@@ -14,7 +14,7 @@
     <dimen name="txtSize_err_msg">16sp</dimen>
     <dimen name="spacingTop_buttonGrp">30dp</dimen>
     <dimen name="spacingVert_button">25dp</dimen>
-    <dimen name="spacingVert_fieldGrp">10dp</dimen>
+    <dimen name="spacingVert_fieldGrp">15dp</dimen>
     <dimen name="width_inputField">335dp</dimen>
     <dimen name="spacingBottom_buttonGrp">30dp</dimen>
     <dimen name="spacingVert_fieldItem">3dp</dimen>
