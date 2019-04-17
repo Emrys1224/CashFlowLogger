@@ -45,4 +45,11 @@
     <string name="err_msg_amountTooBig">Amount should not be more than the remaining amount.</string>
     <string name="err_msg_allocationIncomplete">Income amount should all be allocated.</string>
     <string name="dummy_product_tag">Product Tag</string>
+    <string name="err_msg_no_set_unit">Packaging size should have unit of measure.</string>
+    <string name="err_msg_no_set_value">Packaging size should have numeric value.</string>
+    <string name="err_msg_set_size_empty">Packaging size should be indicated.</string>
+    <string name="err_msg_item_name_empty">Item name cannot be empty.</string>
+    <string name="err_msg_brand_name_empty">Brand name cannot be empty.</string>
+    <string name="err_msg_item_price_zero">Item price cannot be empty/zero.</string>
+    <string name="err_msg_quantity_zero">Quantity cannot not be empty/zero.</string>
 </resources>

@@ -11,9 +11,10 @@ import java.util.List;
 
 class ExpenseItem implements Parcelable {
     //  Result for setting the product size.
-    static final int SET_SIZE_OK = 24;  // Given size is good.
-    static final int NO_SET_VALUE = 36; // Given size has no numeric value.
-    static final int NO_SET_UNIT = 48;  // Given size has no unit indicated.
+    static final int SET_SIZE_OK = 24;      // Given size is good.
+    static final int NO_SET_VALUE = 36;     // Given size has no numeric value.
+    static final int NO_SET_UNIT = 48;      // Given size has no unit indicated.
+    static final int SET_SIZE_EMPTY = 60;   // No given size.
 
     private String mProduct;        // Product name
     private String mBrand;          // Brand name
@@ -184,6 +185,8 @@ class ExpenseItem implements Parcelable {
      * NO_SET_UNIT (48) if there is unit of measurement given.
      */
     int setSize(String size) {
+        if (size.isEmpty()) return SET_SIZE_EMPTY;
+
         // Extract unit of measurement.
         String unitMeasure = size.replaceAll("[\\d.]", "");
         if (unitMeasure.isEmpty()) return NO_SET_UNIT;

@@ -9,10 +9,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RecordViewActivity" />
-        <activity android:name=".ExpensesLogActivity" />
-        <activity android:name=".IncomeLogActivity" />
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".RecordViewActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ExpensesLogActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".IncomeLogActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
