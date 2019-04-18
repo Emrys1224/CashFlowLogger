@@ -50,6 +50,7 @@ public class ExpenseLogDetailsFragment extends Fragment
     private TextView mQuantityErMsgTV;
     private TextView mTotalPriceTV;
     private Spinner mFundSelectionS;
+    private TextView mFundErrMsgTV;
     private RecyclerView mTagsRV;
     private EditText mTagsET;
     private Button mBtnLog;
@@ -59,7 +60,6 @@ public class ExpenseLogDetailsFragment extends Fragment
     private OnSubmitExpenseDetailsListener mListener;
     private ExpenseItem mExpenseItem;
     private TagItemAdapter mTagItemAdapter;
-    private List<String> mTags;
 
     public ExpenseLogDetailsFragment() {
         // Required empty public constructor
@@ -85,7 +85,6 @@ public class ExpenseLogDetailsFragment extends Fragment
 
         mContext = getContext();
         mExpenseItem = new ExpenseItem();
-        mTags = new ArrayList<>();
 
         // Initialize widgets.
         mWindowNSV = view.findViewById(R.id.nestedScrollView);
@@ -101,6 +100,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         mQuantityErMsgTV = view.findViewById(R.id.err_msg_quantity);
         mTotalPriceTV = view.findViewById(R.id.disp_total_price);
         mFundSelectionS = view.findViewById(R.id.selection_fund);
+        mFundErrMsgTV = view.findViewById(R.id.err_msg_fund);
         mTagsRV = view.findViewById(R.id.disp_tags);
         mTagsET = view.findViewById(R.id.input_tags);
         mBtnLog = view.findViewById(R.id.btn_log);
@@ -112,6 +112,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         mPriceErrMsgTV.setText("");
         mSizeErrMsgTV.setText("");
         mQuantityErMsgTV.setText("");
+        mFundErrMsgTV.setText("");
 
         // Initialize total item price display.
         mTotalPriceTV.setText(
@@ -136,7 +137,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         flexBoxLayoutMgr.setJustifyContent(JustifyContent.FLEX_START);
         flexBoxLayoutMgr.setFlexWrap(FlexWrap.WRAP);
         mTagsRV.setLayoutManager(flexBoxLayoutMgr);
-        mTagItemAdapter = new TagItemAdapter(mContext, mTags);
+        mTagItemAdapter = new TagItemAdapter(mContext, mExpenseItem, TagItemAdapter.BUTTON_TAG);
         mTagsRV.setAdapter(mTagItemAdapter);
 
         // Scroll the view when the input field is focused to show both the input field
@@ -148,18 +149,18 @@ public class ExpenseLogDetailsFragment extends Fragment
                         // Get the dimension of the screen after the soft keyboard was shown.
                         Rect rect = new Rect();
                         view.getWindowVisibleDisplayFrame(rect);
-                        Log.d(TAG,
-                                "Rect dimension/position" +
-                                        "\nRect left: " + rect.left + "\nRect top: " + rect.top +
-                                        "\nRect right: " + rect.right + "\nRect bottom: " + rect.bottom);
+//                        Log.d(TAG,
+//                                "Rect dimension/position" +
+//                                        "\nRect left: " + rect.left + "\nRect top: " + rect.top +
+//                                        "\nRect right: " + rect.right + "\nRect bottom: " + rect.bottom);
 
                         // Get the position of the focused view within the scroll view.
                         final View focusedView = getActivity().getCurrentFocus();
                         if (focusedView != null) {
                             int focusedViewYPos = focusedView.getTop();
-                            Log.d(TAG,
-                                    "Focused View Position" +
-                                            "\nY Pos: " + focusedViewYPos);
+//                            Log.d(TAG,
+//                                    "Focused View Position" +
+//                                            "\nY Pos: " + focusedViewYPos);
 
                             // Scroll the screen to show the input field and the
                             // space for the error message.
@@ -181,7 +182,10 @@ public class ExpenseLogDetailsFragment extends Fragment
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 String itemName = mItemATV.getText().toString();
                 mExpenseItem.setItemName(itemName);
-                Log.d(TAG, mExpenseItem.toString());
+//                Log.d(TAG, mExpenseItem.toString());
+
+                // Update tags display as per product stored in database.
+                mTagItemAdapter.notifyDataSetChanged();
 
                 // Add autocomplete suggestion item for mBrandATV.
                 ArrayAdapter<String> brandAdapter =
@@ -200,11 +204,6 @@ public class ExpenseLogDetailsFragment extends Fragment
                         );
                 mSizeATV.setThreshold(1);
                 mSizeATV.setAdapter(sizeAdapter);
-
-                // Update tags display as per product stored in database.
-                mTags.clear();
-                mTags.addAll(mExpenseItem.getTags());
-                mTagItemAdapter.notifyDataSetChanged();
 
                 if (itemName.isEmpty()) {
                     // Show error message and retain focus.
@@ -225,7 +224,7 @@ public class ExpenseLogDetailsFragment extends Fragment
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 String brandName = mBrandATV.getText().toString();
                 mExpenseItem.setBrand(brandName);
-                Log.d(TAG, mExpenseItem.toString());
+//                Log.d(TAG, mExpenseItem.toString());
 
                 if (brandName.isEmpty()) {
                     // Show error message and retain focus.
@@ -246,7 +245,7 @@ public class ExpenseLogDetailsFragment extends Fragment
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 PhCurrency itemPrice = mPricePCI.getAmount();
                 mExpenseItem.setPrice(itemPrice);
-                Log.d(TAG, mExpenseItem.toString());
+//                Log.d(TAG, mExpenseItem.toString());
 
                 // Update total price display.
                 mTotalPriceTV.setText(
@@ -288,7 +287,7 @@ public class ExpenseLogDetailsFragment extends Fragment
                         errMsg = R.string.err_msg_set_size_empty;
                 }
 
-                Log.d(TAG, mExpenseItem.toString());
+//                Log.d(TAG, mExpenseItem.toString());
 
                 if (errMsg != 0) {
                     // Show error message and retain focus.
@@ -313,12 +312,12 @@ public class ExpenseLogDetailsFragment extends Fragment
                                 0D : Double.parseDouble(quantity)
                 );
 
-                Log.d(TAG, mExpenseItem.toString());
+//                Log.d(TAG, mExpenseItem.toString());
 
                 mTotalPriceTV.setText(
                         mExpenseItem.getTotalPrice().toString());
 
-                if (quantity.isEmpty()) {
+                if (mExpenseItem.getQuantity() == 0) {
                     // Show error message and retain focus.
                     mQuantityErMsgTV.setText(R.string.err_msg_quantity_zero);
                     return true;
@@ -326,11 +325,6 @@ public class ExpenseLogDetailsFragment extends Fragment
 
                 // Clear error message.
                 mQuantityErMsgTV.setText("");
-
-                // Hide the soft keyboard.
-                InputMethodManager imm = (InputMethodManager)
-                        mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(mQuantityET.getWindowToken(), 0);
                 // Show fund selection dropdown.
                 mFundSelectionS.performClick();
                 return false;
@@ -344,20 +338,46 @@ public class ExpenseLogDetailsFragment extends Fragment
                 mExpenseItem.setFund(
                         parent.getItemAtPosition(position).toString());
 
-                Log.d(TAG, mExpenseItem.toString());
+//                Log.d(TAG, mExpenseItem.toString());
 
                 if (!mExpenseItem.getItemName().isEmpty()) {
                     mTagsET.requestFocus();
-                }
 
-                // Show soft keyboard.
-                InputMethodManager imm = (InputMethodManager)
-                        mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(mTagsET, InputMethodManager.SHOW_IMPLICIT);
+                    // Show soft keyboard.
+                    InputMethodManager imm = (InputMethodManager)
+                            mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(mTagsET, InputMethodManager.SHOW_IMPLICIT);
+                }
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) { /*Do nothing....*/ }
+            public void onNothingSelected(AdapterView<?> parent) { /* Do Nothing */ }
+        });
+
+        mFundSelectionS.setFocusable(true);
+        mFundSelectionS.setFocusableInTouchMode(true);
+        mFundSelectionS.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+
+                // Hide the soft keyboard.
+                if (hasFocus) {
+                    InputMethodManager imm = (InputMethodManager)
+                            mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mFundSelectionS.getWindowToken(), 0);
+                }
+
+                else {
+                    // Show error message.
+                    if (mExpenseItem.getFund().isEmpty()) {
+                        mFundErrMsgTV.setText(R.string.err_msg_no_fund_selected);
+                        return;
+                    }
+
+                    // Clear error message.
+                    mFundErrMsgTV.setText("");
+                }
+            }
         });
 
         // Update product tags.
@@ -373,17 +393,21 @@ public class ExpenseLogDetailsFragment extends Fragment
 
                 // Add a tag and update UI display.
                 mExpenseItem.addTag(tag);
-                mTags.clear();
-                mTags.addAll(mExpenseItem.getTags());
                 mTagItemAdapter.notifyDataSetChanged();
 
                 mTagsET.setText("");
 
-                Log.d(TAG, mExpenseItem.toString());
+//                Log.d(TAG, mExpenseItem.toString());
 
                 return true;    // Keep focus for adding additional tags.
             }
         });
+
+        // Submit ExpenseItem
+        mBtnLog.setOnClickListener(this);
+
+        // Return to home page.
+        mBtnCancel.setOnClickListener(this);
 
         return view;
     }
@@ -399,12 +423,30 @@ public class ExpenseLogDetailsFragment extends Fragment
         int btnId = v.getId();
 
         if (btnId == R.id.btn_cancel) {
-            Intent intent = new Intent(mContext, ExpensesLogActivity.class);
+            Intent intent = new Intent(mContext, MainActivity.class);
             startActivity(intent);
             return;
         }
 
-        // Valida expense item details.
+        // Submit ExpenseItem for confirmation.
+        if (mExpenseItem.isReadyToLog()) {
+            mListener.submitExpenseDetails(mExpenseItem);
+            return;
+        }
+
+        // Show error messages.
+        if (mExpenseItem.getItemName().isEmpty())
+            mItemErrMsgTV.setText(R.string.err_msg_item_name_empty);
+        if (mExpenseItem.getBrand().isEmpty())
+            mBrandErrMsgTV.setText(R.string.err_msg_brand_name_empty);
+        if (mExpenseItem.getItemPrice().isZero())
+            mPriceErrMsgTV.setText(R.string.err_msg_item_price_zero);
+        if (mExpenseItem.getSize().isEmpty())
+            mSizeErrMsgTV.setText(R.string.err_msg_set_size_empty);
+        if (mExpenseItem.getQuantity() == 0)
+            mQuantityErMsgTV.setText(R.string.err_msg_quantity_zero);
+        if (mExpenseItem.getFund().isEmpty())
+            mFundErrMsgTV.setText(R.string.err_msg_no_fund_selected);
 
     }
 

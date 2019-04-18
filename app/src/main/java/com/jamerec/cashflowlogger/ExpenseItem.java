@@ -299,6 +299,11 @@ class ExpenseItem implements Parcelable {
         return tags;
     }
 
+    boolean isReadyToLog() {
+        return !mProduct.isEmpty() && !mBrand.isEmpty() && !mPrice.isZero() &&
+                !mSize.isEmpty() && mQuantity != 0 && !mFund.isEmpty();
+    }
+
     @Override
     public int describeContents() {
         return 0;

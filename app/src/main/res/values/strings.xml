@@ -52,4 +52,5 @@
     <string name="err_msg_brand_name_empty">Brand name cannot be empty.</string>
     <string name="err_msg_item_price_zero">Item price cannot be empty/zero.</string>
     <string name="err_msg_quantity_zero">Quantity cannot not be empty/zero.</string>
+    <string name="err_msg_no_fund_selected">A fund to deduct from must be selected.</string>
 </resources>

@@ -51,9 +51,10 @@
         <TextView
             android:id="@+id/err_msg_item"
             style="@style/error_msg"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/dummy_err_msg"
+            app:layout_constraintEnd_toEndOf="@+id/input_item"
             app:layout_constraintStart_toStartOf="@+id/input_item"
             app:layout_constraintTop_toBottomOf="@+id/input_item" />
 
@@ -84,9 +85,10 @@
         <TextView
             android:id="@+id/err_msg_brand"
             style="@style/error_msg"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/dummy_err_msg"
+            app:layout_constraintEnd_toEndOf="@+id/input_brand"
             app:layout_constraintStart_toStartOf="@+id/input_brand"
             app:layout_constraintTop_toBottomOf="@+id/input_brand" />
 
@@ -112,9 +114,10 @@
         <TextView
             android:id="@+id/err_msg_price"
             style="@style/error_msg"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/dummy_err_msg"
+            app:layout_constraintEnd_toEndOf="@+id/input_price"
             app:layout_constraintStart_toStartOf="@+id/input_price"
             app:layout_constraintTop_toBottomOf="@+id/input_price" />
 
@@ -145,9 +148,10 @@
         <TextView
             android:id="@+id/err_msg_size"
             style="@style/error_msg"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/dummy_err_msg"
+            app:layout_constraintEnd_toEndOf="@+id/input_size"
             app:layout_constraintStart_toStartOf="@+id/input_size"
             app:layout_constraintTop_toBottomOf="@+id/input_size" />
 
@@ -178,9 +182,10 @@
         <TextView
             android:id="@+id/err_msg_quantity"
             style="@style/error_msg"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/dummy_err_msg"
+            app:layout_constraintEnd_toEndOf="@+id/input_quantity"
             app:layout_constraintStart_toStartOf="@+id/input_quantity"
             app:layout_constraintTop_toBottomOf="@+id/input_quantity" />
 
@@ -195,10 +200,10 @@
             app:layout_constraintTop_toBottomOf="@+id/err_msg_quantity" />
 
         <TextView
-            android:background="#FFFFFF"
             android:id="@+id/disp_total_price"
             android:layout_width="@dimen/width_inputField"
             android:layout_height="wrap_content"
+            android:background="#FFFFFF"
             android:padding="8dp"
             android:text="@string/dummy_txt_amount"
             android:textSize="@dimen/txtSize_detail"
@@ -218,22 +223,32 @@
 
         <Spinner
             android:id="@+id/selection_fund"
+            style="@style/spinner"
             android:layout_width="@dimen/width_inputField"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/label_deduct_from"
-            style="@style/spinner" />
+            app:layout_constraintTop_toBottomOf="@+id/label_deduct_from" />
 
         <TextView
+            style="@style/error_msg"
+            android:id="@+id/err_msg_fund"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/dummy_err_msg"
+            app:layout_constraintEnd_toEndOf="@+id/selection_fund"
+            app:layout_constraintStart_toStartOf="@+id/label_deduct_from"
+            app:layout_constraintTop_toBottomOf="@+id/selection_fund" />
+
+        <TextView
+            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
             android:id="@+id/label_tags"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
             android:text="@string/label_tags"
             android:textSize="@dimen/txtsize_label"
             app:layout_constraintStart_toStartOf="@+id/input_tags"
-            app:layout_constraintTop_toBottomOf="@+id/selection_fund" />
+            app:layout_constraintTop_toBottomOf="@+id/err_msg_fund" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/disp_tags"
@@ -248,10 +263,10 @@
             android:layout_width="@dimen/width_inputField"
             android:layout_height="wrap_content"
             android:hint="@string/hint_tags"
-            android:textSize="@dimen/txtSize_detail"
+            android:imeOptions="actionDone"
             android:inputType="text"
             android:maxLines="1"
-            android:imeOptions="actionDone"
+            android:textSize="@dimen/txtSize_detail"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/disp_tags" />
