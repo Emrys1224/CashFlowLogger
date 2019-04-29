@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".ExpenseLogConfirmationFragment">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/heading_income_logging"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingTop_ofHeading"
+            android:text="@string/heading_expense_logging"
+            android:textColor="@color/txtColor_heading"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/label_item"
+            android:layout_width="@dimen/width_label"
+            android:layout_height="wrap_content"
+            android:text="@string/label_item"
+            android:textColor="@color/txtColor_label"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintBaseline_toBaselineOf="@+id/detail_item"
+            app:layout_constraintEnd_toStartOf="@+id/detail_item"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/detail_item"
+            android:layout_width="@dimen/width_detail"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacingLeft_detail"
+            android:layout_marginLeft="@dimen/spacingLeft_detail"
+            android:layout_marginTop="@dimen/spacingTop_fromHeading"
+            android:text="@string/dummy_detail_item"
+            android:textColor="@color/txtColor_detail"
+            android:textSize="@dimen/txtSize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/label_item"
+            app:layout_constraintTop_toBottomOf="@+id/heading_income_logging" />
+
+        <TextView
+            android:id="@+id/label_brand"
+            android:layout_width="@dimen/width_label"
+            android:layout_height="wrap_content"
+            android:text="@string/label_brand"
+            android:textColor="@color/txtColor_label"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintBaseline_toBaselineOf="@+id/detail_brand"
+            app:layout_constraintEnd_toStartOf="@+id/detail_brand"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/detail_brand"
+            android:layout_width="@dimen/width_detail"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacingLeft_detail"
+            android:layout_marginLeft="@dimen/spacingLeft_detail"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:text="@string/dummy_detail_brand"
+            android:textColor="@color/txtColor_detail"
+            android:textSize="@dimen/txtSize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/label_brand"
+            app:layout_constraintTop_toBottomOf="@+id/detail_item" />
+
+        <TextView
+            android:id="@+id/label_item_price"
+            android:layout_width="@dimen/width_label"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:text="@string/label_price_per_item"
+            android:textColor="@color/txtColor_label"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintEnd_toStartOf="@+id/detail_price"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/detail_brand" />
+
+        <TextView
+            android:id="@+id/detail_price"
+            android:layout_width="@dimen/width_detail"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacingLeft_detail"
+            android:layout_marginLeft="@dimen/spacingLeft_detail"
+            android:text="@string/dummy_txt_amount"
+            android:textColor="@color/txtColor_detail"
+            android:textSize="@dimen/txtSize_detail"
+            app:layout_constraintBottom_toBottomOf="@+id/label_item_price"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/label_item_price"
+            app:layout_constraintTop_toTopOf="@+id/label_item_price" />
+
+        <TextView
+            android:id="@+id/label_item_size"
+            android:layout_width="@dimen/width_label"
+            android:layout_height="wrap_content"
+            android:text="@string/label_item_size"
+            android:textColor="@color/txtColor_label"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintBaseline_toBaselineOf="@+id/detail_item_size"
+            app:layout_constraintEnd_toStartOf="@+id/detail_item_size"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/detail_item_size"
+            android:layout_width="@dimen/width_detail"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacingLeft_detail"
+            android:layout_marginLeft="@dimen/spacingLeft_detail"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:text="@string/dummy_size"
+            android:textColor="@color/txtColor_detail"
+            android:textSize="@dimen/txtSize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/label_item_size"
+            app:layout_constraintTop_toBottomOf="@+id/label_item_price" />
+
+        <TextView
+            android:id="@+id/label_quantity"
+            android:layout_width="@dimen/width_label"
+            android:layout_height="wrap_content"
+            android:text="@string/label_quantity"
+            android:textColor="@color/txtColor_label"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintBaseline_toBaselineOf="@+id/detail_quantity"
+            app:layout_constraintEnd_toStartOf="@+id/detail_quantity"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/detail_quantity"
+            android:layout_width="@dimen/width_detail"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacingLeft_detail"
+            android:layout_marginLeft="@dimen/spacingLeft_detail"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:text="@string/dummy_quantity"
+            android:textColor="@color/txtColor_detail"
+            android:textSize="@dimen/txtSize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/label_quantity"
+            app:layout_constraintTop_toBottomOf="@+id/detail_item_size" />
+
+        <TextView
+            android:id="@+id/label_total_price"
+            android:layout_width="@dimen/width_label"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:text="@string/label_total_price"
+            android:textColor="@color/txtColor_label"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintEnd_toStartOf="@+id/detail_total_price"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/detail_quantity" />
+
+        <TextView
+            android:id="@+id/detail_total_price"
+            android:layout_width="@dimen/width_detail"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacingLeft_detail"
+            android:layout_marginLeft="@dimen/spacingLeft_detail"
+            android:text="@string/dummy_total_price"
+            android:textColor="@color/txtColor_detail"
+            android:textSize="@dimen/txtSize_detail"
+            app:layout_constraintBottom_toBottomOf="@+id/label_total_price"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/label_total_price"
+            app:layout_constraintTop_toTopOf="@+id/label_total_price" />
+
+        <TextView
+            android:id="@+id/label_fund"
+            android:layout_width="@dimen/width_label"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:text="@string/label_deduct_from"
+            android:textColor="@color/txtColor_label"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintEnd_toStartOf="@+id/detail_fund"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_total_price" />
+
+        <TextView
+            android:id="@+id/detail_fund"
+            android:layout_width="@dimen/width_detail"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacingLeft_detail"
+            android:layout_marginLeft="@dimen/spacingLeft_detail"
+            android:text="@string/dummy_fund"
+            android:textColor="@color/txtColor_detail"
+            android:textSize="@dimen/txtSize_detail"
+            app:layout_constraintBottom_toBottomOf="@+id/label_fund"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/label_fund"
+            app:layout_constraintTop_toTopOf="@+id/label_fund" />
+
+        <TextView
+            android:id="@+id/textView15"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:text="@string/label_tags"
+            android:textColor="@color/txtColor_label"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="@+id/label_fund"
+            app:layout_constraintTop_toBottomOf="@+id/label_fund" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/detail_tags"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="5dp"
+            app:layout_constraintEnd_toEndOf="@+id/detail_fund"
+            app:layout_constraintStart_toStartOf="@+id/textView15"
+            app:layout_constraintTop_toBottomOf="@+id/textView15" />
+
+        <Button
+            android:id="@+id/btn_log"
+            style="@style/btn_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingTop_buttonGrp"
+            android:layout_marginBottom="@dimen/spacingBottom_buttonGrp"
+            android:text="@string/btn_txt_log_expense"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_edit"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/detail_tags" />
+
+        <Button
+            android:id="@+id/btn_edit"
+            style="@style/btn_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_edit"
+            app:layout_constraintBaseline_toBaselineOf="@+id/btn_log"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/btn_log" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.v4.widget.NestedScrollView>

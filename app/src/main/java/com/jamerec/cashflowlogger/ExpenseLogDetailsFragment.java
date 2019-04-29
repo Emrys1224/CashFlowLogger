@@ -2,20 +2,20 @@ package com.jamerec.cashflowlogger;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
 import android.graphics.Rect;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,14 +24,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.util.Log;
 
-import com.google.android.flexbox.FlexDirection;
-import com.google.android.flexbox.FlexWrap;
-import com.google.android.flexbox.FlexboxLayoutManager;
-import com.google.android.flexbox.JustifyContent;
+import com.google.android.flexbox.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ExpenseLogDetailsFragment extends Fragment
         implements View.OnClickListener {
@@ -59,7 +58,9 @@ public class ExpenseLogDetailsFragment extends Fragment
     private Context mContext;
     private OnSubmitExpenseDetailsListener mListener;
     private ExpenseItem mExpenseItem;
+    private ArrayAdapter<String> mFundSelectionAdapter;
     private TagItemAdapter mTagItemAdapter;
+    private int mScrollYReference;
 
     public ExpenseLogDetailsFragment() {
         // Required empty public constructor
@@ -84,7 +85,15 @@ public class ExpenseLogDetailsFragment extends Fragment
         final View view = inflater.inflate(R.layout.fragment_expense_log_details, container, false);
 
         mContext = getContext();
-        mExpenseItem = new ExpenseItem();
+        mExpenseItem = getArguments() != null ?
+                (ExpenseItem) getArguments().getParcelable("expenseItem") : new ExpenseItem();
+
+        // Get device display height.
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        mScrollYReference = size.y;
+//        Log.d(TAG, "Scroll Y Position\nmScrollYReference: " + mScrollYReference);
 
         // Initialize widgets.
         mWindowNSV = view.findViewById(R.id.nestedScrollView);
@@ -128,8 +137,8 @@ public class ExpenseLogDetailsFragment extends Fragment
         funds.add("Leisure");
 
         // Set up fund selection dropdown.
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(mContext, R.layout.spinner_item, funds);
-        mFundSelectionS.setAdapter(adapter);
+        mFundSelectionAdapter = new ArrayAdapter<>(mContext, R.layout.spinner_item, funds);
+        mFundSelectionS.setAdapter(mFundSelectionAdapter);
 
         // Set up tags display.
         FlexboxLayoutManager flexBoxLayoutMgr = new FlexboxLayoutManager(mContext);
@@ -149,29 +158,31 @@ public class ExpenseLogDetailsFragment extends Fragment
                         // Get the dimension of the screen after the soft keyboard was shown.
                         Rect rect = new Rect();
                         view.getWindowVisibleDisplayFrame(rect);
-//                        Log.d(TAG,
+                        mScrollYReference = rect.bottom < mScrollYReference ?
+                                rect.bottom : mScrollYReference;
+//                          Log.d(TAG,
 //                                "Rect dimension/position" +
 //                                        "\nRect left: " + rect.left + "\nRect top: " + rect.top +
 //                                        "\nRect right: " + rect.right + "\nRect bottom: " + rect.bottom);
 
                         // Get the position of the focused view within the scroll view.
+                        if (getActivity() == null) return;
                         final View focusedView = getActivity().getCurrentFocus();
-                        if (focusedView != null) {
-                            int focusedViewYPos = focusedView.getTop();
+                        if (focusedView == null) return;
+                        int focusedViewYPos = focusedView.getTop();
 //                            Log.d(TAG,
 //                                    "Focused View Position" +
 //                                            "\nY Pos: " + focusedViewYPos);
 
-                            // Scroll the screen to show the input field and the
-                            // space for the error message.
-                            final int scrollYTo = focusedViewYPos - ((rect.bottom * 5) / 9);
-                            mWindowNSV.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mWindowNSV.smoothScrollTo(0, scrollYTo);
-                                }
-                            });
-                        }
+                        // Scroll the screen to show the input field and the
+                        // space for the error message.
+                        final int scrollYTo = focusedViewYPos - ((mScrollYReference * 5) / 9);
+                        mWindowNSV.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mWindowNSV.smoothScrollTo(0, scrollYTo);
+                            }
+                        });
                     }
                 }
         );
@@ -325,8 +336,10 @@ public class ExpenseLogDetailsFragment extends Fragment
 
                 // Clear error message.
                 mQuantityErMsgTV.setText("");
+
                 // Show fund selection dropdown.
                 mFundSelectionS.performClick();
+
                 return false;
             }
         });
@@ -365,9 +378,7 @@ public class ExpenseLogDetailsFragment extends Fragment
                     InputMethodManager imm = (InputMethodManager)
                             mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(mFundSelectionS.getWindowToken(), 0);
-                }
-
-                else {
+                } else {
                     // Show error message.
                     if (mExpenseItem.getFund().isEmpty()) {
                         mFundErrMsgTV.setText(R.string.err_msg_no_fund_selected);
@@ -410,6 +421,25 @@ public class ExpenseLogDetailsFragment extends Fragment
         mBtnCancel.setOnClickListener(this);
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        if (getArguments() == null) return;
+
+        // Update input values for editing.
+        mItemATV.setText(mExpenseItem.getItemName());
+        mBrandATV.setText(mExpenseItem.getBrand());
+        mPricePCI.setAmount(mExpenseItem.getItemPrice());
+        mSizeATV.setText(mExpenseItem.getSize());
+        mQuantityET.setText(
+                String.format(Locale.ENGLISH, "%.2f", mExpenseItem.getQuantity()));
+        mTotalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
+        mFundSelectionS.setSelection(
+                mFundSelectionAdapter.getPosition(mExpenseItem.getFund()));
+        mTagItemAdapter.notifyDataSetChanged();
     }
 
     @Override

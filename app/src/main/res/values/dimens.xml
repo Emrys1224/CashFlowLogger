@@ -17,5 +17,8 @@
     <dimen name="spacingVert_fieldGrp">15dp</dimen>
     <dimen name="width_inputField">335dp</dimen>
     <dimen name="spacingBottom_buttonGrp">30dp</dimen>
-    <dimen name="spacingVert_fieldItem">3dp</dimen>
+    <dimen name="spacingVert_fieldItem">5dp</dimen>
+    <dimen name="width_label">100dp</dimen>
+    <dimen name="width_detail">215dp</dimen>
+    <dimen name="spacingLeft_detail">20dp</dimen>
 </resources>

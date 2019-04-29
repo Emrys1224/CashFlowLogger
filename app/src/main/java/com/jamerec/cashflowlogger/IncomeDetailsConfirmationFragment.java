@@ -88,6 +88,11 @@ public class IncomeDetailsConfirmationFragment extends Fragment
         logListener.confirmIncomeLog(btnID);
     }
 
+    /**
+     * As per the user, proceeds on to logging the IncomeItem, or
+     * redirect back to IncomeDetailFragment for changing
+     * the income details.
+     */
     public interface OnConfirmIncomeLogListener {
         void confirmIncomeLog(int buttonID);
     }

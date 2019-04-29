@@ -39,6 +39,8 @@ public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundLi
         fundListItem.mFundName.setText(fundItem.getName());
         fundListItem.mFundAmount.setText(fundItem.getAmount().toString());
 
+        // Implement a ClickListener if the caller has FundItemClickListener.
+        if (mListener == null) return;
         fundListItem.mItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

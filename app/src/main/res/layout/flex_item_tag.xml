@@ -9,8 +9,9 @@
         android:id="@+id/flex_item"
         style="@style/flex_item"
         android:layout_width="0dp"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:enabled="false"
         android:text="@string/dummy_product_tag" />
 
 </LinearLayout>

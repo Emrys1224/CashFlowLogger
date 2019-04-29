@@ -3,9 +3,13 @@
   <color name="colorPrimary">#008577</color>
   <color name="colorPrimaryDark">#00574B</color>
   <color name="colorAccent">#D81B60</color>
-  <color name="button_main">#01FFD4</color>
+  <color name="button_main">#7AFFE5</color>
   <color name="button_main_pressed">#00DBC4</color>
-  <color name="btn_text">#535353</color>
+  <color name="btn_text">#636363</color>
   <color name="btn_txt_disabled">#8A8989</color>
   <color name="txt_balance">#4A4A4A</color>
+    <color name="txtColor_heading">#4D4D4D</color>
+  <color name="txtColor_label">#8A8A8A</color>
+  <color name="txtColor_detail">#636363</color>
+  <color name="bg_btnCancel">#FF80A6</color>
 </resources>

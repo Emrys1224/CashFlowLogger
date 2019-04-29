@@ -53,4 +53,11 @@
     <string name="err_msg_item_price_zero">Item price cannot be empty/zero.</string>
     <string name="err_msg_quantity_zero">Quantity cannot not be empty/zero.</string>
     <string name="err_msg_no_fund_selected">A fund to deduct from must be selected.</string>
+    <string name="dummy_detail_item">Pick_up Truck</string>
+    <string name="dummy_detail_brand">Lamborghini Urus</string>
+    <string name="dummy_size">1unit</string>
+    <string name="dummy_quantity">2</string>
+    <string name="dummy_total_price">₱ 1,777,777.76</string>
+    <string name="dummy_fund">Investment</string>
+    <string name="btn_txt_log_expense">Log Expense</string>
 </resources>

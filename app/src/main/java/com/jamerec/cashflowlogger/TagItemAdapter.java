@@ -8,30 +8,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import java.util.List;
-
 public class TagItemAdapter extends RecyclerView.Adapter<TagItemAdapter.TagItemHolder> {
 
     private final String TAG = getClass().getSimpleName();
 
     // Tag item layout option.
-    static final int DISPLAY_ONLY = R.layout.flex_item_tag;
-    static final int BUTTON_TAG = R.layout.flex_item_btn_tag;
+    static final boolean DISPLAY_ONLY = false;
+    static final boolean BUTTON_TAG = true;
 
     private ExpenseItem mExpenseItem;
     private LayoutInflater mInflater;
-    private int mLayoutStyle;
+    private boolean mTagStyle;
 
-    TagItemAdapter(Context context, ExpenseItem expenseItem, int layoutStyle) {
+    TagItemAdapter(Context context, ExpenseItem expenseItem, boolean tagStyle) {
         this.mExpenseItem = expenseItem;
         this.mInflater = LayoutInflater.from(context);
-        this.mLayoutStyle = layoutStyle;
+        this.mTagStyle = tagStyle;
     }
 
     @NonNull
     @Override
     public TagItemHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View tagItemView = mInflater.inflate(mLayoutStyle, viewGroup, false);
+        View tagItemView = mInflater.inflate(R.layout.flex_item_tag, viewGroup, false);
         return new TagItemHolder(tagItemView);
     }
 
@@ -41,11 +39,16 @@ public class TagItemAdapter extends RecyclerView.Adapter<TagItemAdapter.TagItemH
                 mExpenseItem.getTags().get(tagIndex));
 
         // Add ClickListener only if the item layout is BUTTON_TAG.
-        if (mLayoutStyle == BUTTON_TAG) {
+        if (mTagStyle == BUTTON_TAG) {
+            Button btnTag = tagItemHolder.mBtnTagItem;
             final int tagPosition = tagItemHolder.getAdapterPosition();
             final String tag = tagItemHolder.mTag;
 
-            tagItemHolder.mBtnTagItem.setOnClickListener(new View.OnClickListener() {
+            btnTag.setEnabled(true);
+            btnTag.setCompoundDrawablesWithIntrinsicBounds(
+                    0, 0, R.drawable.ic_remove, 0);   // Remove icon
+
+            btnTag.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     // Remove this tag.

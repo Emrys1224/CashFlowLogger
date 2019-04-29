@@ -15,17 +15,24 @@
         <item name="android:textColor">@color/btn_txt_color</item>
     </style>
 
-    <style name="btn_income_detail" parent="@style/btn_main">
+    <style name="btn_detail" parent="@style/btn_main">
         <item name="android:textSize">18sp</item>
     </style>
 
-    <style name="btn_cancel" parent="@style/btn_income_detail">
+    <style name="btn_cancel" parent="@style/btn_detail">
         <item name="android:background">@drawable/btn_cancel</item>
     </style>
 
-    <style name="flex_item" parent="@style/btn_income_detail">
+    <style name="flex_item">
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingTop">3dp</item>
+        <item name="android:paddingBottom">3dp</item>
+        <item name="android:paddingLeft">6dp</item>
+        <item name="android:paddingRight">6dp</item>
+        <item name="android:background">@drawable/btn_tag</item>
         <item name="android:textSize">18sp</item>
-        <item name="android:padding">4dp</item>
+        <item name="android:textColor">@color/txtColor_detail</item>
     </style>
 
     <style name="error_msg">

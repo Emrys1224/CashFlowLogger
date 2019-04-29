@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -17,6 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacingTop_ofHeading"
             android:text="@string/heading_income_detail"
+            android:textColor="@color/txtColor_heading"
             android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -27,6 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_source"
+            android:textColor="@color/txtColor_label"
             android:textSize="@dimen/txtsize_label"
             app:layout_constraintBaseline_toBaselineOf="@+id/disp_source"
             app:layout_constraintStart_toStartOf="@+id/label_amount" />
@@ -40,6 +42,7 @@
             android:layout_marginTop="@dimen/spacingTop_fromHeading"
             android:padding="2dp"
             android:text="@string/dummy_source"
+            android:textColor="@color/txtColor_detail"
             android:textSize="@dimen/txtSize_detail"
             app:layout_constraintEnd_toEndOf="@+id/list_funds"
             app:layout_constraintHorizontal_bias="1.0"
@@ -51,6 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_amount"
+            android:textColor="@color/txtColor_label"
             android:textSize="@dimen/txtsize_label"
             app:layout_constraintBaseline_toBaselineOf="@+id/disp_amount"
             app:layout_constraintStart_toStartOf="@+id/label_allocation" />
@@ -62,6 +66,7 @@
             android:layout_marginTop="@dimen/spacingVert_fieldItem"
             android:padding="2dp"
             android:text="@string/dummy_txt_amount"
+            android:textColor="@color/txtColor_detail"
             android:textSize="@dimen/txtSize_detail"
             app:layout_constraintEnd_toEndOf="@+id/disp_source"
             app:layout_constraintStart_toStartOf="@+id/disp_source"
@@ -73,6 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacingVert_fieldItem"
             android:text="@string/label_allocation"
+            android:textColor="@color/txtColor_label"
             android:textSize="@dimen/txtsize_label"
             app:layout_constraintStart_toStartOf="@+id/list_funds"
             app:layout_constraintTop_toBottomOf="@+id/disp_amount" />
@@ -88,7 +94,7 @@
 
         <Button
             android:id="@+id/btn_allocate"
-            style="@style/btn_income_detail"
+            style="@style/btn_detail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacingTop_buttonGrp"
@@ -102,7 +108,7 @@
 
         <Button
             android:id="@+id/btn_edit"
-            style="@style/btn_income_detail"
+            style="@style/btn_detail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_edit"
@@ -112,4 +118,4 @@
 
     </android.support.constraint.ConstraintLayout>
 
-</ScrollView>
+</android.support.v4.widget.NestedScrollView>
