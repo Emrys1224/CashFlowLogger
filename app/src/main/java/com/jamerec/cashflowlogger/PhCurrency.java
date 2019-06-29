@@ -2,11 +2,9 @@ package com.jamerec.cashflowlogger;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
 /**
  * Class for representing and handling operations for Philippine peso.
@@ -15,8 +13,6 @@ import java.util.Locale;
  * and arithmetic operations for this data model.
  */
 public class PhCurrency implements Parcelable {
-    private final static String TAG = "PhCurrency";
-
     // The maximum integer that a double can represent without
     // losing precision is 2^53. Used as the maximum value for
     // storing the currency value. Since negative value for
@@ -27,12 +23,11 @@ public class PhCurrency implements Parcelable {
     public final static long PESO_MAX_VALUE = (long) Math.pow(2, 53);
     public final static long PESO_MIN_VALUE = PESO_MAX_VALUE * -1;
 
-    private long mPesoAmount;
-    private byte mCentavoAmount;
+    // Value is stored as amount times 100 to include the centavo part of the amount.
+    private long mAmountX100;
 
     protected PhCurrency(Parcel in) {
-        mPesoAmount = in.readLong();
-        mCentavoAmount = in.readByte();
+        mAmountX100 = in.readLong();
     }
 
     public static final Creator<PhCurrency> CREATOR = new Creator<PhCurrency>() {
@@ -53,7 +48,16 @@ public class PhCurrency implements Parcelable {
      * Create PhCurrency with a default value of ₱0.00.
      */
     public PhCurrency() {
-        setValue(0D);
+        setValue(0);
+    }
+
+    /**
+     * Create PhCurrency with the given value.
+     *
+     * @param amountX100 of the currency.
+     */
+    public PhCurrency(long amountX100) {
+        setValue(amountX100);
     }
 
     /**
@@ -79,6 +83,15 @@ public class PhCurrency implements Parcelable {
     /**
      * Change the current value to the given value.
      *
+     * @param amountX100 new value which X100 of the currency value.
+     */
+    public void setValue(long amountX100) {
+        this.mAmountX100 = amountX100;
+    }
+
+    /**
+     * Change the current value to the given value.
+     *
      * @param amount new value.
      */
     public void setValue(double amount) {
@@ -88,20 +101,7 @@ public class PhCurrency implements Parcelable {
                     "Consider donating the excess to 'Charity'. " +
                     "Contact jamerec1224@gmail.com for further instructions....");
 
-        String amtStr = new DecimalFormat("#.0#").format(amount);
-        String decimalStr = amtStr.substring(
-                amtStr.lastIndexOf(".") + 1) + 0;   // Append 0 for values such as n.m0 (e.g. 3.90, 45.00, etc)
-
-//        System.out.println("Amount: " + amtStr);
-//        System.out.println("Decimal: " + decimalStr);
-
-        this.mPesoAmount = (long) amount;
-        this.mCentavoAmount = Byte.parseByte(
-                decimalStr.length() < 3 ?
-                        decimalStr : decimalStr.substring(0, 2));
-
-        if (amount < 1)
-            this.mCentavoAmount *= -1;      // For negative values
+        this.mAmountX100 = (long) Math.round(amount * 100);
     }
 
     /**
@@ -110,28 +110,18 @@ public class PhCurrency implements Parcelable {
      * @param amount to be copied.
      */
     public void setValue(PhCurrency amount) {
-        this.mPesoAmount = amount.getPesoAmount();
-        this.mCentavoAmount = amount.getCentavoAmount();
+        this.mAmountX100 = amount.mAmountX100;
     }
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Getters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
     /**
-     * Get the peso value.
-     *
-     * @return peso value.
+     * Get the amount as stored in the object which is X100 of the equivalent amount,
+     * which is the same as the value stored in database.
+     * @return amount times 100;
      */
-    public long getPesoAmount() {
-        return mPesoAmount;
-    }
-
-    /**
-     * Get the centavo value.
-     *
-     * @return centavo value.
-     */
-    public byte getCentavoAmount() {
-        return mCentavoAmount;
+    public long getAmountX100() {
+        return this.mAmountX100;
     }
 
     /**
@@ -140,7 +130,7 @@ public class PhCurrency implements Parcelable {
      * @return amount in double.
      */
     public double toDouble() {
-        return mPesoAmount + ((double) mCentavoAmount / 100);
+        return (double)this.mAmountX100 / 100;
     }
 
     /**
@@ -148,15 +138,20 @@ public class PhCurrency implements Parcelable {
      *
      * @return Philippine peso formatted string.
      */
-    @NonNull
     @Override
     public String toString() {
         DecimalFormat pesoCurrency =
                 new DecimalFormat("₱ ###,###,###.##");
-        return String.format(
-                Locale.ENGLISH, "%s.%02d",
-                pesoCurrency.format(mPesoAmount),
-                mCentavoAmount > 0 ? mCentavoAmount : -mCentavoAmount);
+
+        String amountPhPesoStr = pesoCurrency.format(this.toDouble());
+        String decimalStr = amountPhPesoStr.substring(amountPhPesoStr.lastIndexOf(".") + 1);
+
+        if(decimalStr.length() > 2)
+            amountPhPesoStr += ".00";
+        if(decimalStr.length() == 1)
+            amountPhPesoStr += "0";
+
+        return amountPhPesoStr;
     }
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Comparators ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -171,14 +166,8 @@ public class PhCurrency implements Parcelable {
      * 1 if greater than the value being compared with.
      */
     public byte compareTo(PhCurrency amount) {
-        long pesoDiff = this.mPesoAmount - amount.getPesoAmount();
-        if (pesoDiff > 0) return 1;     // this is greater than compared value
-        if (pesoDiff < 0) return -1;    // this is less than compared value
-
-        int centDiff = this.mCentavoAmount - amount.getCentavoAmount();
-        if (centDiff > 0) return 1;     // this is greater than compared value
-        if (centDiff < 0) return -1;    // this is less than compared value
-
+        if(this.mAmountX100 > amount.mAmountX100) return 1;
+        if(this.mAmountX100 < amount.mAmountX100) return -1;
         return 0;   // values are equal
     }
 
@@ -190,9 +179,7 @@ public class PhCurrency implements Parcelable {
      * false if not equal.
      */
     public boolean equals(PhCurrency amount) {
-        if (this.mPesoAmount != amount.getPesoAmount())
-            return false;
-        return this.mCentavoAmount == amount.getCentavoAmount();
+        return this.mAmountX100 == amount.mAmountX100;
     }
 
     /**
@@ -202,9 +189,7 @@ public class PhCurrency implements Parcelable {
      * true if zero.
      */
     public boolean isZero() {
-        if (this.mPesoAmount == 0 && this.mCentavoAmount == 0)
-            return true;
-        return false;
+        return this.mAmountX100 == 0;
     }
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Arithmetic Operations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -216,12 +201,8 @@ public class PhCurrency implements Parcelable {
      * @throws ArithmeticException Sum peso value overflow.
      */
     public void add(PhCurrency amount) throws ArithmeticException {
-        long amountPeso = amount.getPesoAmount();
-
-//        System.out.println("\nthis.peso: " + this.mPesoAmount +
-//                "\nthis.centavo: " + this.mCentavoAmount);
-//        System.out.println("\naddend.peso: " + amount.getPesoAmount() +
-//                "\naddend.centavo: " + amount.getCentavoAmount());
+        double thisAmount = this.toDouble();
+        double addAmount = amount.toDouble();
 
         // Check for overflow
         // Overflow conditions:
@@ -229,31 +210,13 @@ public class PhCurrency implements Parcelable {
         //          A + B >= PESO_MAX_VALUE where A > 0 and B > 0
         //  ** When the sum of two negative values is less than or equal to PESO_MIN_VALUE.
         //          A + B <= PESO_MIN_VALUE where A < 0 and B < 0
-        if (amountPeso > 0 ?
-                this.mPesoAmount >= PESO_MAX_VALUE - amountPeso :
-                this.mPesoAmount <= PESO_MIN_VALUE - amountPeso
-        ) {
+        if (addAmount > 0 ?
+                thisAmount >= PESO_MAX_VALUE - addAmount :
+                thisAmount <= PESO_MIN_VALUE - addAmount) {
             throw new ArithmeticException("Sum peso value overflow. You're too rich for this app! XD");
         }
 
-        // Add the centavo values
-        int centSum = this.mCentavoAmount + amount.getCentavoAmount();
-//        System.out.println("\nthis.centavo + addend.centavo = " + centSum);
-        this.mCentavoAmount = (byte) (centSum % 100);           // Get the tens and ones place
-//        System.out.println("centavo : " + this.mCentavoAmount);
-
-        // Carry over to peso value
-        if (centSum > 100L) {
-            long carry = (long) (centSum / 100);
-//            System.out.println("\ncarry : " + carry);
-            this.mPesoAmount += carry;
-//            System.out.println("this.peso + carry = " + this.mPesoAmount);
-        }
-
-        this.mPesoAmount += amountPeso;
-//        System.out.println("\nthis.peso + addend.peso = " + this.mPesoAmount);
-//        System.out.println("this.peso: " + this.mPesoAmount +
-//                "\nthis.centavo: " + this.mCentavoAmount);
+        this.mAmountX100 += amount.mAmountX100;
     }
 
     /**
@@ -263,7 +226,7 @@ public class PhCurrency implements Parcelable {
      * @return a new PhCurrency whose value is the sum of the list.
      * @throws ArithmeticException Sum peso value overflow.
      */
-    public static PhCurrency sum(@NonNull ArrayList<PhCurrency> amountList) throws ArithmeticException {
+    public static PhCurrency sum(ArrayList<PhCurrency> amountList) throws ArithmeticException {
         PhCurrency sum = new PhCurrency();
 
         if (amountList.size() == 0) return sum;
@@ -282,8 +245,8 @@ public class PhCurrency implements Parcelable {
      * @throws ArithmeticException Difference peso value overflow.
      */
     public void subtract(PhCurrency amount) throws ArithmeticException {
-        long amountPeso = amount.getPesoAmount();
-        byte amountCent = amount.getCentavoAmount();
+        double thisAmount = this.toDouble();
+        double subtractAmount = amount.toDouble();
 
         // Check for overflow
         // Overflow conditions:
@@ -293,22 +256,13 @@ public class PhCurrency implements Parcelable {
         //  ** When the difference of a negative value subtracted from a positive value
         //      exceeds or equal to PESO_MAX_VALUE.
         //          A - B >= PESO_MAX_VALUE where A > 0 and B < 0
-        if (amountPeso > 0 ?
-                this.mPesoAmount <= PESO_MIN_VALUE + amountPeso :
-                this.mPesoAmount >= PESO_MAX_VALUE + amountPeso
-        ) {
+        if (subtractAmount > 0 ?
+                thisAmount <= PESO_MIN_VALUE + subtractAmount :
+                thisAmount >= PESO_MAX_VALUE + subtractAmount) {
             throw new ArithmeticException("Difference peso value overflow. You're crazy!");
         }
 
-        int thisCent = this.mCentavoAmount;
-        // Barrow from mPesoAmount
-        if (thisCent < amountCent) {
-            this.mPesoAmount -= 1;
-            thisCent += 100;
-        }
-
-        this.mCentavoAmount = (byte) (thisCent - amountCent);
-        this.mPesoAmount -= amountPeso;
+        this.mAmountX100 -= amount.mAmountX100;
     }
 
     /**
@@ -319,7 +273,7 @@ public class PhCurrency implements Parcelable {
      * @return new PhCurrency with value of the absolute difference.
      * @throws ArithmeticException Difference peso value overflow.
      */
-    public static PhCurrency differenceAbsolute(@NonNull PhCurrency amount1, PhCurrency amount2) throws ArithmeticException {
+    public static PhCurrency differenceAbsolute(PhCurrency amount1, PhCurrency amount2) throws ArithmeticException {
         PhCurrency diffAbs = new PhCurrency();
 
         if (amount1.equals(amount2))
@@ -377,6 +331,7 @@ public class PhCurrency implements Parcelable {
      */
     public void divideBy(double divisor) throws ArithmeticException {
         double currentAmount = this.toDouble();
+
         // Check for overflow
         // Overflow conditions where A is the currency value and B is the divisor:
         //  ** When the positive value divided by a positive divisor exceeds or
@@ -403,22 +358,14 @@ public class PhCurrency implements Parcelable {
         this.setValue(currentAmount / divisor);
     }
 
-    public static PhCurrency averageOf(@NonNull ArrayList<PhCurrency> amountSet) throws ArithmeticException {
+    public static PhCurrency averageOf(ArrayList<PhCurrency> amountSet) throws ArithmeticException {
         PhCurrency average = new PhCurrency();
 
         if (amountSet.isEmpty()) return average;
 
-        for (int i = 0; i < amountSet.size(); i++) {
-            average.add(amountSet.get(i));
-            System.out.println(
-                    "Amount to add:" + amountSet.get(i).toDouble() +
-                            "\t\tRunning Sum: " + average.toDouble());
-
-        }
-        System.out.println("Sum Total: " + average.toDouble());
-
+        average.setValue(PhCurrency.sum(amountSet));
         average.divideBy(amountSet.size());
-        System.out.println("Average: " + average.toDouble());
+//        System.out.println("Average: " + average.toDouble());
 
         return average;
     }
@@ -430,18 +377,6 @@ public class PhCurrency implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(mPesoAmount);
-        dest.writeByte(mCentavoAmount);
+        dest.writeLong(mAmountX100);
     }
 }
-
-
-
-
-
-
-
-
-
-
-

@@ -6,7 +6,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
 
 /**
  * Extends (@link AppCompatEditText) for input of Philippine peso currency.
