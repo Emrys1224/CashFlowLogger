@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -18,43 +17,33 @@ public class PhCurrencyTest {
         DecimalFormat pesoCurrency =
                 new DecimalFormat("₱ ###,###,###.##");
 
-        double[] testNumSet = {
-                12345.90D,
-                2354.4546D,
-                4534D,
-                5745.06D,
-                12423765.34D
+        long[] testNumSet = {
+                1234590L,
+                235445L,
+                4534L,
+                574506L,
+                1242376534L
         };
 
-        for (double testNum : testNumSet) {
-            long wholeNum = (long) testNum;
+        for (long amtX100 : testNumSet) {
+            double decVal = (double) amtX100 / 100;
+            String amtPhPFormat = formatToPhPesoStr(decVal);
 
-            String amtStr = new DecimalFormat("#.0#").format(testNum);
-            String decimalStr = amtStr.substring(
-                    amtStr.lastIndexOf(".") + 1) + 0;
+            PhCurrency test = new PhCurrency(amtX100);
+            PhCurrency test2 = new PhCurrency(decVal);
+            PhCurrency test3 = new PhCurrency(test);
 
-            byte decimal = Byte.parseByte(
-                    decimalStr.length() < 3 ?
-                            decimalStr : decimalStr.substring(0, 2));
+            System.out.println("Seed val(amount X 100): " + amtX100);
+            System.out.println("Decimal val: " + decVal);
+            System.out.println("PhP Amount: " + test.toString() + "\n");
 
-            String amtPhPFormat = String.format(
-                    Locale.ENGLISH, "%s.%02d",
-                    pesoCurrency.format(wholeNum), decimal);
-
-            PhCurrency test = new PhCurrency(testNum);
-            PhCurrency test2 = new PhCurrency(test);
-
-            System.out.println(String.valueOf(testNum));
-            System.out.println(test.toString() + "\n");
-
-            assertEquals(wholeNum, test.getPesoAmount());
-            assertEquals(decimal, test.getCentavoAmount());
-            assertEquals(testNum, test.toDouble(), 0.009);
+            assertEquals(amtX100, test.getAmountX100());
+            assertEquals(decVal, test.toDouble(), 0.009);
             assertEquals(amtPhPFormat, test.toString());
             assertEquals(test.toDouble(), test2.toDouble(), 0.009);
+            assertEquals(test2.toDouble(), test3.toDouble(), 0.009);
         }
     }
-
     @Test
     public void comparison_is_correct() {
         PhCurrency val1 = new PhCurrency(1234d);
@@ -82,6 +71,7 @@ public class PhCurrencyTest {
 
         // Addition of two positive values
         amt1.add(amt2);
+        System.out.println("val1 = " + val1 + " ; " + "val2 = " + val2);
         System.out.println("amt1 += amt2: " + amt1.toDouble());
         val1 += val2;
         System.out.println("val1 += val2: " + val1 + "\n");
@@ -89,6 +79,7 @@ public class PhCurrencyTest {
 
         // Add a negative value to a positive value
         amt1.add(amt3);
+        System.out.println("val1 = " + val1 + " ; " + "val3 = " + val3);
         System.out.println("amt1 += amt3: " + amt1.toDouble());
         val1 += val3;
         System.out.println("val1 += val3: " + val1 + "\n");
@@ -96,6 +87,7 @@ public class PhCurrencyTest {
 
         // Add of two negative values
         amt3.add(amt4);
+        System.out.println("val3 = " + val3 + " ; " + "val4 = " + val4);
         System.out.println("amt3 += amt4: " + amt3.toDouble());
         val3 += val4;
         System.out.println("val3 += val4: " + val3 + "\n");
@@ -103,6 +95,7 @@ public class PhCurrencyTest {
 
         // Add positive value to negative value
         amt3.add(amt2);
+        System.out.println("val3 = " + val3 + " ; " + "val2 = " + val2);
         System.out.println("amt3 += amt2: " + amt3.toDouble());
         val3 += val2;
         System.out.println("val3 += val2: " + val3 + "\n");
@@ -122,32 +115,36 @@ public class PhCurrencyTest {
         PhCurrency amt4 = new PhCurrency(val4);
 
         // Addition of two positive values
+        System.out.println("val1 = " + val1 + " ; " + "val2 = " + val2);
         val1 -= val2;
         System.out.println("val1 -= val2: " + val1);
         amt1.subtract(amt2);
-        System.out.println("amt1 -= amt2: " + amt1.toDouble());
-        assertEquals(val1, amt1.toDouble(), 0.001);
+        System.out.println("amt1 -= amt2: " + amt1.toDouble() + "\n");
+        assertEquals(val1, amt1.toDouble(), DELTA);
 
         // Add a negative value to a positive value
+        System.out.println("val1 = " + val1 + " ; " + "val3 = " + val3);
         val1 -= val3;
         System.out.println("val1 -= val3: " + val1);
         amt1.subtract(amt3);
-        System.out.println("amt1 -= amt3: " + amt1.toDouble());
-        assertEquals(val1, amt1.toDouble(), 0.001);
+        System.out.println("amt1 -= amt3: " + amt1.toDouble() + "\n");
+        assertEquals(val1, amt1.toDouble(), DELTA);
 
         // Add of two negative values
+        System.out.println("val3 = " + val3 + " ; " + "val4 = " + val4);
         val3 -= val4;
         System.out.println("val3 -= val4: " + val3);
         amt3.subtract(amt4);
-        System.out.println("amt3 -= amt4: " + amt3.toDouble());
-        assertEquals(val3, amt3.toDouble(), 0.001);
+        System.out.println("amt3 -= amt4: " + amt3.toDouble() + "\n");
+        assertEquals(val3, amt3.toDouble(), DELTA);
 
         // Add positive value to negative value
+        System.out.println("val3 = " + val3 + " ; " + "val2 = " + val2);
         val3 -= val2;
         System.out.println("val3 -= val2: " + val3);
         amt3.subtract(amt2);
-        System.out.println("amt3 -= amt2: " + amt3.toDouble());
-        assertEquals(val3, amt3.toDouble(), 0.001);
+        System.out.println("amt3 -= amt2: " + amt3.toDouble() + "\n");
+        assertEquals(val3, amt3.toDouble(), DELTA);
     }
 
     @Test
@@ -176,7 +173,8 @@ public class PhCurrencyTest {
         absDiffVal.setValue(
                 PhCurrency.differenceAbsolute(testVal.get(0), testVal.get(1)));
         System.out.println("AbsDiffVal1(" + testVal.get(0).toDouble() + ", " +
-                testVal.get(1).toDouble() + ") = " + absDiffNum);
+                testVal.get(1).toDouble() + ") = " + absDiffVal.toString());
+        assertEquals(absDiffNum, absDiffVal.toDouble(), DELTA);
 
         // Absolute difference between positive numbers
         System.out.println("\nAbsolute difference between positive numbers, " +
@@ -186,7 +184,8 @@ public class PhCurrencyTest {
         absDiffVal.setValue(
                 PhCurrency.differenceAbsolute(testVal.get(1), testVal.get(0)));
         System.out.println("AbsDiffVal1(" + testVal.get(1).toDouble() + ", " +
-                testVal.get(0).toDouble() + ") = " + absDiffNum);
+                testVal.get(0).toDouble() + ") = " + absDiffVal.toString());
+        assertEquals(absDiffNum, absDiffVal.toDouble(), DELTA);
 
         // Absolute difference between negative numbers
         System.out.println("\nAbsolute difference between negative numbers, " +
@@ -196,7 +195,8 @@ public class PhCurrencyTest {
         absDiffVal.setValue(
                 PhCurrency.differenceAbsolute(testVal.get(3), testVal.get(2)));
         System.out.println("AbsDiffVal1(" + testVal.get(3).toDouble() + ", " +
-                testVal.get(2).toDouble() + ") = " + absDiffNum);
+                testVal.get(2).toDouble() + ") = " + absDiffVal.toString());
+        assertEquals(absDiffNum, absDiffVal.toDouble(), DELTA);
 
         // Absolute difference between negative numbers
         System.out.println("\nAbsolute difference between negative numbers, " +
@@ -206,7 +206,8 @@ public class PhCurrencyTest {
         absDiffVal.setValue(
                 PhCurrency.differenceAbsolute(testVal.get(2), testVal.get(3)));
         System.out.println("AbsDiffVal1(" + testVal.get(2).toDouble() + ", " +
-                testVal.get(3).toDouble() + ") = " + absDiffNum);
+                testVal.get(3).toDouble() + ") = " + absDiffVal.toString());
+        assertEquals(absDiffNum, absDiffVal.toDouble(), DELTA);
 
         // Absolute difference between positive and negative number
         System.out.println("\nAbsolute difference between positive and negative number....");
@@ -215,7 +216,8 @@ public class PhCurrencyTest {
         absDiffVal.setValue(
                 PhCurrency.differenceAbsolute(testVal.get(0), testVal.get(3)));
         System.out.println("AbsDiffVal1(" + testVal.get(0).toDouble() + ", " +
-                testVal.get(3).toDouble() + ") = " + absDiffNum);
+                testVal.get(3).toDouble() + ") = " + absDiffVal.toString());
+        assertEquals(absDiffNum, absDiffVal.toDouble(), DELTA);
 
         // Absolute difference between negative and positive number
         System.out.println("\nAbsolute difference between negative and positive number....");
@@ -224,7 +226,9 @@ public class PhCurrencyTest {
         absDiffVal.setValue(
                 PhCurrency.differenceAbsolute(testVal.get(3), testVal.get(0)));
         System.out.println("AbsDiffVal1(" + testVal.get(3).toDouble() + ", " +
-                testVal.get(0).toDouble() + ") = " + absDiffNum);
+                testVal.get(0).toDouble() + ") = " + absDiffVal.toString());
+        assertEquals(absDiffNum, absDiffVal.toDouble(), DELTA);
+        System.out.println();
     }
 
     @Test
@@ -244,6 +248,7 @@ public class PhCurrencyTest {
         System.out.println("val1 *= factor1: " + val1.toDouble());
         assertEquals(ansTemp, val1.toDouble(), DELTA);
         val1.setValue(baseVal1);        // reset value
+        System.out.println();
 
         // Positive value multiplied by negative factor
         ansTemp = baseVal1 * factor2;
@@ -252,6 +257,7 @@ public class PhCurrencyTest {
         System.out.println("val1 *= factor2: " + val1.toDouble());
         assertEquals(ansTemp, val1.toDouble(), DELTA);
         val1.setValue(baseVal1);        // reset value
+        System.out.println();
 
         // Negative value multiplied by positive factor
         ansTemp = baseVal2 * factor1;
@@ -260,6 +266,7 @@ public class PhCurrencyTest {
         System.out.println("val2 *= factor1: " + val2.toDouble());
         assertEquals(ansTemp, val2.toDouble(), DELTA);
         val2.setValue(baseVal2);        // reset value
+        System.out.println();
 
         // Negative value multiplied by negative factor
         ansTemp = baseVal2 * factor2;
@@ -268,6 +275,7 @@ public class PhCurrencyTest {
         System.out.println("val2 *= factor2: " + val2.toDouble());
         assertEquals(ansTemp, val2.toDouble(), DELTA);
         val2.setValue(baseVal2);        // reset value
+        System.out.println();
     }
 
     @Test
@@ -287,6 +295,7 @@ public class PhCurrencyTest {
         System.out.println("val1 /= factor1: " + val1.toDouble());
         assertEquals(ansTemp, val1.toDouble(), DELTA);
         val1.setValue(baseVal1);        // reset value
+        System.out.println();
 
         // Positive value multiplied by negative factor
         ansTemp = baseVal1 / factor2;
@@ -295,6 +304,7 @@ public class PhCurrencyTest {
         System.out.println("val1 /= factor2: " + val1.toDouble());
         assertEquals(ansTemp, val1.toDouble(), DELTA);
         val1.setValue(baseVal1);        // reset value
+        System.out.println();
 
         // Negative value multiplied by positive factor
         ansTemp = baseVal2 / factor1;
@@ -303,6 +313,7 @@ public class PhCurrencyTest {
         System.out.println("val2 /= factor1: " + val2.toDouble());
         assertEquals(ansTemp, val2.toDouble(), DELTA);
         val2.setValue(baseVal2);        // reset value
+        System.out.println();
 
         // Negative value multiplied by negative factor
         ansTemp = baseVal2 / factor2;
@@ -311,6 +322,7 @@ public class PhCurrencyTest {
         System.out.println("val2 /= factor2: " + val2.toDouble());
         assertEquals(ansTemp, val2.toDouble(), DELTA);
         val2.setValue(baseVal2);        // reset value
+        System.out.println();
     }
 
     @Test
@@ -340,11 +352,27 @@ public class PhCurrencyTest {
         System.out.println("Average D: " + average);
 
         averageAmt.setValue(PhCurrency.averageOf(amountSet));
+        System.out.println("Average PhP: " + averageAmt.toString());
+        System.out.println();
 
         assertEquals(average, averageAmt.toDouble(), 0.009);
     }
 
-    @org.jetbrains.annotations.Contract(pure = true)
+    private String formatToPhPesoStr(double number) {
+        DecimalFormat pesoCurrency =
+                new DecimalFormat("₱ ###,###,###.##");
+
+        String amountPhPesoStr = pesoCurrency.format(number);
+        String decimalStr = amountPhPesoStr.substring(amountPhPesoStr.lastIndexOf(".") + 1);
+
+        if(decimalStr.length() > 2)
+            amountPhPesoStr += ".00";
+        if(decimalStr.length() == 1)
+            amountPhPesoStr += "0";
+
+        return amountPhPesoStr;
+    }
+
     private double differenceAbs(double val1, double val2) {
         return val1 > val2 ?
                 val1 - val2 :
