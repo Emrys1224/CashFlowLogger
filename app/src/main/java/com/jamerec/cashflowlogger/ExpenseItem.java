@@ -324,10 +324,10 @@ class ExpenseItem implements Parcelable {
     @Override
     public String toString() {
         StringBuilder tags = new StringBuilder();
-        for(String tag : mTags) {
+        for (String tag : mTags) {
             tags.append(tag).append(", ");
         }
-        return  "Expense Item Details\n" +
+        return "Expense Item Details\n" +
                 "Product:\t\t\t" + getItemName() +
                 "\nBrand:\t\t\t\t" + getBrand() +
                 "\nPrice per Item:\t\t" + getItemPrice().toString() +
