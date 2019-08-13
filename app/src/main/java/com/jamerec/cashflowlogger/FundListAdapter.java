@@ -76,7 +76,8 @@ public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundLi
 
         /**
          * This passes the view (fund item) clicked and its position
-         * @param v the fund item that has been clicked.
+         *
+         * @param v        the fund item that has been clicked.
          * @param position od the clicked item.
          */
         void onFundItemClicked(View v, int position);
