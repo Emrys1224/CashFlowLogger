@@ -279,22 +279,26 @@ public class ExpenseLogDetailsFragment extends Fragment
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 // Update packaging size value.
-                int result = mExpenseItem.setSize(
-                        mSizeATV.getText().toString());
-
-                // Set error message.
                 int errMsg = 0;
-                switch (result) {
-                    case ExpenseItem.SET_SIZE_OK:
-                        break;
-                    case ExpenseItem.NO_SET_UNIT:
-                        errMsg = R.string.err_msg_no_set_unit;
-                        break;
-                    case ExpenseItem.NO_SET_VALUE:
-                        errMsg = R.string.err_msg_no_set_value;
-                        break;
-                    case ExpenseItem.SET_SIZE_EMPTY:
-                        errMsg = R.string.err_msg_set_size_empty;
+                try {
+                    mExpenseItem.setSize(mSizeATV.getText().toString());
+
+                } catch (Measures.InvalidValueException ive) {
+                    errMsg = R.string.err_msg_no_set_value;
+
+                } catch (Measures.NoValidUnitException iue) {
+                    errMsg = R.string.err_msg_no_set_unit;
+
+                } catch (Measures.ZeroDenominatorException zde) {
+                    errMsg = R.string.err_msg_zero_denominator;
+                }
+
+                try {
+                    if (mExpenseItem.getSize().getDouble() == 0)
+                        errMsg = R.string.err_msg_size_zero;
+
+                } catch (IllegalAccessException iae) {
+                    errMsg = R.string.err_msg_set_size_empty;
                 }
 
 //                Log.d(TAG, mExpenseItem.toString());
@@ -316,18 +320,13 @@ public class ExpenseLogDetailsFragment extends Fragment
         mQuantityET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                String quantity = mQuantityET.getText().toString();
-                mExpenseItem.setQuantity(
-                        quantity.isEmpty() ?
-                                0D : Double.parseDouble(quantity)
-                );
+                mExpenseItem.setQuantity(mQuantityET.getText().toString());
 
 //                Log.d(TAG, mExpenseItem.toString());
 
-                mTotalPriceTV.setText(
-                        mExpenseItem.getTotalPrice().toString());
+                mTotalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
 
-                if (mExpenseItem.getQuantity() == 0) {
+                if (mExpenseItem.getQuantity().isCleared()) {
                     // Show error message and retain focus.
                     mQuantityErMsgTV.setText(R.string.err_msg_quantity_zero);
                     return true;
@@ -432,7 +431,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         mItemATV.setText(mExpenseItem.getItemName());
         mBrandATV.setText(mExpenseItem.getBrand());
         mPricePCI.setAmount(mExpenseItem.getItemPrice());
-        mSizeATV.setText(mExpenseItem.getSize());
+        mSizeATV.setText(mExpenseItem.getSize().toString());
         mQuantityET.setText(
                 String.format(Locale.ENGLISH, "%.2f", mExpenseItem.getQuantity()));
         mTotalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
@@ -458,7 +457,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         }
 
         // Submit ExpenseItem for confirmation.
-        if (mExpenseItem.isReadyToLog()) {
+        if (mExpenseItem.readyToLog()) {
             mListener.submitExpenseDetails(mExpenseItem);
             return;
         }
@@ -470,9 +469,9 @@ public class ExpenseLogDetailsFragment extends Fragment
             mBrandErrMsgTV.setText(R.string.err_msg_brand_name_empty);
         if (mExpenseItem.getItemPrice().isZero())
             mPriceErrMsgTV.setText(R.string.err_msg_item_price_zero);
-        if (mExpenseItem.getSize().isEmpty())
+        if (mExpenseItem.getSize().isCleared())
             mSizeErrMsgTV.setText(R.string.err_msg_set_size_empty);
-        if (mExpenseItem.getQuantity() == 0)
+        if (mExpenseItem.getQuantity().isCleared())
             mQuantityErMsgTV.setText(R.string.err_msg_quantity_zero);
         if (mExpenseItem.getFund().isEmpty())
             mFundErrMsgTV.setText(R.string.err_msg_no_fund_selected);

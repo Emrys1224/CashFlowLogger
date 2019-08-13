@@ -60,4 +60,6 @@
     <string name="dummy_total_price">₱ 1,777,777.76</string>
     <string name="dummy_fund">Investment</string>
     <string name="btn_txt_log_expense">Log Expense</string>
+    <string name="err_msg_zero_denominator">Fractional value with zero denominator is not allowed</string>
+    <string name="err_msg_size_zero">Packaging size should not be zero</string>
 </resources>

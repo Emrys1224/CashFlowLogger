@@ -10,7 +10,7 @@ public class ExpenseItemTest {
     double delta = 0.009D;
 
     @Test
-    public void expense_item_creation_test() {
+    public void expense_item_creation_test() throws Measures.ClearedStateException {
         String product = "Rice";
         String brand = "Maharlika";
         double price = 1200D;
@@ -23,14 +23,14 @@ public class ExpenseItemTest {
         test.setBrand(brand);
         test.setPrice(new PhCurrency(price));
         test.setSize(size);
-        test.setQuantity(quantity);
+        test.setQuantity(String.valueOf(quantity));
         test.setFund(fund);
 
         assertEquals(product, test.getItemName());
         assertEquals(brand, test.getBrand());
         assertEquals(price, test.getItemPrice().toDouble(), delta);
-        assertEquals(size, test.getSize());
-        assertEquals(quantity, test.getQuantity(), delta);
+        assertEquals(size, test.getSize().toString());
+        assertEquals(quantity, test.getQuantity().getDouble(), delta);
         assertEquals(fund, test.getFund());
         assertEquals(price*quantity, test.getTotalPrice().toDouble(), delta);
 
@@ -77,7 +77,7 @@ public class ExpenseItemTest {
         test.setBrand(brand);
         test.setPrice(new PhCurrency(price));
         test.setSize(size);
-        test.setQuantity(quantity);
+        test.setQuantity(String.valueOf(quantity));
         test.setFund(fund);
 
         System.out.println("Initial Values");

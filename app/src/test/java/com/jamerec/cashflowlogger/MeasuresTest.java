@@ -18,7 +18,17 @@ public class MeasuresTest {
 
     @Test
     public void create_measures_test() {
-        String[][] seedValues2 = {
+        String[][] seedUnits = {
+                {"Simple unit of measure", "m"},
+                {"Whole word unit of measure", "meter"},
+                {"A measure with space between numerical part and its unit", " gallons"},
+                {"Unit of measure with a numerical and caret(^) character", "m^2"},
+                {"Unit of measure with a period(.) character", "oz."},
+                {"Unit of measure with a slash(/) character", "packs/box"},
+                {"Unit of measure that uses Greek character", "μm"}
+        };
+
+        String[][] seedValues = {
                 {"Single digit whole number", "1"},
                 {"Multiple digit whole number", "1244"},
                 {"Single digit and a decimal place", "3.5"},
@@ -35,222 +45,444 @@ public class MeasuresTest {
                 {"A fraction with a numerator that is a multiple of denominator", "34 39/13"}
         };
 
-        System.out.println("\n~~~~~~~~~~~~~ Create Measures Object Test ~~~~~~~~~~~~~");
+        System.out.println("\n~~~~~~~~~~~~~ Create Measures Object Test ~~~~~~~~~~~~~\n");
 
-        for (String[] seedValue : seedValues2) {
-            System.out.println(seedValue[0]);
-            System.out.println("Seed value: " + seedValue[1]);
+        for (String[] seedUnit : seedUnits) {
+            System.out.println(">>>" + seedUnit[0]);
+            System.out.println("Seed unit: " + seedUnit[1] + "\n");
 
-            int[] seedVal = createPseudoFractionObject(seedValue[1]);
-            double seedToDouble;
-            String seedString;
-            Measures testVal = new Measures(seedValue[1]);
+            for (String[] seedValue : seedValues) {
+                System.out.println("===== " + seedValue[0]);
 
-            // "seedValue" is in fraction format.
-            if (seedVal.length == 3) {
-                if (seedVal[2] != 1) {
-                    seedToDouble = convertPseudoFractionToDouble(seedVal);
-                    seedString = convertPseudoFractionToString(seedVal);
+                int[] seedVal = createPseudoFractionObject(seedValue[1]);
+                double seedToDouble;
+                String seedString = seedValue[1] + seedUnit[1];
+                System.out.println("Seed value: " + seedString);
 
-                    try {
-                        assertTrue(testVal.isFraction());
-                        assertEquals(seedVal[0], testVal.getWholeNumber());
-                        assertEquals(seedVal[1], testVal.getNumerator());
-                        assertEquals(seedVal[2], testVal.getDenominator());
+                Measures testVal = null;
+                try {
+                    testVal = new Measures(seedString);
+                } catch (Measures.InvalidValueException e) {
+                    e.printStackTrace();
+                } catch (Measures.NoValidUnitException e) {
+                    e.printStackTrace();
+                } catch (Measures.ZeroDenominatorException e) {
+                    e.printStackTrace();
+                }
 
-                    } catch (IllegalAccessException iae) {
-                        // Do nothing....
+                // "seedValue" is in fraction format.
+                if (seedVal.length == 3) {
+                    if (seedVal[2] != 1) {
+                        seedToDouble = convertPseudoFractionToDouble(seedVal);
+                        seedString = convertPseudoFractionToString(seedVal);
+
+                        try {
+                            assertTrue(testVal.isFraction());
+                            assertEquals(seedVal[0], testVal.getWholeNumber());
+                            assertEquals(seedVal[1], testVal.getNumerator());
+                            assertEquals(seedVal[2], testVal.getDenominator());
+                            assertEquals(seedString, testVal.getFractionString());
+
+                        } catch (IllegalAccessException iae) {
+                            // Do nothing....
+                        }
+
+                        seedString += seedUnit[1];
                     }
+
+                    // "seedValue" has its numerator as a multiple of the denominator.
+                    else {
+                        try {
+                            assertFalse(testVal.isFraction());
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+
+                        seedToDouble = (double) seedVal[0];
+                        seedString = seedVal[0] + seedUnit[1];
+                    }
+
                 }
 
-                // "seedValue" has its numerator as a multiple of the denominator.
+                // "seedValue" is in decimal format.
                 else {
-                    assertFalse(testVal.isFraction());
+                    try {
+                        assertFalse(testVal.isFraction());
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
 
-                    seedToDouble = (double) seedVal[0];
-                    seedString = String.valueOf(seedToDouble);
+                    seedToDouble = Double.parseDouble(seedValue[1]);
+                    seedString = seedValue[1] + seedUnit[1];
                 }
 
+                seedUnit[1] = seedUnit[1].replaceAll(" ", "");
+                System.out.println("Final seed value: " + seedString);
+
+                try {
+                    assertEquals(seedToDouble, testVal.getDouble(), 0.0001);
+                    assertEquals(seedUnit[1], testVal.getUnitOfMeasure());
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+
+                assertEquals(seedString, testVal.toString());
+
+                System.out.println();
             }
-
-            // "seedValue" is in decimal format.
-            else {
-                assertFalse(testVal.isFraction());
-
-                seedToDouble = Double.parseDouble(seedValue[1]);
-                seedString = String.valueOf(seedToDouble);
-            }
-
-            System.out.println("Final seed value: " + seedString);
-
-            assertEquals(seedToDouble, testVal.getDouble(), 0.0001);
-            assertEquals(seedString, testVal.toString());
-
-            System.out.println();
         }
     }
 
     @Test
-    public void exception_test_invalid_string() {
-        System.out.println("\nException Test: Invalid Numeric String");
+    public void catch_NoValidUnitException_test_1() throws
+            Measures.InvalidValueException,
+            Measures.NoValidUnitException,
+            Measures.ZeroDenominatorException {
 
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("This is not a valid numeric string.");
+        String description = "~~~~~ Exception Test: No given unit of measure ~~~~~";
+        String sourceString = "123.23";
+        Class<? extends Throwable> exceptionType = Measures.NoValidUnitException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "Invalid String! Measures should have a unit of measure.";
 
-        String seedVal = "123.3a";
-        System.out.printf("Seed value: %s\n", seedVal);
+        setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+    }
 
-        Measures testVal = new Measures(seedVal);
+    @Test
+    public void catch_NoValidUnitException_test_2() throws
+            Measures.InvalidValueException,
+            Measures.NoValidUnitException,
+            Measures.ZeroDenominatorException {
+
+        String description = "~~~~~ Exception Test: Invalid unit of measure (starts with a space followed by a number) ~~~~~";
+        String sourceString = "123.23 23a";
+        Class<? extends Throwable> exceptionType = Measures.NoValidUnitException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "Invalid String! Measures should have a unit of measure.";
+
+        setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+    }
+
+    @Test
+    public void catch_NoValidUnitException_test_3() throws
+            Measures.InvalidValueException,
+            Measures.NoValidUnitException,
+            Measures.ZeroDenominatorException {
+
+        String description = "~~~~~ Exception Test: More than one space before unit of measure ~~~~~";
+        String sourceString = "123.23  tons";
+        Class<? extends Throwable> exceptionType = Measures.NoValidUnitException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "Invalid String! Measures should have a unit of measure.";
+
+        setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+    }
+
+    @Test
+    public void catch_NoValidUnitException_test_4() throws
+            Measures.InvalidValueException,
+            Measures.NoValidUnitException,
+            Measures.ZeroDenominatorException {
+
+        String description = "~~~~~ Exception Test: Invalid character before unit of measure ~~~~~";
+        String sourceString = "123/23/tons";
+        Class<? extends Throwable> exceptionType = Measures.NoValidUnitException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "Invalid String! Measures should have a unit of measure.";
+
+        setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+    }
+
+    @Test
+    public void catch_NoValidUnitException_test_5() throws
+            Measures.InvalidValueException,
+            Measures.NoValidUnitException,
+            Measures.ZeroDenominatorException {
+
+        String description = "~~~~~ Exception Test: Invalid character inside unit of measure ~~~~~";
+        String sourceString = "123.23ton$";
+        Class<? extends Throwable> exceptionType = Measures.NoValidUnitException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "Invalid String! Measures should have a unit of measure.";
+
+        setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+    }
+
+    @Test
+    public void catch_InvalidValueException_test_1() throws
+            Measures.InvalidValueException,
+            Measures.NoValidUnitException,
+            Measures.ZeroDenominatorException {
+
+        String description = "~~~~~ Exception Test: No numeric value ~~~~~";
+        String sourceString = "meters";
+        Class<? extends Throwable> exceptionType = Measures.InvalidValueException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "Invalid String! Measures should have a numeric value.";
+
+        setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+    }
+
+    @Test
+    public void catch_InvalidValueException_test_2() throws
+            Measures.InvalidValueException,
+            Measures.NoValidUnitException,
+            Measures.ZeroDenominatorException {
+
+        String description = "~~~~~ Exception Test: Invalid character before the numeric value ~~~~~";
+        String sourceString = "a123meters";
+        Class<? extends Throwable> exceptionType = Measures.InvalidValueException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "Invalid String! Measures should have a numeric value.";
+
+        setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+    }
+
+    @Test
+    public void catch_ZeroDenominatorException_test() throws
+            Measures.InvalidValueException,
+            Measures.NoValidUnitException,
+            Measures.ZeroDenominatorException {
+
+        String description = "~~~~~ Exception Test: Invalid character before the numeric value ~~~~~";
+        String sourceString = "42/0lbs";
+        Class<? extends Throwable> exceptionType = Measures.ZeroDenominatorException.class;
+        String exceptionMessage = "Source Value: " + sourceString + "\n" + "The denominator cannot be zero!";
+
+        setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+    }
+
+    @Test
+    public void catch_ClearedStateException_isFraction_test() throws
+            Measures.ClearedStateException {
+
+        String description = "~~~~~ Exception Test: Call isFraction() from empty source String ~~~~~";
+        String sourceString = "";
+        Class<? extends Throwable> exceptionType = Measures.ClearedStateException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "No value set. This is in CLEARED state!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        boolean testBool = test.isFraction();
+        System.out.println("isFraction returns: " + testBool);
+    }
+
+    @Test
+    public void catch_ClearedStateException_getWholeNum_test() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getWholeNumber() from empty source String ~~~~~";
+        String sourceString = "";
+        Class<? extends Throwable> exceptionType = Measures.ClearedStateException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "No value set. This is in CLEARED state!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        int testInt = test.getWholeNumber();
+        System.out.println("getWholeNumber returns: " + testInt);
+    }
+
+    @Test
+    public void catch_ClearedStateException_getNumerator_test() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getNumerator() from empty source String ~~~~~";
+        String sourceString = "";
+        Class<? extends Throwable> exceptionType = Measures.ClearedStateException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "No value set. This is in CLEARED state!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        int testInt = test.getNumerator();
+        System.out.println("getWholeNumber returns: " + testInt);
+    }
+
+    @Test
+    public void catch_ClearedStateException_getDenominator_test() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getDenominator() from empty source String ~~~~~";
+        String sourceString = "";
+        Class<? extends Throwable> exceptionType = Measures.ClearedStateException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "No value set. This is in CLEARED state!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        int testInt = test.getDenominator();
+        System.out.println("getWholeNumber returns: " + testInt);
+    }
+
+    @Test
+    public void catch_ClearedStateException_getDouble_test() throws
+            Measures.ClearedStateException {
+
+        String description = "~~~~~ Exception Test: Call getDouble() from empty source String ~~~~~";
+        String sourceString = "";
+        Class<? extends Throwable> exceptionType = Measures.ClearedStateException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "No value set. This is in CLEARED state!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        double testDouble = test.getDouble();
+        System.out.println("getWholeNumber returns: " + testDouble);
+    }
+
+    @Test
+    public void catch_ClearedStateException_getFractionString_test() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getFractionString() from empty source String ~~~~~";
+        String sourceString = "";
+        Class<? extends Throwable> exceptionType = Measures.ClearedStateException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "No value set. This is in CLEARED state!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        String testFractionString = test.getFractionString();
+        System.out.println("getWholeNumber returns: " + testFractionString);
+    }
+
+    @Test
+    public void catch_ClearedStateException_getUnitOfMeasure_test() throws
+            Measures.ClearedStateException {
+
+        String description = "~~~~~ Exception Test: Call getUnitOfMeasure() from empty source String ~~~~~";
+        String sourceString = "";
+        Class<? extends Throwable> exceptionType = Measures.ClearedStateException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "No value set. This is in CLEARED state!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        String testUnitOfMeasure = test.getUnitOfMeasure();
+        System.out.println("getWholeNumber returns: " + testUnitOfMeasure);
+    }
+
+    @Test
+    public void catch_NotFractionException_getWholeNum_test1() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getWholeNumber() from source String with whole number numeric value ~~~~~";
+        String sourceString = "1l";
+        Class<? extends Throwable> exceptionType = Measures.NotFractionException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "This is not from a fraction formatted String!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        int testInt = test.getWholeNumber();
+        System.out.println("getWholeNumber returns: " + testInt);
+    }
+
+    @Test
+    public void catch_NotFractionException_getNumerator_test1() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getNumerator() from source String with whole number numeric value ~~~~~";
+        String sourceString = "1l";
+        Class<? extends Throwable> exceptionType = Measures.NotFractionException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "This is not from a fraction formatted String!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        int testInt = test.getNumerator();
+        System.out.println("getNumerator returns: " + testInt);
+    }
+
+    @Test
+    public void catch_NotFractionException_getDenominator_test1() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getDenominator() from source String with whole number numeric value ~~~~~";
+        String sourceString = "1l";
+        Class<? extends Throwable> exceptionType = Measures.NotFractionException.class;
+        String exceptionMessage = "Source String: " + sourceString + "\n" + "This is not from a fraction formatted String!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        int testInt = test.getDenominator();
+        System.out.println("getDenominator returns: " + testInt);
+    }
+
+    @Test
+    public void catch_NotFractionException_getFractionString_test1() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getFractionString() from source String with whole number numeric value ~~~~~";
+        String sourceString = "1l";
+        Class<? extends Throwable> exceptionType = Measures.NotFractionException.class;
+        String exceptionMessage = "Source String: 1l\nThis is not from a fraction formatted String!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        String testFractionString = test.getFractionString();
+        System.out.println("getFractionString returns: " + testFractionString);
+    }
+
+    @Test
+    public void catch_NotFractionException_getWholeNum_test2() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getWholeNumber() from source String with ~~~~~\n" +
+                "~~~~~~~~~ fraction numeric value that is reduced to whole number ~~~~~~~~";
+        String sourceString = "1 234/234l";
+        Class<? extends Throwable> exceptionType = Measures.NotFractionException.class;
+        String exceptionMessage = "Source String: 2l\nThis is not from a fraction formatted String!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        int testInt = test.getWholeNumber();
+        System.out.println("getWholeNumber returns: " + testInt);
+    }
+
+    @Test
+    public void catch_NotFractionException_getNumerator_test2() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getNumerator() from source String with ~~~~~\n" +
+                             "~~~~~~~~ fraction numeric value that is reduced to whole number ~~~~~~~";
+        String sourceString = "1 234/234l";
+        Class<? extends Throwable> exceptionType = Measures.NotFractionException.class;
+        String exceptionMessage = "Source String: 2l\nThis is not from a fraction formatted String!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        int testInt = test.getNumerator();
+        System.out.println("getNumerator returns: " + testInt);
+    }
+
+    @Test
+    public void catch_NotFractionException_getDenominator_test2() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getDenominator() from source String with ~~~~~\n" +
+                             "~~~~~~~~~ fraction numeric value that is reduced to whole number ~~~~~~~~";
+        String sourceString = "1 234/234l";
+        Class<? extends Throwable> exceptionType = Measures.NotFractionException.class;
+        String exceptionMessage = "Source String: 2l\nThis is not from a fraction formatted String!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        int testInt = test.getDenominator();
+        System.out.println("getDenominator returns: " + testInt);
+    }
+
+    @Test
+    public void catch_NotFractionException_getFractionString_test2() throws
+            Measures.ClearedStateException,
+            Measures.NotFractionException {
+
+        String description = "~~~~~ Exception Test: Call getFractionString() from source String with ~~~~~\n" +
+                             "~~~~~~~~~~ fraction numeric value that is reduced to whole number ~~~~~~~~~~";
+        String sourceString = "1 234/234l";
+        Class<? extends Throwable> exceptionType = Measures.NotFractionException.class;
+        String exceptionMessage = "Source String: 2l\nThis is not from a fraction formatted String!";
+        Measures test = setupMeasuresExceptionTest(description, sourceString, exceptionType, exceptionMessage);
+
+        String testFractionString = test.getFractionString();
+        System.out.println("getFractionString returns: " + testFractionString);
+    }
+
+    private Measures setupMeasuresExceptionTest(String description, String sourceString,
+                                                Class<? extends Throwable> exceptionType, String exceptionMessage) {
+        System.out.println("\n" + description);
+        System.out.println("Source String: " + sourceString);
+
+        thrown.expect(exceptionType);
+        thrown.expectMessage(exceptionMessage);
+
+        Measures testVal = new Measures(sourceString);
         System.out.println("Measures value: " + testVal);
-    }
 
-    @Test
-    public void exception_test_zero_denominator() {
-        System.out.println("\nException Test: Zero Denominator");
-
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("The denominator cannot be zero!");
-
-        String seedVal = "123/0";
-        System.out.printf("Seed value: %s\n", seedVal);
-
-        Measures testVal = new Measures(seedVal);
-        System.out.println("Measures value: " + testVal);
-    }
-
-    @Test
-    public void exception_test_illegal_accessA1() throws IllegalAccessException {
-        System.out.println("\nException Test: Get the whole number of a fraction with numerator that is same as the denominator");
-
-        thrown.expect(IllegalAccessException.class);
-        thrown.expectMessage("Field not set for non-fraction Measures....");
-
-        String seedVal = "123/123";
-        System.out.printf("Seed value: %s\n", seedVal);
-
-        Measures testVal = new Measures(seedVal);
-        System.out.println("Measures String: " + testVal.toString());
-        System.out.println("Measures Whole Number: " + testVal.getWholeNumber());
-    }
-
-    @Test
-    public void exception_test_illegal_accessA2() throws IllegalAccessException {
-        System.out.println("\nException Test: Get the numerator of a fraction with numerator that is same as the denominator");
-
-        thrown.expect(IllegalAccessException.class);
-        thrown.expectMessage("Field not set for non-fraction Measures....");
-
-        String seedVal = "123/123";
-        System.out.printf("Seed value: %s\n", seedVal);
-
-        Measures testVal = new Measures(seedVal);
-        System.out.println("Measures String: " + testVal.toString());
-        System.out.println("Measures Numerator: " + testVal.getNumerator());
-    }
-
-    @Test
-    public void exception_test_illegal_accessA3() throws IllegalAccessException {
-        System.out.println("\nException Test: Get the denominator of a fraction with numerator that is same as the denominator");
-
-        thrown.expect(IllegalAccessException.class);
-        thrown.expectMessage("Field not set for non-fraction Measures....");
-
-        String seedVal = "123/123";
-        System.out.printf("Seed value: %s\n", seedVal);
-
-        Measures testVal = new Measures(seedVal);
-        System.out.println("Measures String: " + testVal.toString());
-        System.out.println("Measures Denominator: " + testVal.getDenominator());
-    }
-
-    @Test
-    public void exception_test_illegal_accessB1() throws IllegalAccessException {
-        System.out.println("\nException Test: Get the whole number of a fraction with numerator that is multiple of denominator");
-
-        thrown.expect(IllegalAccessException.class);
-        thrown.expectMessage("Field not set for non-fraction Measures....");
-
-        String seedVal = "99/11";
-        System.out.printf("Seed value: %s\n", seedVal);
-
-        Measures testVal = new Measures(seedVal);
-        System.out.println("Measures String: " + testVal.toString());
-        System.out.println("Measures Whole Number: " + testVal.getWholeNumber());
-    }
-
-    @Test
-    public void exception_test_illegal_accessB2() throws IllegalAccessException {
-        System.out.println("\nException Test: Get the numerator of a fraction with numerator that is multiple of denominator");
-
-        thrown.expect(IllegalAccessException.class);
-        thrown.expectMessage("Field not set for non-fraction Measures....");
-
-        String seedVal = "99/11";
-        System.out.printf("Seed value: %s\n", seedVal);
-
-        Measures testVal = new Measures(seedVal);
-        System.out.println("Measures String: " + testVal.toString());
-        System.out.println("Measures Numerator: " + testVal.getNumerator());
-    }
-
-    @Test
-    public void exception_test_illegal_accessB3() throws IllegalAccessException {
-        System.out.println("\nException Test: Get the denominator of a fraction with numerator that is multiple of denominator");
-
-        thrown.expect(IllegalAccessException.class);
-        thrown.expectMessage("Field not set for non-fraction Measures....");
-
-        String seedVal = "99/11";
-        System.out.printf("Seed value: %s\n", seedVal);
-
-        Measures testVal = new Measures(seedVal);
-        System.out.println("Measures String: " + testVal.toString());
-        System.out.println("Measures Denominator: " + testVal.getDenominator());
-    }
-
-    @Test
-    public void exception_test_illegal_accessC1() throws IllegalAccessException {
-        System.out.println("\nException Test: Get the whole number of a Measures from a decimal value");
-
-        thrown.expect(IllegalAccessException.class);
-        thrown.expectMessage("Field not set for non-fraction Measures....");
-
-        String seedVal = "543.123";
-        System.out.printf("Seed value: %s\n", seedVal);
-
-        Measures testVal = new Measures(seedVal);
-        System.out.println("Measures String: " + testVal.toString());
-        System.out.println("Measures Whole Number: " + testVal.getWholeNumber());
-    }
-
-    @Test
-    public void exception_test_illegal_accessC2() throws IllegalAccessException {
-        System.out.println("\nException Test: Get the numerator of a Measures from a decimal value");
-
-        thrown.expect(IllegalAccessException.class);
-        thrown.expectMessage("Field not set for non-fraction Measures....");
-
-        String seedVal = "543.123";
-        System.out.printf("Seed value: %s\n", seedVal);
-
-        Measures testVal = new Measures(seedVal);
-        System.out.println("Measures String: " + testVal.toString());
-        System.out.println("Measures Numerator: " + testVal.getNumerator());
-    }
-
-    @Test
-    public void exception_test_illegal_accessC3() throws IllegalAccessException {
-        System.out.println("\nException Test: Get the denominator of a Measures from a decimal value");
-
-        thrown.expect(IllegalAccessException.class);
-        thrown.expectMessage("Field not set for non-fraction Measures....");
-
-        String seedVal = "543.123";
-        System.out.printf("Seed value: %s\n", seedVal);
-
-        Measures testVal = new Measures(seedVal);
-        System.out.println("Measures String: " + testVal.toString());
-        System.out.println("Measures Denominator: " + testVal.getDenominator());
+        return testVal;
     }
 
     @NonNull

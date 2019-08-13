@@ -73,9 +73,8 @@ public class ExpenseLogConfirmationFragment extends Fragment
         itemTV.setText(mExpenseItem.getItemName());
         brandTV.setText(mExpenseItem.getBrand());
         priceTV.setText(mExpenseItem.getItemPrice().toString());
-        itemSizeTV.setText(mExpenseItem.getSize());
-        quantityTV.setText(
-                String.format(Locale.ENGLISH, "%.2f", mExpenseItem.getQuantity()));
+        itemSizeTV.setText(mExpenseItem.getSize().toString());
+        quantityTV.setText(mExpenseItem.getQuantity().toString());
         totalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
         fundTV.setText(mExpenseItem.getFund());
 
