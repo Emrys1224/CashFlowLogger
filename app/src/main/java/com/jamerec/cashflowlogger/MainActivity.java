@@ -7,10 +7,14 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
+  private CFLoggerOpenHelper mDB;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    mDB = new CFLoggerOpenHelper(this);
 
     // Update balance display here
   }
