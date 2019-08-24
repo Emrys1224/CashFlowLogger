@@ -75,7 +75,6 @@ public final class CFLoggerContract {
 
     public static final class FundsBalanceEntry implements BaseColumns {
         public static final String TABLE_NAME = "funds_balance";
-        public static final String COL_ID = "id";
         public static final String COL_FUND_ID = "fund_id";
         public static final String COL_AMOUNTx100 = "amountX100";
         public static final String COL_BALANCE_UPDATE_ID = "balance_update_id";
@@ -86,12 +85,12 @@ public final class CFLoggerContract {
                         // "    -- income is added.\n" +
                         // "    -- Expense amount is subtracted to the corresponding fund where it\n" +
                         // "    -- is to be deducted from.\n" +
-                        "    " + COL_ID + "                INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
                         "    " + COL_FUND_ID + "           INTEGER NOT NULL,\n" +
-                        "    " + COL_AMOUNTx100 + "        INTEGER NOT NULL,\n" +   // -- Amount in Php times 10 to include centavo.
                         "    " + COL_BALANCE_UPDATE_ID + " INTEGER NOT NULL,\n" +   // -- References which cuased the update.
+                        "    " + COL_AMOUNTx100 + "        INTEGER NOT NULL,\n" +   // -- Amount in Php times 10 to include centavo.
                         "    FOREIGN KEY(" + COL_BALANCE_UPDATE_ID + ")\n" +
-                        "    REFERENCES " + BalanceEntry.TABLE_NAME + "(" + BalanceEntry.COL_ID + "));\n";
+                        "    REFERENCES " + BalanceEntry.TABLE_NAME + "(" + BalanceEntry.COL_ID + "),\n" +
+                        "    PRIMARY KEY(" + COL_FUND_ID + ", " + COL_BALANCE_UPDATE_ID + "));\n";
     }
 
     public static final class SourceEntry implements BaseColumns {
