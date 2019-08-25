@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 import static com.jamerec.cashflowlogger.CFLoggerContract.*;
 
@@ -197,11 +198,46 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return entryId;
     }
 
-    long queryId(String table, Map<String, String> arguments) {
+    long queryId(String table, ContentValues arguments) {
         long entryId = -1;
 
-        // * Build the query String for querying the id from the 'table' and arguments given.
+        // * Build the arguments for querying the id from the 'table' and arguments given.
+        Set<Map.Entry<String, Object>> colValPairs = arguments.valueSet();
+
+        String idColumn = "id";
+        String[] columns = new String[]{idColumn};
+        StringBuilder whereClause = new StringBuilder();
+        String[] whereArgs = new String[colValPairs.size()];
+
+        int index = 0;
+        int argsLastIndex = colValPairs.size() - 1;
+        for (Map.Entry<String, Object> colValPair : colValPairs) {
+            String column = colValPair.getKey();
+            String value = colValPair.getValue().toString();
+
+            whereClause.append(column).append(" = ?");
+            if (index < argsLastIndex) whereClause.append(" AND ");
+            whereArgs[index] = value;
+
+            index++;
+        }
+
         // * Execute query to retrieve and return the id, else return -1 when none was found.
+        Cursor queryResult = null;
+
+        try {
+            if (mReadableDB == null) mReadableDB = getReadableDatabase();
+            queryResult = mReadableDB.query(
+                    table, columns, whereClause.toString(), whereArgs, null, null, idColumn);
+            queryResult.moveToFirst();
+            entryId = queryResult.getLong(queryResult.getColumnIndex(idColumn));
+
+        } catch (Exception e) {
+            Log.d(TAG, "EXCEPTION! " + e);
+
+        } finally {
+            if (queryResult != null) queryResult.close();
+        }
 
         return entryId;
     }
