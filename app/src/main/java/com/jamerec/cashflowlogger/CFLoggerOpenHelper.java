@@ -3,8 +3,10 @@ package com.jamerec.cashflowlogger;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -18,6 +20,10 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
     private static final String TAG = CFLoggerOpenHelper.class.getSimpleName();
 
     private static final int DATABASE_VERSION = 1;    // has to be 1 first time or app will crash
+
+    private static final int NO_ID_COL = -123;
+    private static final String ID_COL = "id";
+    private static final String NAME_COL = "name";
 
     // Build the SQL query that creates the schema.
     private static final String[][] CFL_TABLES = {
@@ -47,33 +53,12 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         Log.d(TAG, "Construct CFLoggerOpenHelper");
 
-//        String query = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;";
-//        Cursor cursor = null;
-//
-//        try {
-//            if (mReadableDB == null) {
-//                mReadableDB = getReadableDatabase();
-//            }
-//            cursor = mReadableDB.rawQuery(query, null);
-//
-//            if (cursor.moveToFirst()){
-//                StringBuilder data = new StringBuilder("List of CFL Tables:\n");
-//
-//                do{
-//                    data.append(cursor.getString(cursor.getColumnIndex("name")));
-//                    data.append("\n");
-//                }while(cursor.moveToNext());
-//
-//                Log.d(TAG, data.toString());
-//            }
-//
-//        } catch (Exception e) {
-//            Log.d(TAG, "EXCEPTION! " + e);
-//        } finally {
-//            if (cursor != null) {
-//                cursor.close();
-//            }
-//        }
+        logTablesTest();
+
+        String table = "source";
+        String name = "App Store";
+        queryIdTest(table, name);
+        insertIdTest(table, name);
     }
 
     @Override
@@ -189,23 +174,93 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         //      > `amountX100`        = the calculated latest balance
     }
 
-    long insertEntry(String table, ContentValues values) {
-        long entryId = -1;
-
-        // * Add entry to 'table' with the given 'values' by calling mWritableDB.insert().
-        // * Get and return the id of the new entry if it has `id` column, otherwise -1.
-
-        return entryId;
+    long insertEntry(String table, String name) throws NoResultException, SQLiteConstraintException {
+        ContentValues values = new ContentValues();
+        values.put(NAME_COL, name);
+        return insertEntry(table, values);
     }
 
-    long queryId(String table, ContentValues arguments) {
-        long entryId = -1;
+    long insertEntry(String table, ContentValues values) throws NoResultException, SQLiteConstraintException {
+        // * Add entry to 'table' with the given 'values' by calling mWritableDB.insert().
+        try {
+            if (mWritableDB == null) {
+                mWritableDB = getWritableDatabase();
+            }
+            mWritableDB.insertOrThrow(table, null, values);
 
-        // * Build the arguments for querying the id from the 'table' and arguments given.
+        } catch (SQLiteConstraintException e) {
+            StringBuilder insertQuery = buildInsertQuery(table, values);
+            throw new SQLiteConstraintException(
+                    "Duplicate entry is not allowed!!!\nInsert query:\n" + insertQuery);
+        }
+
+        // * Get and return the id of the new entry if it has `id` column, otherwise NO_ID_COL(-1).
+        if (values.containsKey(ID_COL))
+            return queryId(table, values);
+        else
+            return NO_ID_COL;
+    }
+
+    long queryId(String table, String name) throws NoResultException {
+        ContentValues values = new ContentValues();
+        values.put(NAME_COL, name);
+
+        return queryLong(ID_COL, table, values);
+    }
+
+    long queryId(String table, ContentValues values) throws NoResultException {
+        return queryLong(ID_COL, table, values);
+    }
+
+    int queryInt(String columnSearch, String table, @NonNull ContentValues arguments) throws NoResultException {
+        int resultInt;
+
+        Cursor result = query(columnSearch, table, arguments);
+        result.moveToFirst();
+        resultInt = result.getInt(result.getColumnIndex(columnSearch));
+        result.close();
+
+        return resultInt;
+    }
+
+    long queryLong(String columnSearch, String table, @NonNull ContentValues arguments) throws NoResultException {
+        long resultLong;
+
+        Cursor result = query(columnSearch, table, arguments);
+        result.moveToFirst();
+        resultLong = result.getLong(result.getColumnIndex(columnSearch));
+        result.close();
+
+        return resultLong;
+    }
+
+    double queryDouble(String columnSearch, String table, @NonNull ContentValues arguments) throws NoResultException {
+        double resultDouble;
+
+        Cursor result = query(columnSearch, table, arguments);
+        result.moveToFirst();
+        resultDouble = result.getDouble(result.getColumnIndex(columnSearch));
+        result.close();
+
+        return resultDouble;
+    }
+
+    String queryString(String columnSearch, String table, @NonNull ContentValues arguments) throws NoResultException {
+        String resultString;
+
+        Cursor result = query(columnSearch, table, arguments);
+        result.moveToFirst();
+        resultString = result.getString(result.getColumnIndex(columnSearch));
+        result.close();
+
+        return resultString;
+    }
+
+    Cursor query(String columnSearch, String table, @NonNull ContentValues arguments) throws NoResultException {
+        // * Build the arguments for querying the column value from the 'table' and arguments given.
         Set<Map.Entry<String, Object>> colValPairs = arguments.valueSet();
 
-        String idColumn = "id";
-        String[] columns = new String[]{idColumn};
+        String[] columns = new String[]{columnSearch};
         StringBuilder whereClause = new StringBuilder();
         String[] whereArgs = new String[colValPairs.size()];
 
@@ -222,23 +277,160 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             index++;
         }
 
-        // * Execute query to retrieve and return the id, else return -1 when none was found.
+        // * Execute query to retrieve and return the value, else return 'NULL' when none was found.
         Cursor queryResult = null;
 
         try {
             if (mReadableDB == null) mReadableDB = getReadableDatabase();
             queryResult = mReadableDB.query(
-                    table, columns, whereClause.toString(), whereArgs, null, null, idColumn);
-            queryResult.moveToFirst();
-            entryId = queryResult.getLong(queryResult.getColumnIndex(idColumn));
+                    table, columns, whereClause.toString(), whereArgs, null, null, columnSearch);
 
         } catch (Exception e) {
             Log.d(TAG, "EXCEPTION! " + e);
-
-        } finally {
-            if (queryResult != null) queryResult.close();
         }
 
-        return entryId;
+        if (queryResult.getCount() <= 0)
+            throw new NoResultException(columnSearch, table, arguments);
+
+        return queryResult;
+    }
+
+    StringBuilder buildSelectQuery(String columnSearch, String table, @NonNull ContentValues arguments) {
+        StringBuilder selectQuery = new StringBuilder();
+        selectQuery.append("SELECT `")
+                .append(columnSearch)
+                .append("` FROM `")
+                .append(table)
+                .append("` WHERE ");
+
+        Set<Map.Entry<String, Object>> colValPairs = arguments.valueSet();
+        int index = 0;
+        int argsLastIndex = colValPairs.size() - 1;
+        for (Map.Entry<String, Object> colValPair : colValPairs) {
+            String column = colValPair.getKey();
+            String value = colValPair.getValue().toString();
+
+            selectQuery.append(" `").append(column).append("` = '").append(value).append("' ");
+
+            if (index < argsLastIndex) selectQuery.append("AND");
+            if (index == argsLastIndex) selectQuery.append(";");
+
+            index++;
+        }
+
+        return selectQuery;
+    }
+
+    StringBuilder buildInsertQuery(String table, @NonNull ContentValues colVals) {
+        Set<Map.Entry<String, Object>> colValPairs = colVals.valueSet();
+        int index = 0;
+        int argsLastIndex = colValPairs.size() - 1;
+        StringBuilder columns = new StringBuilder("(");
+        StringBuilder values = new StringBuilder("(");
+        for (Map.Entry<String, Object> colValPair : colValPairs) {
+            String column = colValPair.getKey();
+            String value = colValPair.getValue().toString();
+
+            columns.append("'").append(column);
+            values.append("'").append(value);
+
+            if (index < argsLastIndex) {
+                columns.append("', ");
+                values.append("', ");
+
+            } else {
+                columns.append("')");
+                values.append("');");
+            }
+
+            index++;
+        }
+
+        StringBuilder selectQuery = new StringBuilder();
+        selectQuery.append("INSERT INTO `")
+                .append(table)
+                .append("` ")
+                .append(columns)
+                .append(" VALUES")
+                .append(values);
+
+        return selectQuery;
+    }
+
+    void logTablesTest() {
+        String query = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;";
+        Cursor cursor = null;
+
+        try {
+            if (mReadableDB == null) {
+                mReadableDB = getReadableDatabase();
+            }
+            cursor = mReadableDB.rawQuery(query, null);
+
+            if (cursor.moveToFirst()) {
+                StringBuilder data = new StringBuilder("List of CFL Tables:\n");
+
+                do {
+                    data.append(cursor.getString(cursor.getColumnIndex("name")));
+                    data.append("\n");
+                } while (cursor.moveToNext());
+
+                Log.d(TAG, data.toString());
+            }
+
+        } catch (Exception e) {
+            Log.d(TAG, "EXCEPTION! " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    void queryIdTest(String table, String name) {
+        Log.d(TAG, "Searching `id` of " + name + " from `" + table + "`....");
+
+        try {
+            long newEntryId = queryId(SourceEntry.TABLE_NAME, name);
+            Log.d(TAG, name + " has id of " + newEntryId);
+
+        } catch (NoResultException e) {
+            Log.d(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    void insertIdTest(String table, String name) {
+        Log.d(TAG, "Inserting '" + name + "' into `" + table + "`....");
+
+        try {
+            long newEntryId = insertEntry(table, name);
+            Log.d(TAG, name + " has id of " + newEntryId);
+
+        } catch (SQLiteConstraintException e) {
+            Log.d(TAG, e.getMessage());
+            e.printStackTrace();
+
+        } catch (NoResultException e) {
+            Log.d(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    class NoResultException extends Exception {
+        String mColumnSearch;
+        String mTable;
+        ContentValues mArguments;
+
+        NoResultException(String columnSearch, String table, ContentValues arguments) {
+            this.mColumnSearch = columnSearch;
+            this.mTable = table;
+            this.mArguments = arguments;
+        }
+
+        @Override
+        public String getMessage() {
+            return buildSelectQuery(mColumnSearch, mTable, mArguments).toString();
+        }
     }
 }
