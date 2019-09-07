@@ -206,7 +206,7 @@ class Measures implements Parcelable {
      *
      * @param value the Measures object to copied.
      */
-    void setValue(Measures value) {
+    void setValue(@NonNull Measures value) {
         this.mWholeNum = value.mWholeNum;
         this.mNumerator = value.mNumerator;
         this.mDenominator = value.mDenominator;

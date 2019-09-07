@@ -21,7 +21,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;    // has to be 1 first time or app will crash
 
-    private static final int NO_ID_COL = -123;
+    private static final long NO_ID_COL = -123;
+    private static final long ID_NOT_FOUND = -456;
     private static final String ID_COL = "id";
     private static final String NAME_COL = "name";
 
@@ -56,7 +57,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         logTablesTest();
 
         String table = "source";
-        String name = "App Store";
+        String name = "Restaurant";
         queryIdTest(table, name);
         insertIdTest(table, name);
     }
@@ -174,13 +175,13 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         //      > `amountX100`        = the calculated latest balance
     }
 
-    long insertEntry(String table, String name) throws NoResultException, SQLiteConstraintException {
+    long insertEntry(String table, String name) throws SQLiteConstraintException {
         ContentValues values = new ContentValues();
         values.put(NAME_COL, name);
         return insertEntry(table, values);
     }
 
-    long insertEntry(String table, ContentValues values) throws NoResultException, SQLiteConstraintException {
+    long insertEntry(String table, ContentValues values) throws SQLiteConstraintException {
         // * Add entry to 'table' with the given 'values' by calling mWritableDB.insert().
         try {
             if (mWritableDB == null) {
@@ -194,73 +195,22 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                     "Duplicate entry is not allowed!!!\nInsert query:\n" + insertQuery);
         }
 
-        // * Get and return the id of the new entry if it has `id` column, otherwise NO_ID_COL(-1).
-        if (values.containsKey(ID_COL))
-            return queryId(table, values);
-        else
-            return NO_ID_COL;
+        return queryId(table, values);
     }
 
-    long queryId(String table, String name) throws NoResultException {
+    long queryId(String table, String name) {
         ContentValues values = new ContentValues();
         values.put(NAME_COL, name);
 
-        return queryLong(ID_COL, table, values);
+        return queryId(table, values);
     }
 
-    long queryId(String table, ContentValues values) throws NoResultException {
-        return queryLong(ID_COL, table, values);
-    }
+    long queryId(String table, @NonNull ContentValues arguments) {
+        long id;
 
-    int queryInt(String columnSearch, String table, @NonNull ContentValues arguments) throws NoResultException {
-        int resultInt;
-
-        Cursor result = query(columnSearch, table, arguments);
-        result.moveToFirst();
-        resultInt = result.getInt(result.getColumnIndex(columnSearch));
-        result.close();
-
-        return resultInt;
-    }
-
-    long queryLong(String columnSearch, String table, @NonNull ContentValues arguments) throws NoResultException {
-        long resultLong;
-
-        Cursor result = query(columnSearch, table, arguments);
-        result.moveToFirst();
-        resultLong = result.getLong(result.getColumnIndex(columnSearch));
-        result.close();
-
-        return resultLong;
-    }
-
-    double queryDouble(String columnSearch, String table, @NonNull ContentValues arguments) throws NoResultException {
-        double resultDouble;
-
-        Cursor result = query(columnSearch, table, arguments);
-        result.moveToFirst();
-        resultDouble = result.getDouble(result.getColumnIndex(columnSearch));
-        result.close();
-
-        return resultDouble;
-    }
-
-    String queryString(String columnSearch, String table, @NonNull ContentValues arguments) throws NoResultException {
-        String resultString;
-
-        Cursor result = query(columnSearch, table, arguments);
-        result.moveToFirst();
-        resultString = result.getString(result.getColumnIndex(columnSearch));
-        result.close();
-
-        return resultString;
-    }
-
-    Cursor query(String columnSearch, String table, @NonNull ContentValues arguments) throws NoResultException {
-        // * Build the arguments for querying the column value from the 'table' and arguments given.
         Set<Map.Entry<String, Object>> colValPairs = arguments.valueSet();
 
-        String[] columns = new String[]{columnSearch};
+        String[] idColumn = new String[]{ID_COL};
         StringBuilder whereClause = new StringBuilder();
         String[] whereArgs = new String[colValPairs.size()];
 
@@ -277,29 +227,37 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             index++;
         }
 
-        // * Execute query to retrieve and return the value, else return 'NULL' when none was found.
-        Cursor queryResult = null;
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
 
-        try {
-            if (mReadableDB == null) mReadableDB = getReadableDatabase();
-            queryResult = mReadableDB.query(
-                    table, columns, whereClause.toString(), whereArgs, null, null, columnSearch);
+        Cursor queryId = mReadableDB.query(
+                table, idColumn, whereClause.toString(), whereArgs, null, null, null);
 
-        } catch (Exception e) {
-            Log.d(TAG, "EXCEPTION! " + e);
+        if (queryId.getCount() <= 0) id = ID_NOT_FOUND;
+
+        else {
+            int idColIndex = queryId.getColumnIndex(ID_COL);
+            if (idColIndex < 0) id = NO_ID_COL;
+            else {
+                queryId.moveToFirst();
+                id = queryId.getLong(idColIndex);
+            }
         }
 
-        if (queryResult.getCount() <= 0)
-            throw new NoResultException(columnSearch, table, arguments);
+        queryId.close();
 
-        return queryResult;
+        return id;
     }
 
-    StringBuilder buildSelectQuery(String columnSearch, String table, @NonNull ContentValues arguments) {
+    StringBuilder buildSelectQuery(@NonNull String[] columnsSearch, String table, @NonNull ContentValues arguments) {
         StringBuilder selectQuery = new StringBuilder();
-        selectQuery.append("SELECT `")
-                .append(columnSearch)
-                .append("` FROM `")
+        selectQuery.append("SELECT `");
+
+        for (int i = 0; i < columnsSearch.length; i++) {
+            selectQuery.append(columnsSearch[i]);
+            if (i < columnsSearch.length - 1) selectQuery.append("`, `");
+        }
+
+        selectQuery.append("` FROM `")
                 .append(table)
                 .append("` WHERE ");
 
@@ -388,16 +346,11 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
     }
 
     void queryIdTest(String table, String name) {
-        Log.d(TAG, "Searching `id` of " + name + " from `" + table + "`....");
+        Log.d(TAG, "Searching `id` of '" + name + "' from `" + table + "`....");
 
-        try {
-            long newEntryId = queryId(SourceEntry.TABLE_NAME, name);
-            Log.d(TAG, name + " has id of " + newEntryId);
-
-        } catch (NoResultException e) {
-            Log.d(TAG, e.getMessage());
-            e.printStackTrace();
-        }
+        long newEntryId = queryId(SourceEntry.TABLE_NAME, name);
+        if (newEntryId == ID_NOT_FOUND) Log.d(TAG, "Entry does not exist!");
+        else Log.d(TAG, name + " has id of " + newEntryId);
     }
 
     void insertIdTest(String table, String name) {
@@ -405,32 +358,13 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
         try {
             long newEntryId = insertEntry(table, name);
-            Log.d(TAG, name + " has id of " + newEntryId);
+            if (newEntryId == ID_NOT_FOUND) Log.d(TAG, "Entry does not exist!");
+            else Log.d(TAG, name + " has id of " + newEntryId);
 
         } catch (SQLiteConstraintException e) {
             Log.d(TAG, e.getMessage());
             e.printStackTrace();
-
-        } catch (NoResultException e) {
-            Log.d(TAG, e.getMessage());
-            e.printStackTrace();
         }
     }
 
-    class NoResultException extends Exception {
-        String mColumnSearch;
-        String mTable;
-        ContentValues mArguments;
-
-        NoResultException(String columnSearch, String table, ContentValues arguments) {
-            this.mColumnSearch = columnSearch;
-            this.mTable = table;
-            this.mArguments = arguments;
-        }
-
-        @Override
-        public String getMessage() {
-            return buildSelectQuery(mColumnSearch, mTable, mArguments).toString();
-        }
-    }
 }
