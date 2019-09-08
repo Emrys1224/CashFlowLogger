@@ -162,17 +162,57 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return newBalanceId;
     }
 
-    void updateFundBalance(int fundID, int balanceUpdateId, PhCurrency amountDiff) {
+    private void updateFundBalance(int fundID, int balanceUpdateId, PhCurrency amountDiff) {
+        String fundsBalanceTable = FundsBalanceEntry.TABLE_NAME;
+        String fundIdCol = FundsBalanceEntry.COL_FUND_ID;
+        String balanceUpdateIdCol = FundsBalanceEntry.COL_BALANCE_UPDATE_ID;
+        String amountX100Col = FundsBalanceEntry.COL_AMOUNTx100;
+
         // * Get the latest `amountX100` (cash balance) from `funds_balance` table for the
         //   selected fund as per the 'fundID' given.
-        //   NOTE: If none is retrieved, which would occur during the first entry,
-        //         `amountX100` is equals 'amountDiff'.
-        // * Calculate the new `amountX100` (cash balance), that is add 'amountDiff' if it
-        //   is from income and subtract if it is from expense.
+        PhCurrency latestBalance = new PhCurrency();
+        String whereClause = "`" + fundIdCol + "` = '" + fundID + "'";
+        String orderBy = "`" + balanceUpdateIdCol + "` DESC";
+        String limit = "1";
+
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
+        Cursor queryBalance = mReadableDB.query(
+                fundsBalanceTable, new String[]{ amountX100Col }, whereClause,
+                null, null, null,  orderBy, limit);
+
+        if (queryBalance.getCount() > 0) {
+            queryBalance.moveToFirst();
+            latestBalance.setValue(
+                    queryBalance.getLong(
+                            queryBalance.getColumnIndex(amountX100Col)));
+        }
+        queryBalance.close();
+
+        // * Calculate the new `amountX100`(cash balance), that is add 'amountDiff' to last balance.
+        //   Note: For update done through income update 'amountDiff' should be a positive value
+        //         while an expense update should have a negative value. This logic is handled by
+        //         logIncome() and logExpense().
+        latestBalance.add(amountDiff);
+
         // * Add an entry into `funds_balance` table with the following values:
         //      > `fund_id`           = 'fundID'
         //      > `balance_update_id` = 'balanceUpdateId'
         //      > `amountX100`        = the calculated latest balance
+        ContentValues newBalanceEntry = new ContentValues();
+        newBalanceEntry.put(fundIdCol, fundID);
+        newBalanceEntry.put(balanceUpdateIdCol, balanceUpdateId);
+        newBalanceEntry.put(amountX100Col, latestBalance.getAmountX100());
+        try {
+            if (mWritableDB == null) {
+                mWritableDB = getWritableDatabase();
+            }
+            mWritableDB.insertOrThrow(fundsBalanceTable, null, newBalanceEntry);
+
+        } catch (SQLiteConstraintException e) {
+            StringBuilder insertQuery = buildInsertQuery(fundsBalanceTable, newBalanceEntry);
+            throw new SQLiteConstraintException(
+                    "Duplicate entry is not allowed!!!\nInsert query:\n" + insertQuery);
+        }
     }
 
     long insertEntry(String table, String name) throws SQLiteConstraintException {
