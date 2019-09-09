@@ -21,6 +21,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;    // has to be 1 first time or app will crash
 
+    private static final boolean ENTRY_ADDED = true;
+    private static final boolean ENTRY_FAILED = false;
     private static final long NO_ID_COL = -123;
     private static final long ID_NOT_FOUND = -456;
     private static final String ID_COL = "id";
@@ -143,26 +145,73 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     }
 
-    long updateCashBalance(PhCurrency amountDiff, int incomeId, int expenseId) {
-        long newBalanceId = -1;
-
+    long updateCashBalance(PhCurrency amountDiff, int incomeId, int expenseId) throws IllegalArgumentException {
         // * Check that only one of 'incomeId' and 'expenseId' has a valid id
-        //   while the other should have a 'NULL_ID' as value, otherwise throw a Exception.
+        //   while the other should have a 'NULL_ID' as value, otherwise throw a IllegalArgumentException.
+        if ((incomeId >= 0 && expenseId >= 0) || (incomeId < 0 && expenseId < 0))
+            throw new IllegalArgumentException(
+                    "Either 'incomeId' or 'incomeId' should have a valid ID but not both....");
+
         // * Get the latest `amountX100` (cash balance) from `balance` table.
-        //   NOTE: If none is retrieved, which would occur during the first entry,
-        //         `amountX100` is equals 'amountDiff'.
+        String balanceTable = BalanceEntry.TABLE_NAME;
+        String idCol = BalanceEntry.COL_ID;
+        String amountX100Col = BalanceEntry.COL_AMOUNTx100;
+        String incomeUpdateIdCol = BalanceEntry.COL_INCOME_UPDATE_ID;
+        String expenseUpdateIdCol = BalanceEntry.COL_EXPENSE_UPDATE_ID;
+
+        PhCurrency latestBalance = new PhCurrency();
+        String orderBy = "`" + idCol + "` DESC";
+        String limit = "1";
+
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
+        Cursor queryBalance = mReadableDB.query(
+                balanceTable, new String[]{amountX100Col}, null,
+                null, null, null, orderBy, limit);
+
+        if (queryBalance.getCount() > 0) {
+            queryBalance.moveToFirst();
+            latestBalance.setValue(
+                    queryBalance.getLong(
+                            queryBalance.getColumnIndex(amountX100Col)));
+        }
+        queryBalance.close();
+
         // * Calculate the new `amountX100` (cash balance), that is add 'amountDiff' if
         //   is from income and subtract if it is from expense.
+        //   Note: For update done through income update 'amountDiff' should be a positive value
+        //         while an expense update should have a negative value. This logic is handled by
+        //         logIncome() and logExpense().
+        latestBalance.add(amountDiff);
+
         // * Add an entry into `balance` table with the following values:
         //      > `amountX100`        = the calculated latest balance
         //      > `income_update_id`  = 'incomeId'
         //      > `expense_update_id` = 'expenseId'
         //   and get its id and return it.
+        String incomeIdString = incomeId < 0 ? "NULL" : String.valueOf(incomeId);
+        String expenseIdString = expenseId < 0 ? "NULL" : String.valueOf(expenseId);
+        ContentValues newBalanceEntry = new ContentValues();
+        newBalanceEntry.put(amountX100Col, latestBalance.getAmountX100());
+        newBalanceEntry.put(incomeUpdateIdCol, incomeIdString);
+        newBalanceEntry.put(expenseUpdateIdCol, expenseIdString);
+        try {
+            if (mWritableDB == null) {
+                mWritableDB = getWritableDatabase();
+            }
 
-        return newBalanceId;
+            if (mWritableDB.insertOrThrow(balanceTable, null, newBalanceEntry) < 0)
+                return -1;
+
+        } catch (SQLiteConstraintException e) {
+            StringBuilder insertQuery = buildInsertQuery(balanceTable, newBalanceEntry);
+            throw new SQLiteConstraintException(
+                    "Duplicate entry is not allowed!!!\nInsert query:\n" + insertQuery);
+        }
+
+        return queryId(balanceTable, newBalanceEntry);
     }
 
-    private void updateFundBalance(int fundID, int balanceUpdateId, PhCurrency amountDiff) {
+    private boolean updateFundBalance(int fundID, int balanceUpdateId, PhCurrency amountDiff) {
         String fundsBalanceTable = FundsBalanceEntry.TABLE_NAME;
         String fundIdCol = FundsBalanceEntry.COL_FUND_ID;
         String balanceUpdateIdCol = FundsBalanceEntry.COL_BALANCE_UPDATE_ID;
@@ -177,8 +226,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
         if (mReadableDB == null) mReadableDB = getReadableDatabase();
         Cursor queryBalance = mReadableDB.query(
-                fundsBalanceTable, new String[]{ amountX100Col }, whereClause,
-                null, null, null,  orderBy, limit);
+                fundsBalanceTable, new String[]{amountX100Col}, whereClause,
+                null, null, null, orderBy, limit);
 
         if (queryBalance.getCount() > 0) {
             queryBalance.moveToFirst();
@@ -202,17 +251,22 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         newBalanceEntry.put(fundIdCol, fundID);
         newBalanceEntry.put(balanceUpdateIdCol, balanceUpdateId);
         newBalanceEntry.put(amountX100Col, latestBalance.getAmountX100());
+        boolean entryAdded = ENTRY_FAILED;
         try {
             if (mWritableDB == null) {
                 mWritableDB = getWritableDatabase();
             }
-            mWritableDB.insertOrThrow(fundsBalanceTable, null, newBalanceEntry);
+
+            if (mWritableDB.insertOrThrow(fundsBalanceTable, null, newBalanceEntry) > 0)
+                entryAdded = ENTRY_ADDED;
 
         } catch (SQLiteConstraintException e) {
             StringBuilder insertQuery = buildInsertQuery(fundsBalanceTable, newBalanceEntry);
             throw new SQLiteConstraintException(
                     "Duplicate entry is not allowed!!!\nInsert query:\n" + insertQuery);
         }
+
+        return entryAdded;
     }
 
     long insertEntry(String table, String name) throws SQLiteConstraintException {
