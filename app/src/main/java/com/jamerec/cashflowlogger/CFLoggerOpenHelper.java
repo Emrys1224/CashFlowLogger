@@ -25,6 +25,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
     private static final boolean ENTRY_FAILED = false;
     private static final long NO_ID_COL = -123;
     private static final long ID_NOT_FOUND = -456;
+    private static final long ID_NULL = -789;
     private static final String ID_COL = "id";
     private static final String NAME_COL = "name";
 
@@ -98,18 +99,33 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
     void logIncome(String incomeSource, PhCurrency amount, ArrayList<FundItem> fundsList) {
         // * Get the `id` of the 'incomeSource' from `source` table. If not found add an entry
         //   for it.
+        long incomeSourceId = queryId(SourceEntry.TABLE_NAME, incomeSource);
+        if (incomeSourceId == ID_NOT_FOUND)
+            incomeSourceId = insertEntry(SourceEntry.TABLE_NAME, incomeSource);
+
         // * Add an entry in `income` table with the following values:
         //      > `source_id`  = the id of 'incomeSource'
         //      > `amountX100` = the value from amount.getAmountX100()
         //   and get its id.
+        ContentValues newIncomeEntry = new ContentValues();
+        newIncomeEntry.put(IncomeEntry.COL_SOURCE_ID, incomeSourceId);
+        newIncomeEntry.put(IncomeEntry.COL_AMOUNTx100, amount.getAmountX100());
+        long incomeId = insertEntry(IncomeEntry.TABLE_NAME, newIncomeEntry);
+
         // * Update the record for cash at hand (`balance` table) by calling
         //   updateCashBalance() with the following arguments:
         //      > amountDiff = amount
         //      > incomeId   = ID of the recently added entry in `income` table
-        //      > expenseId  = NULL_ID (-111)
+        //      > expenseId  = ID_NULL (-789)
+        long balanceUpdateId = updateCashBalance(amount, incomeId, ID_NULL);
+
         // * Update the `funds_balance` table by calling updateFundBalance() as
         //   per the allocation amount from 'fundsList' ArrayList and the id retrieved from
         //   updateCashBalance().
+        for (FundItem fundAllocation : fundsList) {
+            long fundId = queryId(FundsEntry.TABLE_NAME, fundAllocation.getName());
+            updateFundBalance(fundId, balanceUpdateId, fundAllocation.getAmount());
+        }
     }
 
     void logExpense(ExpenseItem expenseItem) {
@@ -145,7 +161,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     }
 
-    long updateCashBalance(PhCurrency amountDiff, int incomeId, int expenseId) throws IllegalArgumentException {
+    long updateCashBalance(PhCurrency amountDiff, long incomeId, long expenseId) throws IllegalArgumentException {
         // * Check that only one of 'incomeId' and 'expenseId' has a valid id
         //   while the other should have a 'NULL_ID' as value, otherwise throw a IllegalArgumentException.
         if ((incomeId >= 0 && expenseId >= 0) || (incomeId < 0 && expenseId < 0))
@@ -211,7 +227,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return queryId(balanceTable, newBalanceEntry);
     }
 
-    private boolean updateFundBalance(int fundID, int balanceUpdateId, PhCurrency amountDiff) {
+    private boolean updateFundBalance(long fundID, long balanceUpdateId, PhCurrency amountDiff) {
         String fundsBalanceTable = FundsBalanceEntry.TABLE_NAME;
         String fundIdCol = FundsBalanceEntry.COL_FUND_ID;
         String balanceUpdateIdCol = FundsBalanceEntry.COL_BALANCE_UPDATE_ID;
