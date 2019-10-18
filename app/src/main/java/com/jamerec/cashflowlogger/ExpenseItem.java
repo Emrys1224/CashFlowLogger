@@ -20,6 +20,7 @@ class ExpenseItem implements Parcelable {
     private Measures mQuantity;     // Quantity of item purchased
     private String mFund;           // Fund from where it is to be deducted
     private List<String> mTags;     // Tags where this product is categorized
+    private String mRemarks;
 
     /**
      * Creates an ExpenseItem with empty details.
@@ -32,6 +33,7 @@ class ExpenseItem implements Parcelable {
         this.mQuantity = new Measures();
         this.mFund = "";
         this.mTags = new ArrayList<>();
+        this.mRemarks = "NULL";
     }
 
     /**
@@ -47,6 +49,7 @@ class ExpenseItem implements Parcelable {
         this.mQuantity = item.mQuantity;
         this.mFund = item.mFund;
         this.mTags.addAll(item.mTags);
+        this.mRemarks = item.mRemarks;
     }
 
     protected ExpenseItem(Parcel in) {
@@ -57,6 +60,7 @@ class ExpenseItem implements Parcelable {
         mQuantity = in.readParcelable(Measures.class.getClassLoader());
         mFund = in.readString();
         mTags = in.createStringArrayList();
+        mRemarks = in.readString();
     }
 
     public static final Creator<ExpenseItem> CREATOR = new Creator<ExpenseItem>() {
@@ -151,6 +155,15 @@ class ExpenseItem implements Parcelable {
      */
     List<String> getTags() {
         return new ArrayList<>(this.mTags);
+    }
+
+    /**
+     * Get the remarks for this expense item.
+     *
+     * @return remarks for this item.
+     */
+    String getRemarks() {
+        return this.mRemarks;
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Setters~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -250,6 +263,15 @@ class ExpenseItem implements Parcelable {
      */
     void removeTag(String tag) {
         this.mTags.remove(tag);
+    }
+
+    /**
+     * Set the remarks for the expense item.
+     *
+     * @param remarks for this expense item.
+     */
+    void setRemarks(String remarks) {
+        this.mRemarks = remarks;
     }
 
     // ~~~~~~~Method for providing items in dropdown list in AutoCompleteTextViews~~~~~~~~~~~~ //

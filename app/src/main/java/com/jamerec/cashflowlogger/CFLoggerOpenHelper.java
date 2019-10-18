@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +22,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;    // has to be 1 first time or app will crash
 
+    private static final int NO_MATCH_FOUND = 0;
     private static final boolean ENTRY_ADDED = true;
     private static final boolean ENTRY_FAILED = false;
     private static final long NO_ID_COL = -123;
@@ -128,36 +130,191 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    void logExpense(ExpenseItem expenseItem) {
+    void logExpense(ExpenseItem expenseItem) throws Exception {
+        if (mReadableDB == null)
+            mReadableDB = getReadableDatabase();
+
         // * Get the id of the product from the `product` table. If none was
         //   found add an entry for it in the table.
+        long productId = queryId(ProductEntry.TABLE_NAME, expenseItem.getItemName());
+        if (productId == ID_NOT_FOUND)
+            productId = insertEntry(ProductEntry.TABLE_NAME, expenseItem.getItemName());
+
         // * Get the ids of the tags associated with the product from the `tags` table.
         //   Add to the `tags` table those that are not yet recorded.
+        List productTags = expenseItem.getTags();
+        long[] tagIds = new long[productTags.size()];
+        int index = 0;
+        for (Object tag : productTags) {
+            tagIds[index] = queryId(TagEntry.TABLE_NAME, (String) tag);
+
+            if (tagIds[index] == ID_NOT_FOUND)
+                tagIds[index] = insertEntry(TagEntry.TABLE_NAME, (String) tag);
+
+            index++;
+        }
+
         // * Check if the tags given are matched in the `product_tags` intermediary table and
         //   add it if it is not yet matched.
+        String matchQuery = "SELECT EXISTS(SELECT 1 FROM product_tags WHERE product_id = '" +
+                productId + "' AND tag_id = ? LIMIT 1);";
+        Cursor matchCursor = null;
+        try {
+            for (long tagId : tagIds) {
+                matchCursor = mReadableDB.rawQuery(
+                        matchQuery, new String[]{String.valueOf(tagId)});
+                if (matchCursor.moveToFirst()) {
+                    if (matchCursor.getInt(0) == NO_MATCH_FOUND) {
+                        ContentValues newProductTagEntry = new ContentValues();
+                        newProductTagEntry.put(ProductTagsEntry.COL_PRODUCT_ID, productId);
+                        newProductTagEntry.put(ProductTagsEntry.COL_TAG_ID, tagId);
+                        insertEntry(ProductTagsEntry.TABLE_NAME, newProductTagEntry);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            Log.d(TAG, "EXCEPTION!!! " + e);
+
+        } finally {
+            if (matchCursor != null)
+                matchCursor.close();
+        }
+
         // * Get the id of the brand from the `brand` table, add an entry for it if none
         //   was found.
+        long brandId = queryId(BrandEntry.TABLE_NAME, expenseItem.getBrand());
+        if (brandId == ID_NOT_FOUND)
+            brandId = insertEntry(BrandEntry.TABLE_NAME, expenseItem.getBrand());
+
         // * Get the id of the unit from the `unit` table, add an entry for it if none
         //   was found.
+        Measures productSize = expenseItem.getSize();
+        String unitOfMeasure = productSize.getUnitOfMeasure();
+        long unitId = queryId(UnitEntry.TABLE_NAME, unitOfMeasure);
+        if (unitId == ID_NOT_FOUND)
+            unitId = insertEntry(UnitEntry.TABLE_NAME, unitOfMeasure);
+
+        // * Check if the size value is a fraction. If it is get its ID from the `fraction_text`
+        //   look_up table, or add an entry to it first if its not yet added.
+        String sizeTextId = "NULL";
+        try {
+            String sizeText = productSize.getFractionString();
+            long sizeTxtId = queryId(FractionTextEntry.TABLE_NAME, sizeText);
+            if (sizeTxtId == ID_NOT_FOUND)
+                sizeTxtId = insertEntry(FractionTextEntry.TABLE_NAME, sizeText);
+            sizeTextId = String.valueOf(sizeTxtId);
+
+        } catch (Measures.NotFractionException e) {
+            // Do nothing....
+        }
+
         // * Get the id of the packaging size with the corresponding id for unit of measurement
-        //   from the `product_size` table, add an entry for it if none was found.
+        //   from the `product_size` table, add an entry of it if none was found.
+        ContentValues productSizeEntry = new ContentValues();
+        productSizeEntry.put(ProductSizeEntry.COL_SIZE, String.valueOf(productSize.getDouble()));
+        productSizeEntry.put(ProductSizeEntry.COL_SIZE_TXT, sizeTextId);
+        productSizeEntry.put(ProductSizeEntry.COL_UNIT_ID, unitId);
+
+        long productSizeId = queryId(ProductSizeEntry.TABLE_NAME, productSizeEntry);
+        if (productSizeId == ID_NOT_FOUND)
+            productSizeId = insertEntry(ProductSizeEntry.TABLE_NAME, productSizeEntry);
+
         // * Get the id for the product variant with the corresponding product id, brand id, and
         //   product size id in the 'product_variant' table, add an entry for it if none was found.
+        ContentValues productVariantEntry = new ContentValues();
+        productVariantEntry.put(ProductVariantEntry.COL_PRODUCT_ID, productId);
+        productVariantEntry.put(ProductVariantEntry.COL_BRAND_ID, brandId);
+        productVariantEntry.put(ProductVariantEntry.COL_PRODUCT_SIZE_ID, productSizeId);
+
+        long productVariantId = queryId(ProductVariantEntry.TABLE_NAME, productVariantEntry);
+        if (productVariantId == ID_NOT_FOUND)
+            productVariantId = insertEntry(ProductVariantEntry.TABLE_NAME, productVariantEntry);
+
         // * Get the id and latest price for this product variant in the 'item' table. If the
         //   price is different add a new entry with it's current price for this
         //   product variant and get its ID.
+        long itemId = ID_NULL;
+        long prevItemPrice = -1;
+        long curItemPrice = expenseItem.getItemPrice().getAmountX100();
+        Cursor itemEntryCursor = null;
+        try {
+            String[] searchFor = { ID_COL, ItemEntry.COL_PRICEx100 };
+            String whereClause = ItemEntry.COL_PRODUCT_VARIANT_ID + " = " + productVariantId;
+            String orderBy = ItemEntry.COL_DATE + " DESC";
+            String limit = "LIMIT 1";
+            itemEntryCursor = mReadableDB.query(
+                    ItemEntry.TABLE_NAME, searchFor, whereClause,
+                    null, null, null,
+                    orderBy, limit);
+
+            if (itemEntryCursor.getCount() > 0) {
+                itemEntryCursor.moveToFirst();
+                itemId = itemEntryCursor.getLong(itemEntryCursor.getColumnIndex(ID_COL));
+                prevItemPrice = itemEntryCursor.getLong(
+                        itemEntryCursor.getColumnIndex(ItemEntry.COL_PRICEx100));
+            }
+
+            // Insert new entry if there was no item entry for this `product_variant` or
+            // the price have changed.
+            if (prevItemPrice < 0 || prevItemPrice != curItemPrice) {
+                ContentValues newItemEntry = new ContentValues();
+                newItemEntry.put(ItemEntry.COL_PRODUCT_VARIANT_ID, productVariantId);
+                newItemEntry.put(ItemEntry.COL_PRICEx100, curItemPrice);
+                itemId = insertEntry(ItemEntry.TABLE_NAME, newItemEntry);
+            }
+
+        } catch (Exception e) {
+            Log.d(TAG,"EXCEPTION!!! " + e);
+
+        } finally {
+            if (itemEntryCursor != null)
+                itemEntryCursor.close();
+        }
+
+        // Just in case....
+        if (itemId == ID_NULL) throw new Exception("Getting itemId went wrong somewhere!!!....");
+
+        // * Check if the value of quantity is a fraction. If it is get its ID from the `fraction_text`
+        //   look_up table, or add an entry of it if its not yet added.
+        Measures itemQty = expenseItem.getQuantity();
+        String qtyTextId = "NULL";
+        try {
+            String sizeText = itemQty.getFractionString();
+            long qtyTxtId = queryId(FractionTextEntry.TABLE_NAME, sizeText);
+            if (qtyTxtId == ID_NOT_FOUND)
+                qtyTxtId = insertEntry(FractionTextEntry.TABLE_NAME, sizeText);
+            qtyTextId = String.valueOf(qtyTxtId);
+
+        } catch (Measures.NotFractionException e) {
+            // Do nothing....
+        }
+
         // * Add new entry into `expense` table with the given item ID, quantity, and
         //   remarks if there is any, and get the id for the new entry.
+        ContentValues newExpenseEntry = new ContentValues();
+        newExpenseEntry.put(ExpenseEntry.COL_ITEM_ID, itemId);
+        newExpenseEntry.put(ExpenseEntry.COL_QUANTITY, String.valueOf(itemQty.getDouble()));
+        newExpenseEntry.put(ExpenseEntry.COL_QUANTITY_TXT, qtyTextId);
+        newExpenseEntry.put(ExpenseEntry.COL_REMARKS, expenseItem.getRemarks());
+        long expenseId = insertEntry(ExpenseEntry.TABLE_NAME, newExpenseEntry);
+
         // * Update the record for cash at hand (`balance` table) by calling
         //   updateCashBalance() with the following arguments:
         //      > amountDiff = expenseItem.getTotalPrice() * -1
-        //      > incomeId   = NULL_ID (-111)
+        //      > incomeId   =  ID_NULL (-789)
         //      > expenseId  = ID of the recently added entry in `expense` table
+        PhCurrency updateAmt = new PhCurrency(expenseItem.getTotalPrice());
+        updateAmt.multiplyBy(-1);
+        long balanceUpdateId = updateCashBalance(updateAmt, ID_NULL, expenseId);
+
         // * Update the `funds_balance` table by calling updateFundBalance()
         //   with the following arguments:
         //      > 'fundID'          = id of the expenseItem.mFund
         //      > 'balanceUpdateId' = the returned id of updateCashBalance()
         //      > 'amountDiff'      = expenseItem.getTotalPrice() * -1
+        long fundId = queryId(FundsEntry.TABLE_NAME, expenseItem.getFund());
+        updateFundBalance(fundId, balanceUpdateId, updateAmt);
 
     }
 
@@ -215,8 +372,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 mWritableDB = getWritableDatabase();
             }
 
-            if (mWritableDB.insertOrThrow(balanceTable, null, newBalanceEntry) < 0)
-                return -1;
+            mWritableDB.insertOrThrow(balanceTable, null, newBalanceEntry);
 
         } catch (SQLiteConstraintException e) {
             StringBuilder insertQuery = buildInsertQuery(balanceTable, newBalanceEntry);
@@ -389,7 +545,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return selectQuery;
     }
 
-    StringBuilder buildInsertQuery(String table, @NonNull ContentValues colVals) {
+    private StringBuilder buildInsertQuery(String table, @NonNull ContentValues colVals) {
         Set<Map.Entry<String, Object>> colValPairs = colVals.valueSet();
         int index = 0;
         int argsLastIndex = colValPairs.size() - 1;
@@ -425,7 +581,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return selectQuery;
     }
 
-    void logTablesTest() {
+    private void logTablesTest() {
         String query = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;";
         Cursor cursor = null;
 
@@ -455,7 +611,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    void queryIdTest(String table, String name) {
+    private void queryIdTest(String table, String name) {
         Log.d(TAG, "Searching `id` of '" + name + "' from `" + table + "`....");
 
         long newEntryId = queryId(SourceEntry.TABLE_NAME, name);
@@ -463,7 +619,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         else Log.d(TAG, name + " has id of " + newEntryId);
     }
 
-    void insertIdTest(String table, String name) {
+    private void insertIdTest(String table, String name) {
         Log.d(TAG, "Inserting '" + name + "' into `" + table + "`....");
 
         try {
