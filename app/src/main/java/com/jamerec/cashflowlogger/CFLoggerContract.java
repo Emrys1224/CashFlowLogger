@@ -57,7 +57,7 @@ public final class CFLoggerContract {
 
     public static final class FundsAllocationEntry implements BaseColumns {
         public static final String TABLE_NAME = "funds_allocation";
-        public static final String COL_DATETIME = "datetime";
+        public static final String COL_DATE = "_date";
         public static final String COL_FUND_ID = "fund_id";
         public static final String COL_PERCENT_ALLOCATION = "percent_allocation";
         public static final String CREATE_TABLE =
@@ -65,12 +65,12 @@ public final class CFLoggerContract {
                         // "    -- Stores how the income is to be divided amongst the fund (in percent).\n" +
                         // "    -- This will also serve as how the allocation of fund changes over time.\n" +
                         // "    -- Unused fund will have an allocation of 0%.\n" +
-                        "    " + COL_DATETIME + "           DATETIME DEFAULT CURRENT_TIMESTAMP,\n" +
+                        "    " + COL_DATE + "            DATE     DEFAULT CURRENT_DATE,\n" +
                         "    " + COL_FUND_ID + "            INTEGER  NOT NULL,\n" +
                         "    " + COL_PERCENT_ALLOCATION + " INTEGER  NOT NULL,\n" +
                         "    FOREIGN KEY(" + COL_FUND_ID + ")\n" +
                         "    REFERENCES " + FundsEntry.TABLE_NAME + "(" + FundsEntry.COL_ID + "),\n" +
-                        "    PRIMARY KEY(" + COL_DATETIME + ", " + COL_FUND_ID + "));";
+                        "    PRIMARY KEY(" + COL_DATE + ", " + COL_FUND_ID + "));";
     }
 
     public static final class FundsBalanceEntry implements BaseColumns {
