@@ -9,7 +9,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +26,13 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;    // has to be 1 first time or app will crash
 
-    private static final int NO_MATCH_FOUND = 0;
-    private static final boolean ENTRY_ADDED = true;
-    private static final boolean ENTRY_FAILED = false;
-    private static final long NO_ID_COL = -123;
-    private static final long ID_NOT_FOUND = -456;
-    private static final long ID_NULL = -789;
+    static final boolean ENTRY_FAILED = false;
+    static final boolean ENTRY_ADDED = true;
+    static final boolean IS_100_PERCENT = true;
+    static final int NO_MATCH_FOUND = 0;
+    static final long NO_ID_COL = -123;
+    static final long ID_NOT_FOUND = -456;
+    static final long ID_NULL = -789;
     private static final String ID_COL = "id";
     private static final String NAME_COL = "name";
 
@@ -100,11 +104,12 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
     }
 
     void logIncome(String incomeSource, PhCurrency amount, ArrayList<FundItem> fundsList) {
-        if (mReadableDB == null) mReadableDB = getReadableDatabase();
-        if (mWritableDB == null) mWritableDB = getWritableDatabase();
-
-        mWritableDB.beginTransaction();
         try {
+            if (mReadableDB == null) mReadableDB = getReadableDatabase();
+            if (mWritableDB == null) mWritableDB = getWritableDatabase();
+
+            mWritableDB.beginTransaction();
+
             // * Get the `id` of the 'incomeSource' from `source` table. If not found add an entry
             //   for it.
             long incomeSourceId = queryId(SourceEntry.TABLE_NAME, incomeSource);
@@ -138,16 +143,17 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             mWritableDB.setTransactionSuccessful();
 
         } finally {
-            mWritableDB.endTransaction();
+            if (mWritableDB != null) mWritableDB.endTransaction();
         }
     }
 
     void logExpense(ExpenseItem expenseItem) throws Exception {
-        if (mReadableDB == null) mReadableDB = getReadableDatabase();
-        if (mWritableDB == null) mWritableDB = getWritableDatabase();
-
-        mWritableDB.beginTransaction();
         try {
+            if (mReadableDB == null) mReadableDB = getReadableDatabase();
+            if (mWritableDB == null) mWritableDB = getWritableDatabase();
+
+            mWritableDB.beginTransaction();
+
             // * Get the id of the product from the `product` table. If none was
             //   found add an entry for it in the table.
             long productId = queryId(ProductEntry.TABLE_NAME, expenseItem.getItemName());
@@ -334,7 +340,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             mWritableDB.setTransactionSuccessful();
 
         } finally {
-            mWritableDB.endTransaction();
+            if (mWritableDB != null) mWritableDB.endTransaction();
         }
 
     }
@@ -357,7 +363,6 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         String orderBy = "`" + idCol + "` DESC";
         String limit = "1";
 
-        if (mReadableDB == null) mReadableDB = getReadableDatabase();
         Cursor queryBalance = mReadableDB.query(
                 balanceTable, new String[]{amountX100Col}, null,
                 null, null, null, orderBy, limit);
@@ -389,10 +394,6 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         newBalanceEntry.put(incomeUpdateIdCol, incomeIdString);
         newBalanceEntry.put(expenseUpdateIdCol, expenseIdString);
         try {
-            if (mWritableDB == null) {
-                mWritableDB = getWritableDatabase();
-            }
-
             mWritableDB.insertOrThrow(balanceTable, null, newBalanceEntry);
 
         } catch (SQLiteConstraintException e) {
@@ -417,7 +418,6 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         String orderBy = "`" + balanceUpdateIdCol + "` DESC";
         String limit = "1";
 
-        if (mReadableDB == null) mReadableDB = getReadableDatabase();
         Cursor queryBalance = mReadableDB.query(
                 fundsBalanceTable, new String[]{amountX100Col}, whereClause,
                 null, null, null, orderBy, limit);
@@ -446,10 +446,6 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         newBalanceEntry.put(amountX100Col, latestBalance.getAmountX100());
         boolean entryAdded = ENTRY_FAILED;
         try {
-            if (mWritableDB == null) {
-                mWritableDB = getWritableDatabase();
-            }
-
             if (mWritableDB.insertOrThrow(fundsBalanceTable, null, newBalanceEntry) > 0)
                 entryAdded = ENTRY_ADDED;
 
@@ -462,8 +458,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return entryAdded;
     }
 
-    Map<String, Integer> getFundsAllocation() {
-        Map<String, Integer> fundsAllocation = new HashMap<>();
+    Map<String, Integer> getFundsAllocationPercentage() {
+        Map<String, Integer> fundsAllocationPercentage = new HashMap<>();
 
         String allocationQuery = "" +
                 "SELECT " + FundsEntry.COL_NAME + ", " + FundsAllocationEntry.COL_PERCENT_ALLOCATION +
@@ -482,14 +478,57 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 int percentAllocation = allocationCursor.getInt(
                         allocationCursor.getColumnIndex(FundsAllocationEntry.COL_PERCENT_ALLOCATION));
 
-                fundsAllocation.put(fundName, percentAllocation);
+                fundsAllocationPercentage.put(fundName, percentAllocation);
             }
 
         } finally {
             if (allocationCursor != null) allocationCursor.close();
         }
 
-        return fundsAllocation;
+        return fundsAllocationPercentage;
+    }
+
+    boolean editFundsAllocationPercentage(@NonNull Map<String, Integer> fundsAllocationPercentage) {
+        boolean editSuccess = false;
+        try {
+            if (mReadableDB == null) mReadableDB = getReadableDatabase();
+            if (mWritableDB == null) mWritableDB = getWritableDatabase();
+
+            mWritableDB.beginTransaction();
+
+            Date currentDate = Calendar.getInstance().getTime();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String currentDateStr = dateFormat.format(currentDate);
+
+            int percentSum = 0;
+            for (Map.Entry<String, Integer> allocationEntry : fundsAllocationPercentage.entrySet()) {
+                String fundName = allocationEntry.getKey();
+                int percentAllocation = allocationEntry.getValue();
+
+                long fundId = queryId(FundsEntry.TABLE_NAME, fundName);
+                if (fundId == ID_NOT_FOUND) {
+                    fundId = insertEntry(FundsEntry.TABLE_NAME, fundName);
+                }
+
+                ContentValues newFundAllocationEntry = new ContentValues();
+                newFundAllocationEntry.put(FundsAllocationEntry.COL_DATE, currentDateStr);
+                newFundAllocationEntry.put(FundsAllocationEntry.COL_FUND_ID, fundId);
+                newFundAllocationEntry.put(FundsAllocationEntry.COL_PERCENT_ALLOCATION, percentAllocation);
+                mWritableDB.insert(FundsAllocationEntry.TABLE_NAME, null, newFundAllocationEntry);
+
+                percentSum += percentAllocation;
+            }
+
+            if (percentSum == 100) {
+                editSuccess = true;
+                mWritableDB.setTransactionSuccessful();
+            }
+
+        } finally {
+            if (mWritableDB != null) mWritableDB.endTransaction();
+        }
+
+        return editSuccess;
     }
 
     long insertEntry(String table, String name) throws SQLiteConstraintException {
@@ -501,9 +540,6 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
     long insertEntry(String table, ContentValues values) throws SQLiteConstraintException {
         // * Add entry to 'table' with the given 'values' by calling mWritableDB.insert().
         try {
-            if (mWritableDB == null) {
-                mWritableDB = getWritableDatabase();
-            }
             mWritableDB.insertOrThrow(table, null, values);
 
         } catch (SQLiteConstraintException e) {
@@ -543,8 +579,6 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
             index++;
         }
-
-        if (mReadableDB == null) mReadableDB = getReadableDatabase();
 
         Cursor queryId = mReadableDB.query(
                 table, idColumn, whereClause.toString(), whereArgs, null, null, null);
