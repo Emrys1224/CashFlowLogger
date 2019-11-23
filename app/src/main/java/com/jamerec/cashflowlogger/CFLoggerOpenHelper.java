@@ -64,12 +64,12 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         Log.d(TAG, "Construct CFLoggerOpenHelper");
 
-        logTablesTest();
-
-        String table = "source";
-        String name = "Restaurant";
-        queryIdTest(table, name);
-        insertIdTest(table, name);
+//        logTablesTest();
+//
+//        String table = "source";
+//        String name = "Restaurant";
+//        queryIdTest(table, name);
+//        insertIdTest(table, name);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         }
         Log.d(TAG, "Created CFLogger DB Schema");
 
-        Log.d(TAG, "Created CFLogger DB Schema");
+        initializeDB();
     }
 
     @Override
@@ -93,14 +93,25 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    private void initilizeDB() {
-        // * Add an entry into the `funds` table with the value for `name` as 'Basic Needs'.
-        // * Add an entry into the `funds_allocation` table with the following values:
-        //      > `fund_id`            = the id of 'Basic Needs'
-        //      > `percent_allocation` = '100' percent.
+    private void initializeDB() {
+        // * Add an entry into the `funds` and `funds_allocation` tables for the default fund
+        //   'Basic Needs' with allocation percentage of 100%.
+        String defaultFundName = "Basic Needs";
+        int defaultAllocationPercentage = 100;
+
+        Map<String, Integer> initialAllocation = new HashMap<>();
+        initialAllocation.put(defaultFundName, defaultAllocationPercentage);
+        editFundsAllocationPercentage(initialAllocation);
+
         // * Call logIncome() with the following arguments:
         //      > incomeSource = 'Initial Balance'
         //      > amount = PhCurrency(0)
+        String initialBalance = "Initial Balance";
+        PhCurrency initialAmount = new PhCurrency();
+        ArrayList<FundItem> defaultAllocation = new ArrayList<>();
+        defaultAllocation.add(new FundItem(defaultFundName, initialAmount));
+
+        logIncome(initialBalance, initialAmount, defaultAllocation);
     }
 
     void logIncome(String incomeSource, PhCurrency amount, ArrayList<FundItem> fundsList) {

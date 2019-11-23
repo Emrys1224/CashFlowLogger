@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/home_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".MainActivity"
+    tools:showIn="@layout/activity_main">
+
+
+    <TextView
+        android:id="@+id/txt_balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/text_border"
+        android:padding="15dp"
+        android:text="@string/dummy_txt_amount"
+        android:textColor="@color/txt_balance"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/label_balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/label_balance"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="@+id/txt_balance"
+        app:layout_constraintStart_toStartOf="@+id/txt_balance"
+        app:layout_constraintTop_toBottomOf="@+id/txt_balance" />
+
+    <Button
+        android:id="@+id/btn_log_income"
+        style="@style/btn_main"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:onClick="logIncome"
+        android:text="@string/btn_txt_log_income"
+        app:layout_constraintEnd_toEndOf="@+id/btn_log_expense"
+        app:layout_constraintStart_toStartOf="@+id/btn_log_expense"
+        app:layout_constraintTop_toBottomOf="@+id/label_balance" />
+
+    <Button
+        android:id="@+id/btn_log_expense"
+        style="@style/btn_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:onClick="logExpenses"
+        android:text="@string/btn_txt_log_expenses"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_log_income" />
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:onClick="viewRecord"
+        android:id="@+id/btn_view_record"
+        style="@style/btn_main"
+        android:layout_marginTop="50dp"
+        android:text="@string/btn_txt_view_record"
+        app:layout_constraintEnd_toEndOf="@+id/btn_log_expense"
+        app:layout_constraintHorizontal_bias="0.533"
+        app:layout_constraintStart_toStartOf="@+id/btn_log_expense"
+        app:layout_constraintTop_toBottomOf="@+id/btn_log_expense" />
+
+</android.support.constraint.ConstraintLayout>

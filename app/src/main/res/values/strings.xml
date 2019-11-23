@@ -62,4 +62,5 @@
     <string name="btn_txt_log_expense">Log Expense</string>
     <string name="err_msg_zero_denominator">Fractional value with zero denominator is not allowed</string>
     <string name="err_msg_size_zero">Packaging size should not be zero</string>
+    <string name="action_settings">Settings</string>
 </resources>

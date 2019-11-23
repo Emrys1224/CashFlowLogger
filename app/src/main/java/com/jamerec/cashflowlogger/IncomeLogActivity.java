@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class IncomeLogActivity extends AppCompatActivity
         implements
@@ -26,9 +27,13 @@ public class IncomeLogActivity extends AppCompatActivity
     private PhCurrency mIncomeAmount;
     private ArrayList<FundItem> mFundsList;
 
+    private  CFLoggerOpenHelper mDB;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mDB = new CFLoggerOpenHelper(this);
 
         mFragmentManager = getSupportFragmentManager();
 
@@ -86,29 +91,40 @@ public class IncomeLogActivity extends AppCompatActivity
 
         // Fund names and percent allocation
         // To be retrieved from SharedPreference and defined in the settings menu
-        String[] fundNames = {
-                "Basic Necessity",
-                "Education",
-                "Investment",
-                "Health",
-                "Retirement",
-                "Leisure"
-        };
-        double[] percentAllocation = {
-                0.55,
-                0.1,
-                0.15,
-                0.05,
-                0.05,
-                0.1,
-        };
+//        String[] fundNames = {
+//                "Basic Necessity",
+//                "Education",
+//                "Investment",
+//                "Health",
+//                "Retirement",
+//                "Leisure"
+//        };
+//        double[] percentAllocation = {
+//                0.55,
+//                0.1,
+//                0.15,
+//                0.05,
+//                0.05,
+//                0.1,
+//        };
+//
+//        int index = 0;
+//        for (String fundName : fundNames) {
+//            PhCurrency fundAmount = new PhCurrency(mIncomeAmount);
+//            fundAmount.multiplyBy(percentAllocation[index]);
+//            mFundsList.add(new FundItem(fundName, fundAmount));
+//            index++;
+//        }
 
-        int index = 0;
-        for (String fundName : fundNames) {
+        Map<String, Integer> fundsAllocationPercentage = mDB.getFundsAllocationPercentage();
+        for (Map.Entry<String, Integer> fundAllocation : fundsAllocationPercentage.entrySet()) {
+            String fundName = fundAllocation.getKey();
+            double percentAllocation = fundAllocation.getValue() / 100D;
+
             PhCurrency fundAmount = new PhCurrency(mIncomeAmount);
-            fundAmount.multiplyBy(percentAllocation[index]);
+            fundAmount.multiplyBy(percentAllocation);
+
             mFundsList.add(new FundItem(fundName, fundAmount));
-            index++;
         }
     }
 
