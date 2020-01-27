@@ -22,7 +22,7 @@ import static com.jamerec.cashflowlogger.CFLoggerContract.*;
 
 public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
-    private static final String TAG = CFLoggerOpenHelper.class.getSimpleName();
+    private static final String TAG = "CFLoggerOpenHelper";
 
     private static final int DATABASE_VERSION = 1;    // has to be 1 first time or app will crash
 
@@ -80,7 +80,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         }
         Log.d(TAG, "Created CFLogger DB Schema");
 
-        initializeDB();
+        initializeDB(db);
     }
 
     @Override
@@ -93,25 +93,90 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    private void initializeDB() {
-        // * Add an entry into the `funds` and `funds_allocation` tables for the default fund
-        //   'Basic Needs' with allocation percentage of 100%.
+    private void initializeDB(@NonNull SQLiteDatabase db) {
+        Log.d(TAG, "Initializing CFLogger DB");
+
         String defaultFundName = "Basic Needs";
         int defaultAllocationPercentage = 100;
-
-        Map<String, Integer> initialAllocation = new HashMap<>();
-        initialAllocation.put(defaultFundName, defaultAllocationPercentage);
-        editFundsAllocationPercentage(initialAllocation);
-
-        // * Call logIncome() with the following arguments:
-        //      > incomeSource = 'Initial Balance'
-        //      > amount = PhCurrency(0)
         String initialBalance = "Initial Balance";
-        PhCurrency initialAmount = new PhCurrency();
-        ArrayList<FundItem> defaultAllocation = new ArrayList<>();
-        defaultAllocation.add(new FundItem(defaultFundName, initialAmount));
+        int initialAmount = 0;
 
-        logIncome(initialBalance, initialAmount, defaultAllocation);
+        // * Add 'Basic Needs' as a default Fund in `funds` table then get its id.
+        db.execSQL("INSERT INTO " + FundsEntry.TABLE_NAME +
+                " (" + FundsEntry.COL_NAME + ")" +
+                " VALUES('" + defaultFundName + "')");
+
+        Cursor fundIdRes = db.rawQuery(
+                "SELECT " + FundsEntry.COL_ID + " FROM " + FundsEntry.TABLE_NAME +
+                " WHERE " + FundsEntry.COL_NAME + " = '" + defaultFundName + "'",
+                null);
+        fundIdRes.moveToFirst();
+        long defaultFundId = fundIdRes.getLong(fundIdRes.getColumnIndex(ID_COL));
+        fundIdRes.close();
+
+        // * Add the allocation(100 percent) for the default fund in `funds_allocation`.
+        db.execSQL("INSERT INTO " + FundsAllocationEntry.TABLE_NAME +
+                " (" + FundsAllocationEntry.COL_FUND_ID + ", " + FundsAllocationEntry.COL_PERCENT_ALLOCATION + ")" +
+                " VALUES('" + defaultFundId + "', '" + defaultAllocationPercentage + "')");
+
+        // * Add 'Initial Balance' to source of `source` table then get its id.
+        db.execSQL("INSERT INTO " + SourceEntry.TABLE_NAME +
+                " (" + SourceEntry.COL_NAME + ")" +
+                " VALUES('" + initialBalance + "')");
+
+        Cursor sourceIdRes = db.rawQuery(
+                "SELECT " + SourceEntry.COL_ID + " FROM " + SourceEntry.TABLE_NAME +
+                        " WHERE " + SourceEntry.COL_NAME + " = '" + initialBalance + "'",
+                null);
+        sourceIdRes.moveToFirst();
+        long sourceId = sourceIdRes.getLong(sourceIdRes.getColumnIndex(ID_COL));
+        sourceIdRes.close();
+
+        // * Add the initial entry into `income` table with the following values:
+        //   > 'source_id'  = sourceId
+        //   > 'amountX100' = 0
+        //   and retrieve its id.
+        db.execSQL("INSERT INTO " + IncomeEntry.TABLE_NAME +
+                " (" + IncomeEntry.COL_SOURCE_ID + ", " + IncomeEntry.COL_AMOUNTx100 + ")" +
+                " VALUES('" + sourceId + "', '" + initialAmount + "')");
+
+        Cursor incomeIdRes = db.rawQuery(
+                "SELECT " + IncomeEntry.COL_ID + " FROM " + IncomeEntry.TABLE_NAME +
+                        " WHERE " + IncomeEntry.COL_SOURCE_ID + " = '" + sourceId +
+                        "' AND " + IncomeEntry.COL_AMOUNTx100 + " = '" + initialAmount + "'",
+                null);
+        incomeIdRes.moveToFirst();
+        long incomeId = incomeIdRes.getLong(incomeIdRes.getColumnIndex(ID_COL));
+        incomeIdRes.close();
+
+        // * Add the initial entry for `balance` table with the following values:
+        //   > 'amountX100'        = initialAmount
+        //   > 'income_update_id'  = incomeId
+        //   > 'expense_update_id' = NULL
+        // and retrieve its id.
+        db.execSQL("INSERT INTO " + BalanceEntry.TABLE_NAME +
+                " (" + BalanceEntry.COL_AMOUNTx100 + ", " + BalanceEntry.COL_INCOME_UPDATE_ID + ")" +
+                " VALUES('" + initialAmount + "', '" + incomeId + "')");
+
+        Cursor balanceIdRes = db.rawQuery(
+                "SELECT " + BalanceEntry.COL_ID + " FROM " + BalanceEntry.TABLE_NAME +
+                        " WHERE " + BalanceEntry.COL_AMOUNTx100 + " = '" + initialAmount +
+                        "' AND " + BalanceEntry.COL_INCOME_UPDATE_ID + " = '" + incomeId + "'",
+                null);
+        balanceIdRes.moveToFirst();
+        long balanceId = balanceIdRes.getLong(balanceIdRes.getColumnIndex(ID_COL));
+        balanceIdRes.close();
+
+        // * Add the initial entry for `funds_balance` table with the following values:
+        //   > 'fund_id'           = defaultFundId
+        //   > 'balance_update_id' = balanceId
+        //   > 'amountX100'        = initialAmount
+        db.execSQL("INSERT INTO " + FundsBalanceEntry.TABLE_NAME +
+                " (" + FundsBalanceEntry.COL_FUND_ID + ", " + FundsBalanceEntry.COL_BALANCE_UPDATE_ID + ", "
+                + FundsBalanceEntry.COL_AMOUNTx100 + ")" +
+                " VALUES('" + defaultFundId + "', '" + balanceId + "', '" + initialAmount + "')");
+
+        Log.d(TAG, "Initialized CFLogger DB");
     }
 
     void logIncome(String incomeSource, PhCurrency amount, ArrayList<FundItem> fundsList) {
@@ -187,8 +252,9 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
             // * Check if the tags given are matched in the `product_tags` intermediary table and
             //   add it if it is not yet matched.
-            String matchQuery = "SELECT EXISTS(SELECT 1 FROM product_tags WHERE product_id = '" +
-                    productId + "' AND tag_id = ? LIMIT 1);";
+            String matchQuery = "SELECT EXISTS(SELECT 1 FROM " + ProductTagsEntry.TABLE_NAME +
+                    " WHERE " + ProductTagsEntry.COL_PRODUCT_ID + " = '" +
+                    productId + "' AND " + ProductTagsEntry.COL_TAG_ID + " = ? LIMIT 1);";
             Cursor matchCursor = null;
             try {
                 for (long tagId : tagIds) {
@@ -474,7 +540,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
         String allocationQuery = "" +
                 "SELECT " + FundsEntry.COL_NAME + ", " + FundsAllocationEntry.COL_PERCENT_ALLOCATION +
-                " FROM " + FundsAllocationEntry.TABLE_NAME + " INNER JOIN " + FundsEntry.CREATE_TABLE +
+                " FROM " + FundsAllocationEntry.TABLE_NAME + " INNER JOIN " + FundsEntry.TABLE_NAME +
                 " ON " + FundsEntry.COL_ID + " = " + FundsAllocationEntry.COL_FUND_ID +
                 " WHERE " + FundsAllocationEntry.COL_DATE + "  =" +
                 " (SELECT MAX(" + FundsAllocationEntry.COL_DATE + ") FROM " + FundsAllocationEntry.TABLE_NAME + ");";
