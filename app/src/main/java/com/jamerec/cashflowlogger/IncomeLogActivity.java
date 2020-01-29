@@ -150,7 +150,8 @@ public class IncomeLogActivity extends AppCompatActivity
     public void confirmIncomeLog(int buttonID) {
         switch (buttonID) {
             case R.id.btn_allocate:
-                // Add the income data entry to the DB here....
+                // Add the income data entry to the DB
+                mDB.logIncome(mIncomeSource, mIncomeAmount, mFundsList);
 
                 Toast.makeText(this,
                         "Successfully allocated and recorded the income.",

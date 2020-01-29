@@ -179,6 +179,29 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         Log.d(TAG, "Initialized CFLogger DB");
     }
 
+    PhCurrency getCurrentBalance() {
+        Log.d(TAG, "Retrieving the current balance....");
+
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
+
+        PhCurrency latestBalance = new PhCurrency();
+        Cursor queryBalance = mReadableDB.query(
+                BalanceEntry.TABLE_NAME, new String[]{BalanceEntry.COL_AMOUNTx100}, null,
+                null, null, null, BalanceEntry.COL_ID + " DESC", "1");
+
+        if (queryBalance.getCount() > 0) {
+            queryBalance.moveToFirst();
+            latestBalance.setValue(
+                    queryBalance.getLong(
+                            queryBalance.getColumnIndex(BalanceEntry.COL_AMOUNTx100)));
+        }
+        queryBalance.close();
+
+        Log.d(TAG, "Current balance is " + latestBalance.toString());
+
+        return latestBalance;
+    }
+
     void logIncome(String incomeSource, PhCurrency amount, ArrayList<FundItem> fundsList) {
         try {
             if (mReadableDB == null) mReadableDB = getReadableDatabase();
@@ -431,26 +454,11 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
         // * Get the latest `amountX100` (cash balance) from `balance` table.
         String balanceTable = BalanceEntry.TABLE_NAME;
-        String idCol = BalanceEntry.COL_ID;
         String amountX100Col = BalanceEntry.COL_AMOUNTx100;
         String incomeUpdateIdCol = BalanceEntry.COL_INCOME_UPDATE_ID;
         String expenseUpdateIdCol = BalanceEntry.COL_EXPENSE_UPDATE_ID;
 
-        PhCurrency latestBalance = new PhCurrency();
-        String orderBy = "`" + idCol + "` DESC";
-        String limit = "1";
-
-        Cursor queryBalance = mReadableDB.query(
-                balanceTable, new String[]{amountX100Col}, null,
-                null, null, null, orderBy, limit);
-
-        if (queryBalance.getCount() > 0) {
-            queryBalance.moveToFirst();
-            latestBalance.setValue(
-                    queryBalance.getLong(
-                            queryBalance.getColumnIndex(amountX100Col)));
-        }
-        queryBalance.close();
+        PhCurrency latestBalance = getCurrentBalance();
 
         // * Calculate the new `amountX100` (cash balance), that is add 'amountDiff' if
         //   is from income and subtract if it is from expense.

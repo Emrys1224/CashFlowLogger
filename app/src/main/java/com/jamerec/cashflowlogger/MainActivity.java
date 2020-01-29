@@ -7,6 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,8 +15,12 @@ public class MainActivity extends AppCompatActivity {
 
     private CFLoggerOpenHelper mDB;
 
+    private TextView mBalanceDisp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "MainActivity.onCreate() started....");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -24,7 +29,12 @@ public class MainActivity extends AppCompatActivity {
 
         mDB = new CFLoggerOpenHelper(this);
 
-        // Update balance display here
+        // Update balance display
+        PhCurrency balance = mDB.getCurrentBalance();
+        mBalanceDisp = findViewById(R.id.txt_balance);
+        mBalanceDisp.setText(balance.toString());
+
+        Log.d(TAG, "MainActivity.onCreate() done....");
     }
 
     @Override
