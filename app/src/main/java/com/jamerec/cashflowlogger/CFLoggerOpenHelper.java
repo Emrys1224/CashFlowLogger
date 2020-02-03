@@ -224,6 +224,9 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             newIncomeEntry.put(IncomeEntry.COL_AMOUNTx100, amount.getAmountX100());
             long incomeId = insertEntry(IncomeEntry.TABLE_NAME, newIncomeEntry);
 
+            // Verify database update
+            printIncomeRecord();
+
             // * Update the record for cash at hand (`balance` table) by calling
             //   updateCashBalance() with the following arguments:
             //      > amountDiff = amount
@@ -749,6 +752,37 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 .append(values);
 
         return selectQuery;
+    }
+
+    private void printIncomeRecord() {
+        StringBuilder incomeRecord = new StringBuilder("Income Record \nDate Time, Source, Amount_x100");
+        String queryRecord = "SELECT " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_DATETIME + ", " +
+                SourceEntry.TABLE_NAME + "." + SourceEntry.COL_NAME + ", " +
+                IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_AMOUNTx100 +
+                " FROM " + IncomeEntry.TABLE_NAME +
+                " INNER JOIN " + SourceEntry.TABLE_NAME +
+                " ON " + SourceEntry.TABLE_NAME + "." + SourceEntry.COL_ID +
+                " = " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_SOURCE_ID +
+                " ORDER BY " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_DATETIME + " ASC";
+
+        Cursor recordCursor = mReadableDB.rawQuery(queryRecord,null);
+        try {
+            while (recordCursor.moveToNext()) {
+                String dateTime = recordCursor.getString(recordCursor.getColumnIndex(IncomeEntry.COL_DATETIME));
+                String incomeSource = recordCursor.getString(recordCursor.getColumnIndex(SourceEntry.COL_NAME));
+                long amountX100 = recordCursor.getLong(recordCursor.getColumnIndex(IncomeEntry.COL_AMOUNTx100));
+
+                incomeRecord.append("\n").append(dateTime)
+                        .append(", ").append(incomeSource)
+                        .append(", ").append(amountX100);
+            }
+
+            Log.d(TAG, incomeRecord.toString());
+
+        } finally {
+            recordCursor.close();
+        }
+
     }
 
     private void logTablesTest() {
