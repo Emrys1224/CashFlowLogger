@@ -269,4 +269,5 @@ public final class CFLoggerContract {
                         "    FOREIGN KEY(" + COL_ITEM_ID + ")\n" +
                         "    REFERENCES " + ItemEntry.TABLE_NAME + "(" + ItemEntry.COL_ID + "));";
     }
+
 }

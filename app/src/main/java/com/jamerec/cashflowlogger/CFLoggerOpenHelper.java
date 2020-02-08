@@ -224,7 +224,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             newIncomeEntry.put(IncomeEntry.COL_AMOUNTx100, amount.getAmountX100());
             long incomeId = insertEntry(IncomeEntry.TABLE_NAME, newIncomeEntry);
 
-            // Verify database update
+            // Verify database income update
             printIncomeRecord();
 
             // * Update the record for cash at hand (`balance` table) by calling
@@ -233,6 +233,9 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             //      > incomeId   = ID of the recently added entry in `income` table
             //      > expenseId  = ID_NULL (-789)
             long balanceUpdateId = updateCashBalance(amount, incomeId, ID_NULL);
+
+            // Verify database balance update
+            printBalanceRecord();
 
             // * Update the `funds_balance` table by calling updateFundBalance() as
             //   per the allocation amount from 'fundsList' ArrayList and the id retrieved from
@@ -756,7 +759,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     private void printIncomeRecord() {
         StringBuilder incomeRecord = new StringBuilder("Income Record \nDate Time, Source, Amount_x100");
-        String queryRecord = "SELECT " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_DATETIME + ", " +
+        String recordQuery = "SELECT " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_DATETIME + ", " +
                 SourceEntry.TABLE_NAME + "." + SourceEntry.COL_NAME + ", " +
                 IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_AMOUNTx100 +
                 " FROM " + IncomeEntry.TABLE_NAME +
@@ -765,12 +768,15 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 " = " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_SOURCE_ID +
                 " ORDER BY " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_DATETIME + " ASC";
 
-        Cursor recordCursor = mReadableDB.rawQuery(queryRecord,null);
+        Cursor recordCursor = mReadableDB.rawQuery(recordQuery,null);
         try {
             while (recordCursor.moveToNext()) {
-                String dateTime = recordCursor.getString(recordCursor.getColumnIndex(IncomeEntry.COL_DATETIME));
-                String incomeSource = recordCursor.getString(recordCursor.getColumnIndex(SourceEntry.COL_NAME));
-                long amountX100 = recordCursor.getLong(recordCursor.getColumnIndex(IncomeEntry.COL_AMOUNTx100));
+                String dateTime = recordCursor.getString(
+                        recordCursor.getColumnIndex(IncomeEntry.COL_DATETIME));
+                String incomeSource = recordCursor.getString(
+                        recordCursor.getColumnIndex(SourceEntry.COL_NAME));
+                long amountX100 = recordCursor.getLong(
+                        recordCursor.getColumnIndex(IncomeEntry.COL_AMOUNTx100));
 
                 incomeRecord.append("\n").append(dateTime)
                         .append(", ").append(incomeSource)
@@ -783,6 +789,51 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             recordCursor.close();
         }
 
+    }
+
+    private void printBalanceRecord() {
+        StringBuilder balanceRecord = new StringBuilder("Balance Record\n Date_Time, Update_By, Amount_x100");
+        String colIncomeDatetime = "Income_Datetime";
+        String colExpenseDatetime = "Expenses_DateTime";
+        String colAmountX100 = "Amount_X100";
+        String recordQuery = "SELECT " +
+                IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_DATETIME + " AS " + colIncomeDatetime + "," +
+                ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_DATETIME + " AS " + colExpenseDatetime + "," +
+                BalanceEntry.TABLE_NAME + "." + BalanceEntry.COL_AMOUNTx100 + " AS " + colAmountX100 +
+                " FROM " + BalanceEntry.TABLE_NAME +
+                " LEFT JOIN " + IncomeEntry.TABLE_NAME +
+                " ON " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_ID +
+                " = " + BalanceEntry.TABLE_NAME + "." + BalanceEntry.COL_INCOME_UPDATE_ID +
+                " LEFT JOIN " + ExpenseEntry.TABLE_NAME +
+                " ON " + ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_ID +
+                " = " + BalanceEntry.TABLE_NAME + "." + BalanceEntry.COL_EXPENSE_UPDATE_ID +
+                " ORDER BY " + BalanceEntry.TABLE_NAME + "." + BalanceEntry.COL_ID + " ASC";
+
+        Cursor recordCursor = mReadableDB.rawQuery(recordQuery, null);
+        try {
+            while (recordCursor.moveToNext()) {
+                String datetime = recordCursor.getString(
+                        recordCursor.getColumnIndex(colIncomeDatetime));
+                String updateBy = "Income";
+                long amountX100 = recordCursor.getLong(
+                        recordCursor.getColumnIndex(colAmountX100));
+
+                if (datetime.equals("null")) {
+                    datetime = recordCursor.getString(
+                            recordCursor.getColumnIndex(colExpenseDatetime));
+                    updateBy = "Expense";
+                }
+
+                balanceRecord.append("\n").append(datetime)
+                        .append(", ").append(updateBy)
+                        .append(", ").append(amountX100);
+            }
+
+            Log.d(TAG, balanceRecord.toString());
+
+        } finally {
+            recordCursor.close();
+        }
     }
 
     private void logTablesTest() {
