@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 
 /**
@@ -74,17 +75,12 @@ public class FundAllocationFragment extends Fragment
         mFundsList = new ArrayList<>();
         mFundSelectedIndex = 0;
 
-        // Categories dummy data from preference setting
-        // To be used for selection in allocating funds from the income.
-        String[] fundNames = {
-                "Basic Necessity",
-                "Education",
-                "Investment",
-                "Health",
-                "Retirement",
-                "Leisure"
-        };
-        for (String fundName : fundNames) {
+        // Get the list of funds for manual allocation
+        CFLoggerOpenHelper dataBase = new CFLoggerOpenHelper(mContext);
+        Map<String, Integer> fundsAllocationPercentage = dataBase.getFundsAllocationPercentage();
+        for (Map.Entry<String, Integer> fundAllocation : fundsAllocationPercentage.entrySet()) {
+            String fundName = fundAllocation.getKey();
+
             mFundsList.add(new FundItem(fundName, new PhCurrency()));
         }
 

@@ -108,7 +108,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
         Cursor fundIdRes = db.rawQuery(
                 "SELECT " + FundsEntry.COL_ID + " FROM " + FundsEntry.TABLE_NAME +
-                " WHERE " + FundsEntry.COL_NAME + " = '" + defaultFundName + "'",
+                        " WHERE " + FundsEntry.COL_NAME + " = '" + defaultFundName + "'",
                 null);
         fundIdRes.moveToFirst();
         long defaultFundId = fundIdRes.getLong(fundIdRes.getColumnIndex(ID_COL));
@@ -768,7 +768,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 " = " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_SOURCE_ID +
                 " ORDER BY " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_DATETIME + " ASC";
 
-        Cursor recordCursor = mReadableDB.rawQuery(recordQuery,null);
+        Cursor recordCursor = mReadableDB.rawQuery(recordQuery, null);
         try {
             while (recordCursor.moveToNext()) {
                 String dateTime = recordCursor.getString(
