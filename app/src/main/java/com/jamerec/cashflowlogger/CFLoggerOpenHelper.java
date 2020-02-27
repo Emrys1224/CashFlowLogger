@@ -291,7 +291,10 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                             ContentValues newProductTagEntry = new ContentValues();
                             newProductTagEntry.put(ProductTagsEntry.COL_PRODUCT_ID, productId);
                             newProductTagEntry.put(ProductTagsEntry.COL_TAG_ID, tagId);
-                            insertEntry(ProductTagsEntry.TABLE_NAME, newProductTagEntry);
+                            mWritableDB.insertOrThrow(
+                                    ProductTagsEntry.TABLE_NAME,
+                                    null,
+                                    newProductTagEntry);
                         }
                     }
                 }
@@ -365,7 +368,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 String[] searchFor = {ID_COL, ItemEntry.COL_PRICEx100};
                 String whereClause = ItemEntry.COL_PRODUCT_VARIANT_ID + " = " + productVariantId;
                 String orderBy = ItemEntry.COL_DATE + " DESC";
-                String limit = "LIMIT 1";
+                String limit = "1";
                 itemEntryCursor = mReadableDB.query(
                         ItemEntry.TABLE_NAME, searchFor, whereClause,
                         null, null, null,
@@ -422,6 +425,9 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             newExpenseEntry.put(ExpenseEntry.COL_QUANTITY_TXT, qtyTextId);
             newExpenseEntry.put(ExpenseEntry.COL_REMARKS, expenseItem.getRemarks());
             long expenseId = insertEntry(ExpenseEntry.TABLE_NAME, newExpenseEntry);
+
+            // Verify database update of `expense` table
+            printExpenseRecord();
 
             // * Update the record for cash at hand (`balance` table) by calling
             //   updateCashBalance() with the following arguments:
@@ -782,9 +788,10 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 long amountX100 = recordCursor.getLong(
                         recordCursor.getColumnIndex(IncomeEntry.COL_AMOUNTx100));
 
-                incomeRecord.append("\n").append(dateTime)
-                        .append(", ").append(incomeSource)
-                        .append(", ").append(amountX100);
+                incomeRecord.append("\n")
+                        .append(dateTime).append(", ")
+                        .append(incomeSource).append(", ")
+                        .append(amountX100);
             }
 
             Log.d(TAG, incomeRecord.toString());
@@ -793,6 +800,125 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             if (recordCursor != null) recordCursor.close();
         }
 
+    }
+
+    private void printExpenseRecord() {
+        StringBuilder expenseRecord = new StringBuilder(
+                "Expense Record\nItem Name, Brand Name, Item Size, Quantity, Unit Price, Total Price, Remarks");
+
+        // Column names of returned table
+        String colDateTime = "Date_Time";
+        String colItem = "Item";
+        String colBrand = "Brand";
+        String colSizeReal = "Size_Real";
+        String colSizeTextID = "Size_Text_ID";
+        String colUnit = "Unit";
+        String colQtyReal = "Qty_Real";
+        String colQtyTextID = "Qty_Text_ID";
+        String colUnitPrice = "Unit_PriceX100";
+        String colRemarks = "Remarks";
+
+        /* Expense record SQL query:
+
+           SELECT
+           expense.datetime        AS Date_Time,
+           product.name            AS Item,
+           brand.name              AS Brand,
+           product_size.size       AS Size_Real,
+           product_size.size_txt   AS Size_Text,
+           unit.name               AS Unit,
+           expense.quantity        AS Qty_Real,
+           expense.quantity_txt    AS Qty_Text,
+           item.priceX100          AS Unit_Price,
+           expense.remarks         AS Remarks
+
+           FROM expense
+           JOIN item            ON expense.item_id                 = item.id
+           JOIN product_variant ON item.product_variant_id         = product_variant.id
+           JOIN product         ON product_variant.product_id      = product.id
+           JOIN brand           ON product_variant.brand_id        = brand.id
+           JOIN product_size    ON product_variant.product_size_id = product_size.id
+           JOIN unit            ON product_size.unit_id
+
+           ORDER BY expense.id ASC;
+         */
+        String recordQuery = "SELECT " +
+                ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_DATETIME + " AS " + colDateTime + "," +
+                ProductEntry.TABLE_NAME + "." + ProductEntry.COL_NAME + " AS " + colItem + "," +
+                BrandEntry.TABLE_NAME + "." + BrandEntry.COL_NAME + " AS " + colBrand + "," +
+                ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_SIZE + " AS " + colSizeReal + "," +
+                ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_SIZE_TXT + " AS " + colSizeTextID + "," +
+                UnitEntry.TABLE_NAME + "." + UnitEntry.COL_NAME +" AS " + colUnit + "," +
+                ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_QUANTITY + " AS " + colQtyReal + "," +
+                ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_QUANTITY_TXT + " AS " + colQtyTextID + "," +
+                ItemEntry.TABLE_NAME + "." + ItemEntry.COL_PRICEx100 + " AS " + colUnitPrice + "," +
+                ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_REMARKS + " AS " + colRemarks +
+                "" +
+                " FROM " + ExpenseEntry.TABLE_NAME +
+                " JOIN " + ItemEntry.TABLE_NAME +
+                " ON " + ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_ITEM_ID +
+                " = " + ItemEntry.TABLE_NAME + "." + ItemEntry.COL_ID +
+                " JOIN " + ProductVariantEntry.TABLE_NAME +
+                " ON " + ItemEntry.TABLE_NAME + "." + ItemEntry.COL_PRODUCT_VARIANT_ID +
+                " = " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_ID +
+                " JOIN " + ProductEntry.TABLE_NAME +
+                " ON " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_PRODUCT_ID +
+                " = " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_ID +
+                " JOIN " + BrandEntry.TABLE_NAME +
+                " ON " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_BRAND_ID +
+                " = " + BrandEntry.TABLE_NAME + "." + BrandEntry.COL_ID +
+                " JOIN " + ProductSizeEntry.TABLE_NAME +
+                " ON " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_PRODUCT_SIZE_ID +
+                " = " + ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_ID +
+                " JOIN " + UnitEntry.TABLE_NAME +
+                " ON " + ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_UNIT_ID +
+                " = " + UnitEntry.TABLE_NAME + "." + UnitEntry.COL_ID +
+                "" +
+                " ORDER BY " + ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_ID + " ASC";
+
+        Cursor recordCursor = null;
+        try {
+            recordCursor = mReadableDB.rawQuery(recordQuery, null);
+            while (recordCursor.moveToNext()) {
+                String dateTime = recordCursor.getString(
+                        recordCursor.getColumnIndex(colDateTime));
+                String itemName = recordCursor.getString(
+                        recordCursor.getColumnIndex(colItem));
+                String brandName = recordCursor.getString(
+                        recordCursor.getColumnIndex(colBrand));
+                double sizeReal = recordCursor.getDouble(
+                        recordCursor.getColumnIndex(colSizeReal));
+                long sizeTextId = recordCursor.getLong(
+                        recordCursor.getColumnIndex(colSizeTextID));
+                String unit = recordCursor.getString(
+                        recordCursor.getColumnIndex(colUnit));
+                double qtyReal = recordCursor.getDouble(
+                        recordCursor.getColumnIndex(colQtyReal));
+                long qtyTextId = recordCursor.getLong(
+                        recordCursor.getColumnIndex(colQtyTextID));
+                long unitPriceX100 = recordCursor.getLong(
+                        recordCursor.getColumnIndex(colUnitPrice));
+                String remarks = recordCursor.getString(
+                        recordCursor.getColumnIndex(colRemarks));
+
+                expenseRecord.append("\n")
+                        .append(dateTime).append(", ")
+                        .append(itemName).append(", ")
+                        .append(brandName).append(", ")
+                        .append(sizeReal).append(", ")
+                        .append(sizeTextId).append(", ")
+                        .append(unit).append(", ")
+                        .append(qtyReal).append(", ")
+                        .append(qtyTextId).append(", ")
+                        .append(unitPriceX100).append(", ")
+                        .append(remarks);
+            }
+
+            Log.d(TAG, expenseRecord.toString());
+
+        } finally {
+            if (recordCursor != null) recordCursor.close();
+        }
     }
 
     private void printBalanceRecord() {
@@ -829,15 +955,16 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                         recordCursor.getColumnIndex(colAmountX100));
 
                 // Determine the update source
-                if (datetime.equals("null")) {
+                if (datetime == null) {
                     datetime = recordCursor.getString(
                             recordCursor.getColumnIndex(colExpenseDatetime));
                     updateBy = "Expense";
                 }
 
-                balanceRecord.append("\n").append(datetime)
-                        .append(", ").append(updateBy)
-                        .append(", ").append(amountX100);
+                balanceRecord.append("\n")
+                        .append(datetime).append(", ")
+                        .append(updateBy).append(", ")
+                        .append(amountX100);
             }
 
             Log.d(TAG, balanceRecord.toString());
@@ -905,15 +1032,16 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                         recordCursor.getColumnIndex(colAmountX100));
 
                 // Determine the update source
-                if (datetime.equals("null")) {
+                if (datetime == null) {
                     datetime = recordCursor.getString(
                             recordCursor.getColumnIndex(colExpenseDatetime));
                     updateBy = "Expense";
                 }
 
-                fundRecord.append("\n").append(datetime)
-                        .append(", ").append(updateBy)
-                        .append(", ").append(amountX100);
+                fundRecord.append("\n")
+                        .append(datetime).append(", ")
+                        .append(updateBy).append(", ")
+                        .append(amountX100);
             }
 
             Log.d(TAG, fundRecord.toString());

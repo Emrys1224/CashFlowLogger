@@ -57,6 +57,13 @@ public class ExpensesLogActivity extends AppCompatActivity
         switch (btnID) {
             case R.id.btn_log:
                 // Add the expense data entry to the DB here....
+                CFLoggerOpenHelper db = new CFLoggerOpenHelper(this);
+                try {
+                    db.logExpense(mExpenseItem);
+                } catch (Exception e) {
+                    Log.d(TAG, e.getMessage());
+                    e.printStackTrace();
+                }
 
                 Toast.makeText(this,
                         "Successfully allocated and recorded the expense item.",
