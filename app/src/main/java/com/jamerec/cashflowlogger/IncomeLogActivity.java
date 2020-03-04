@@ -89,42 +89,19 @@ public class IncomeLogActivity extends AppCompatActivity
     private void allocateFundsAutomatically() {
         mFundsList = new ArrayList<>();
 
-        // Fund names and percent allocation
-        // To be retrieved from SharedPreference and defined in the settings menu
-//        String[] fundNames = {
-//                "Basic Necessity",
-//                "Education",
-//                "Investment",
-//                "Health",
-//                "Retirement",
-//                "Leisure"
-//        };
-//        double[] percentAllocation = {
-//                0.55,
-//                0.1,
-//                0.15,
-//                0.05,
-//                0.05,
-//                0.1,
-//        };
-//
-//        int index = 0;
-//        for (String fundName : fundNames) {
-//            PhCurrency fundAmount = new PhCurrency(mIncomeAmount);
-//            fundAmount.multiplyBy(percentAllocation[index]);
-//            mFundsList.add(new FundItem(fundName, fundAmount));
-//            index++;
-//        }
-
         Map<String, Integer> fundsAllocationPercentage = mDB.getFundsAllocationPercentage();
         for (Map.Entry<String, Integer> fundAllocation : fundsAllocationPercentage.entrySet()) {
             String fundName = fundAllocation.getKey();
-            double percentAllocation = fundAllocation.getValue() / 100D;
+            int percentAllocation = fundAllocation.getValue();
 
-            PhCurrency fundAmount = new PhCurrency(mIncomeAmount);
-            fundAmount.multiplyBy(percentAllocation);
+            if (percentAllocation > 0) {
+                double allocationDecimal = percentAllocation / 100D;
 
-            mFundsList.add(new FundItem(fundName, fundAmount));
+                PhCurrency fundAmount = new PhCurrency(mIncomeAmount);
+                fundAmount.multiplyBy(allocationDecimal);
+
+                mFundsList.add(new FundItem(fundName, fundAmount));
+            }
         }
     }
 

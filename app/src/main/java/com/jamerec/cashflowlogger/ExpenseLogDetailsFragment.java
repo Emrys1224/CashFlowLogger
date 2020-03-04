@@ -55,6 +55,7 @@ public class ExpenseLogDetailsFragment extends Fragment
     private Button mBtnCancel;
 
     private Context mContext;
+    private CFLoggerOpenHelper mDB;
     private OnSubmitExpenseDetailsListener mListener;
     private ExpenseItem mExpenseItem;
     private ArrayAdapter<String> mFundSelectionAdapter;
@@ -84,6 +85,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         final View view = inflater.inflate(R.layout.fragment_expense_log_details, container, false);
 
         mContext = getContext();
+        mDB = new CFLoggerOpenHelper(mContext);
         mExpenseItem = getArguments() != null ?
                 (ExpenseItem) getArguments().getParcelable("expenseItem") : new ExpenseItem();
 
@@ -122,20 +124,14 @@ public class ExpenseLogDetailsFragment extends Fragment
         mQuantityErMsgTV.setText("");
         mFundErrMsgTV.setText("");
 
-        // Initialize total item price display.
+        // Initialize total item price display
         mTotalPriceTV.setText(
                 mExpenseItem.getTotalPrice().toString());
 
-        // List of funds retrieved from SharedPreference.
-        List<String> funds = new ArrayList<>();
-        funds.add("");
-        funds.add("Basic Needs");
-        funds.add("Education");
-        funds.add("Investment");
-        funds.add("Retirement");
-        funds.add("Leisure");
+        // List of funds retrieved from database
+        List<String> funds = mDB.getFundsList();
 
-        // Set up fund selection dropdown.
+        // Set up fund selection dropdown
         mFundSelectionAdapter = new ArrayAdapter<>(mContext, R.layout.spinner_item, funds);
         mFundSelectionS.setAdapter(mFundSelectionAdapter);
 
@@ -201,7 +197,7 @@ public class ExpenseLogDetailsFragment extends Fragment
                 ArrayAdapter<String> brandAdapter =
                         new ArrayAdapter<>(
                                 mContext, android.R.layout.simple_list_item_1,
-                                mExpenseItem.suggestBrands()
+                                mDB.getBrandList(mExpenseItem)
                         );
                 mBrandATV.setThreshold(1);
                 mBrandATV.setAdapter(brandAdapter);

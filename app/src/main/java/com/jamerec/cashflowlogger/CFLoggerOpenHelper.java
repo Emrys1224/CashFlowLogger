@@ -558,79 +558,6 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return entryAdded;
     }
 
-    Map<String, Integer> getFundsAllocationPercentage() {
-        Map<String, Integer> fundsAllocationPercentage = new HashMap<>();
-
-        String allocationQuery = "" +
-                "SELECT " + FundsEntry.COL_NAME + ", " + FundsAllocationEntry.COL_PERCENT_ALLOCATION +
-                " FROM " + FundsAllocationEntry.TABLE_NAME + " INNER JOIN " + FundsEntry.TABLE_NAME +
-                " ON " + FundsEntry.COL_ID + " = " + FundsAllocationEntry.COL_FUND_ID +
-                " WHERE " + FundsAllocationEntry.COL_DATE + "  =" +
-                " (SELECT MAX(" + FundsAllocationEntry.COL_DATE + ") FROM " + FundsAllocationEntry.TABLE_NAME + ");";
-
-        Cursor allocationCursor = null;
-        if (mReadableDB == null) mReadableDB = getReadableDatabase();
-        try {
-            allocationCursor = mReadableDB.rawQuery(allocationQuery, null);
-            for (allocationCursor.moveToFirst(); !allocationCursor.isAfterLast(); allocationCursor.moveToNext()) {
-                String fundName = allocationCursor.getString(
-                        allocationCursor.getColumnIndex(FundsEntry.COL_NAME));
-                int percentAllocation = allocationCursor.getInt(
-                        allocationCursor.getColumnIndex(FundsAllocationEntry.COL_PERCENT_ALLOCATION));
-
-                fundsAllocationPercentage.put(fundName, percentAllocation);
-            }
-
-        } finally {
-            if (allocationCursor != null) allocationCursor.close();
-        }
-
-        return fundsAllocationPercentage;
-    }
-
-    boolean editFundsAllocationPercentage(@NonNull Map<String, Integer> fundsAllocationPercentage) {
-        boolean editSuccess = false;
-        try {
-            if (mReadableDB == null) mReadableDB = getReadableDatabase();
-            if (mWritableDB == null) mWritableDB = getWritableDatabase();
-
-            mWritableDB.beginTransaction();
-
-            Date currentDate = Calendar.getInstance().getTime();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String currentDateStr = dateFormat.format(currentDate);
-
-            int percentSum = 0;
-            for (Map.Entry<String, Integer> allocationEntry : fundsAllocationPercentage.entrySet()) {
-                String fundName = allocationEntry.getKey();
-                int percentAllocation = allocationEntry.getValue();
-
-                long fundId = queryId(FundsEntry.TABLE_NAME, fundName);
-                if (fundId == ID_NOT_FOUND) {
-                    fundId = insertEntry(FundsEntry.TABLE_NAME, fundName);
-                }
-
-                ContentValues newFundAllocationEntry = new ContentValues();
-                newFundAllocationEntry.put(FundsAllocationEntry.COL_DATE, currentDateStr);
-                newFundAllocationEntry.put(FundsAllocationEntry.COL_FUND_ID, fundId);
-                newFundAllocationEntry.put(FundsAllocationEntry.COL_PERCENT_ALLOCATION, percentAllocation);
-                mWritableDB.insert(FundsAllocationEntry.TABLE_NAME, null, newFundAllocationEntry);
-
-                percentSum += percentAllocation;
-            }
-
-            if (percentSum == 100) {
-                editSuccess = true;
-                mWritableDB.setTransactionSuccessful();
-            }
-
-        } finally {
-            if (mWritableDB != null) mWritableDB.endTransaction();
-        }
-
-        return editSuccess;
-    }
-
     long insertEntry(String table, String name) throws SQLiteConstraintException {
         ContentValues values = new ContentValues();
         values.put(NAME_COL, name);
@@ -699,6 +626,154 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Helper Methods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+    Map<String, Integer> getFundsAllocationPercentage() {
+        Map<String, Integer> fundsAllocationPercentage = new HashMap<>();
+
+        String allocationQuery = "" +
+                "SELECT " + FundsEntry.COL_NAME + ", " + FundsAllocationEntry.COL_PERCENT_ALLOCATION +
+                " FROM " + FundsAllocationEntry.TABLE_NAME +
+                " INNER JOIN " + FundsEntry.TABLE_NAME +
+                " ON " + FundsEntry.COL_ID + " = " + FundsAllocationEntry.COL_FUND_ID +
+                " WHERE " + FundsAllocationEntry.COL_DATE + "  =" +
+                " (SELECT MAX(" + FundsAllocationEntry.COL_DATE + ") FROM " + FundsAllocationEntry.TABLE_NAME + ");";
+
+        Cursor allocationCursor = null;
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
+        try {
+            allocationCursor = mReadableDB.rawQuery(allocationQuery, null);
+            for (allocationCursor.moveToFirst(); !allocationCursor.isAfterLast(); allocationCursor.moveToNext()) {
+                String fundName = allocationCursor.getString(
+                        allocationCursor.getColumnIndex(FundsEntry.COL_NAME));
+                int percentAllocation = allocationCursor.getInt(
+                        allocationCursor.getColumnIndex(FundsAllocationEntry.COL_PERCENT_ALLOCATION));
+
+                fundsAllocationPercentage.put(fundName, percentAllocation);
+            }
+
+        } finally {
+            if (allocationCursor != null) allocationCursor.close();
+        }
+
+        return fundsAllocationPercentage;
+    }
+
+    boolean editFundsAllocationPercentage(@NonNull Map<String, Integer> fundsAllocationPercentage) {
+        boolean editSuccess = false;
+        try {
+            if (mReadableDB == null) mReadableDB = getReadableDatabase();
+            if (mWritableDB == null) mWritableDB = getWritableDatabase();
+
+            mWritableDB.beginTransaction();
+
+            Date currentDate = Calendar.getInstance().getTime();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String currentDateStr = dateFormat.format(currentDate);
+
+            int percentSum = 0;
+            for (Map.Entry<String, Integer> allocationEntry : fundsAllocationPercentage.entrySet()) {
+                String fundName = allocationEntry.getKey();
+                int percentAllocation = allocationEntry.getValue();
+
+                long fundId = queryId(FundsEntry.TABLE_NAME, fundName);
+                if (fundId == ID_NOT_FOUND) {
+                    fundId = insertEntry(FundsEntry.TABLE_NAME, fundName);
+                }
+
+                ContentValues newFundAllocationEntry = new ContentValues();
+                newFundAllocationEntry.put(FundsAllocationEntry.COL_DATE, currentDateStr);
+                newFundAllocationEntry.put(FundsAllocationEntry.COL_FUND_ID, fundId);
+                newFundAllocationEntry.put(FundsAllocationEntry.COL_PERCENT_ALLOCATION, percentAllocation);
+                mWritableDB.insert(FundsAllocationEntry.TABLE_NAME, null, newFundAllocationEntry);
+
+                percentSum += percentAllocation;
+            }
+
+            if (percentSum == 100) {
+                editSuccess = true;
+                mWritableDB.setTransactionSuccessful();
+            }
+
+        } finally {
+            if (mWritableDB != null) mWritableDB.endTransaction();
+        }
+
+        return editSuccess;
+    }
+
+    List<String> getFundsList() {
+        List<String> fundsList = new ArrayList<>();
+
+        Map<String, Integer> fundAllocations = getFundsAllocationPercentage();
+        for (Map.Entry<String, Integer> fundAllocation : fundAllocations.entrySet()) {
+            String fundName = fundAllocation.getKey();
+            int percentAllocation = fundAllocation.getValue();
+
+            if (percentAllocation > 0)
+                fundsList.add(fundName);
+        }
+
+        return fundsList;
+    }
+
+    List<String> getBrandList(ExpenseItem product) {
+        List<String> brandsList = new ArrayList<>();
+
+        if (product == null) return brandsList;
+
+        String productName = product.getItemName();
+        if (productName.isEmpty()) return brandsList;
+
+        // Result column name
+        String colBrandName = "Brand_Name";
+
+        // Brands List SQL query:
+        /*  SELECT brand.name AS Brand_Name
+            FROM   product_variant
+
+            JOIN product ON product_variant.product_id = product.id
+            JOIN brand   ON product_variant.brand_id   = brand.id
+
+            WHERE product_variant.product_id =
+                (SELECT product.id
+                 FROM   product
+                 WHERE  product.name = 'Product Name');
+         */
+        String brandsQuery = "" +
+                " SELECT " + BrandEntry.TABLE_NAME + "." + BrandEntry.COL_NAME +
+                " AS " + colBrandName +
+                " FROM " + ProductVariantEntry.TABLE_NAME +
+                "" +
+                " JOIN " + ProductEntry.TABLE_NAME +
+                " ON " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_PRODUCT_ID +
+                " = " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_ID +
+                " JOIN " + BrandEntry.TABLE_NAME +
+                " ON " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_BRAND_ID +
+                " = " + BrandEntry.TABLE_NAME + "." + BrandEntry.COL_ID +
+                "" +
+                " WHERE " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_PRODUCT_ID + " = " +
+                "  (SELECT " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_ID +
+                "   FROM " + ProductEntry.TABLE_NAME +
+                "   WHERE " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_NAME +
+                "      = '" + productName + "')";
+
+        Cursor brandsCursor = null;
+        try {
+            brandsCursor = mReadableDB.rawQuery(brandsQuery,null);
+            while (brandsCursor.moveToNext()) {
+                String brandName = brandsCursor.getString(
+                        brandsCursor.getColumnIndex(colBrandName));
+                brandsList.add(brandName);
+            }
+
+        } finally {
+            if (brandsCursor != null) brandsCursor.close();
+        }
+
+        return brandsList;
+    }
+
     StringBuilder buildSelectQuery(@NonNull String[] columnsSearch, String table, @NonNull ContentValues arguments) {
         StringBuilder selectQuery = new StringBuilder();
         selectQuery.append("SELECT `");
@@ -730,6 +805,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return selectQuery;
     }
 
+    @NonNull
     private StringBuilder buildInsertQuery(String table, @NonNull ContentValues colVals) {
         Set<Map.Entry<String, Object>> colValPairs = colVals.valueSet();
         int index = 0;
@@ -848,7 +924,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 BrandEntry.TABLE_NAME + "." + BrandEntry.COL_NAME + " AS " + colBrand + "," +
                 ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_SIZE + " AS " + colSizeReal + "," +
                 ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_SIZE_TXT + " AS " + colSizeTextID + "," +
-                UnitEntry.TABLE_NAME + "." + UnitEntry.COL_NAME +" AS " + colUnit + "," +
+                UnitEntry.TABLE_NAME + "." + UnitEntry.COL_NAME + " AS " + colUnit + "," +
                 ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_QUANTITY + " AS " + colQtyReal + "," +
                 ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_QUANTITY_TXT + " AS " + colQtyTextID + "," +
                 ItemEntry.TABLE_NAME + "." + ItemEntry.COL_PRICEx100 + " AS " + colUnitPrice + "," +

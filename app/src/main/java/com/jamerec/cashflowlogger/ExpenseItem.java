@@ -277,28 +277,6 @@ class ExpenseItem implements Parcelable {
     // ~~~~~~~Method for providing items in dropdown list in AutoCompleteTextViews~~~~~~~~~~~~ //
 
     /**
-     * This retrieves the brands associated with this product and provided as
-     * selection for AutoCompleteTextView brand input.
-     *
-     * @return List of brands for this product.
-     */
-    List<String> suggestBrands() {
-        List<String> brandSelection = new ArrayList<>();
-
-        if (this.mProduct.isEmpty()) return brandSelection;
-
-        // List is to be populated with brands for this product
-        // retrieved from the database.
-        brandSelection.add("Liwayway");
-        brandSelection.add("Mayumi");
-        brandSelection.add("Dalisay");
-        brandSelection.add("Mang Jose");
-        brandSelection.add("Mama Rosa");
-
-        return brandSelection;
-    }
-
-    /**
      * This retrieves the available packaging/serving sizes for this product
      * to be used as selection for AutoCompleteTextView size input.
      *
