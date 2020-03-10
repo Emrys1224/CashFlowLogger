@@ -631,10 +631,20 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
     Map<String, Integer> getFundsAllocationPercentage() {
         Map<String, Integer> fundsAllocationPercentage = new HashMap<>();
 
+        // Funds Allocation Preference List query:
+        /* SELECT
+             funds.name, funds_allocation.percent_allocation
+
+           FROM funds_allocation
+           JOIN funds ON funds.id = funds_allocation.fund_id
+
+           WHERE funds_allocation._date =
+             (SELECT MAX(funds_allocation._date) FROM funds_allocation);
+         */
         String allocationQuery = "" +
                 "SELECT " + FundsEntry.COL_NAME + ", " + FundsAllocationEntry.COL_PERCENT_ALLOCATION +
                 " FROM " + FundsAllocationEntry.TABLE_NAME +
-                " INNER JOIN " + FundsEntry.TABLE_NAME +
+                " JOIN " + FundsEntry.TABLE_NAME +
                 " ON " + FundsEntry.COL_ID + " = " + FundsAllocationEntry.COL_FUND_ID +
                 " WHERE " + FundsAllocationEntry.COL_DATE + "  =" +
                 " (SELECT MAX(" + FundsAllocationEntry.COL_DATE + ") FROM " + FundsAllocationEntry.TABLE_NAME + ");";
@@ -702,7 +712,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return editSuccess;
     }
 
-    // ~~~~~~~Method for providing items in dropdown list in AutoCompleteTextViews~~~~~~~~~~~~ //
+    /*~~~~~~~~~~~~~~~~ Method for providing items in dropdown list in AutoCompleteTextViews ~~~~~~~~~~~~~~~~*/
 
     List<String> getFundsList() {
         List<String> fundsList = new ArrayList<>();
@@ -758,7 +768,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
         Cursor brandsCursor = null;
         try {
-            brandsCursor = mReadableDB.rawQuery(brandsQuery,null);
+            brandsCursor = mReadableDB.rawQuery(brandsQuery, null);
             while (brandsCursor.moveToNext()) {
                 String brandName = brandsCursor.getString(
                         brandsCursor.getColumnIndex(colBrandName));
@@ -854,76 +864,20 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return sizesList;
     }
 
-    StringBuilder buildSelectQuery(@NonNull String[] columnsSearch, String table, @NonNull ContentValues arguments) {
-        StringBuilder selectQuery = new StringBuilder();
-        selectQuery.append("SELECT `");
-
-        for (int i = 0; i < columnsSearch.length; i++) {
-            selectQuery.append(columnsSearch[i]);
-            if (i < columnsSearch.length - 1) selectQuery.append("`, `");
-        }
-
-        selectQuery.append("` FROM `")
-                .append(table)
-                .append("` WHERE ");
-
-        Set<Map.Entry<String, Object>> colValPairs = arguments.valueSet();
-        int index = 0;
-        int argsLastIndex = colValPairs.size() - 1;
-        for (Map.Entry<String, Object> colValPair : colValPairs) {
-            String column = colValPair.getKey();
-            String value = colValPair.getValue().toString();
-
-            selectQuery.append(" `").append(column).append("` = '").append(value).append("' ");
-
-            if (index < argsLastIndex) selectQuery.append("AND");
-            if (index == argsLastIndex) selectQuery.append(";");
-
-            index++;
-        }
-
-        return selectQuery;
-    }
-
-    @NonNull
-    private StringBuilder buildInsertQuery(String table, @NonNull ContentValues colVals) {
-        Set<Map.Entry<String, Object>> colValPairs = colVals.valueSet();
-        int index = 0;
-        int argsLastIndex = colValPairs.size() - 1;
-        StringBuilder columns = new StringBuilder("(");
-        StringBuilder values = new StringBuilder("(");
-        for (Map.Entry<String, Object> colValPair : colValPairs) {
-            String column = colValPair.getKey();
-            String value = colValPair.getValue().toString();
-
-            columns.append("'").append(column);
-            values.append("'").append(value);
-
-            if (index < argsLastIndex) {
-                columns.append("', ");
-                values.append("', ");
-
-            } else {
-                columns.append("')");
-                values.append("');");
-            }
-
-            index++;
-        }
-
-        StringBuilder selectQuery = new StringBuilder();
-        selectQuery.append("INSERT INTO `")
-                .append(table)
-                .append("` ")
-                .append(columns)
-                .append(" VALUES")
-                .append(values);
-
-        return selectQuery;
-    }
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Methods for verifying logging of records ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
     private void printIncomeRecord() {
         StringBuilder incomeRecord = new StringBuilder("Income Record \nDate Time, Source, Amount_x100");
+
+        // Income Record SQL query:
+        /* SELECT
+             income.datetime, source.name, income.amountX100
+
+           FROM income
+           INNER JOIN source ON source.id = income.source_id
+
+           ORDER BY income.datetime ASC;
+         */
         String recordQuery = "SELECT " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_DATETIME + ", " +
                 SourceEntry.TABLE_NAME + "." + SourceEntry.COL_NAME + ", " +
                 IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_AMOUNTx100 +
@@ -933,6 +887,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 " = " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_SOURCE_ID +
                 " ORDER BY " + IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_DATETIME + " ASC";
 
+        // Retrieve result from database and build the Income Record
         Cursor recordCursor = null;
         try {
             recordCursor = mReadableDB.rawQuery(recordQuery, null);
@@ -974,19 +929,18 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         String colUnitPrice = "Unit_PriceX100";
         String colRemarks = "Remarks";
 
-        /* Expense record SQL query:
-
-           SELECT
-           expense.datetime        AS Date_Time,
-           product.name            AS Item,
-           brand.name              AS Brand,
-           product_size.size       AS Size_Real,
-           product_size.size_txt   AS Size_Text,
-           unit.name               AS Unit,
-           expense.quantity        AS Qty_Real,
-           expense.quantity_txt    AS Qty_Text,
-           item.priceX100          AS Unit_Price,
-           expense.remarks         AS Remarks
+        // Expense Record SQL query:
+        /* SELECT
+             expense.datetime        AS Date_Time,
+             product.name            AS Item,
+             brand.name              AS Brand,
+             product_size.size       AS Size_Real,
+             product_size.size_txt   AS Size_Text,
+             unit.name               AS Unit,
+             expense.quantity        AS Qty_Real,
+             expense.quantity_txt    AS Qty_Text,
+             item.priceX100          AS Unit_Price,
+             expense.remarks         AS Remarks
 
            FROM expense
            JOIN item            ON expense.item_id                 = item.id
@@ -1032,6 +986,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 "" +
                 " ORDER BY " + ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_ID + " ASC";
 
+        // Retrieve result from database and build the Expense Record.
         Cursor recordCursor = null;
         try {
             recordCursor = mReadableDB.rawQuery(recordQuery, null);
@@ -1085,7 +1040,18 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         String colExpenseDatetime = "Expenses_DateTime";
         String colAmountX100 = "Amount_X100";
 
-        // Join `balance` table with `income` table and `expense` table to get the complete balance record
+        // Balance Record SQL query:
+        /* SELECT
+             income.datetime    AS Income_Datetime,
+             expense.datetime   AS Expenses_DateTime,
+             balance.amountX100 AS Amount_X100
+
+           FROM balance
+           LEFT JOIN income  ON income.id  = balance.income_update_id
+           LEFT JOIN expense ON expense.id = balance.expense_update_id
+
+           ORDER BY balance.id ASC;
+         */
         String recordQuery = "SELECT " +
                 IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_DATETIME + " AS " + colIncomeDatetime + "," +
                 ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_DATETIME + " AS " + colExpenseDatetime + "," +
@@ -1156,8 +1122,21 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         String colExpenseDatetime = "Expenses_DateTime";
         String colAmountX100 = "Amount_X100";
 
-        // Join `funds` table with `balance` table, `income` table, and `expense` table
-        // to get the complete record of the selected fund
+        // Funds Balance Record SQL query:
+        /* SELECT
+             income.datetime          AS Income_Datetime,
+             expense.datetime         AS Expenses_DateTime,
+             funds_balance.amountX100 AS Amount_X100
+
+           FROM funds_balance
+           JOIN      balance ON balance.id = funds_balance.balance_update_id
+           LEFT JOIN income  ON income.id  = balance.income_update_id
+           LEFT JOIN expense ON expense.id = balance.expense_update_id
+
+           WHERE funds_balance.fund_id = 'Fund_Id'
+
+           ORDER BY balance.id ASC;
+         */
         String recordQuery = "SELECT " +
                 IncomeEntry.TABLE_NAME + "." + IncomeEntry.COL_DATETIME + " AS " + colIncomeDatetime + "," +
                 ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_DATETIME + " AS " + colExpenseDatetime + "," +
@@ -1176,7 +1155,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 " = '" + fundId + "'" +
                 " ORDER BY " + BalanceEntry.TABLE_NAME + "." + BalanceEntry.COL_ID + " ASC";
 
-        // Retrieve result from database and build the Balance Record
+        // Retrieve result from database and build the Fund Balance Record
         Cursor recordCursor = null;
         try {
             recordCursor = mReadableDB.rawQuery(recordQuery, null);
@@ -1205,6 +1184,74 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         } finally {
             if (recordCursor != null) recordCursor.close();
         }
+    }
+
+    StringBuilder buildSelectQuery(@NonNull String[] columnsSearch, String table, @NonNull ContentValues arguments) {
+        StringBuilder selectQuery = new StringBuilder();
+        selectQuery.append("SELECT `");
+
+        for (int i = 0; i < columnsSearch.length; i++) {
+            selectQuery.append(columnsSearch[i]);
+            if (i < columnsSearch.length - 1) selectQuery.append("`, `");
+        }
+
+        selectQuery.append("` FROM `")
+                .append(table)
+                .append("` WHERE ");
+
+        Set<Map.Entry<String, Object>> colValPairs = arguments.valueSet();
+        int index = 0;
+        int argsLastIndex = colValPairs.size() - 1;
+        for (Map.Entry<String, Object> colValPair : colValPairs) {
+            String column = colValPair.getKey();
+            String value = colValPair.getValue().toString();
+
+            selectQuery.append(" `").append(column).append("` = '").append(value).append("' ");
+
+            if (index < argsLastIndex) selectQuery.append("AND");
+            if (index == argsLastIndex) selectQuery.append(";");
+
+            index++;
+        }
+
+        return selectQuery;
+    }
+
+    @NonNull
+    private StringBuilder buildInsertQuery(String table, @NonNull ContentValues colVals) {
+        Set<Map.Entry<String, Object>> colValPairs = colVals.valueSet();
+        int index = 0;
+        int argsLastIndex = colValPairs.size() - 1;
+        StringBuilder columns = new StringBuilder("(");
+        StringBuilder values = new StringBuilder("(");
+        for (Map.Entry<String, Object> colValPair : colValPairs) {
+            String column = colValPair.getKey();
+            String value = colValPair.getValue().toString();
+
+            columns.append("'").append(column);
+            values.append("'").append(value);
+
+            if (index < argsLastIndex) {
+                columns.append("', ");
+                values.append("', ");
+
+            } else {
+                columns.append("')");
+                values.append("');");
+            }
+
+            index++;
+        }
+
+        StringBuilder selectQuery = new StringBuilder();
+        selectQuery.append("INSERT INTO `")
+                .append(table)
+                .append("` ")
+                .append(columns)
+                .append(" VALUES")
+                .append(values);
+
+        return selectQuery;
     }
 
     private void logTablesTest() {
