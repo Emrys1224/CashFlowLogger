@@ -702,6 +702,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return editSuccess;
     }
 
+    // ~~~~~~~Method for providing items in dropdown list in AutoCompleteTextViews~~~~~~~~~~~~ //
+
     List<String> getFundsList() {
         List<String> fundsList = new ArrayList<>();
 
@@ -732,7 +734,6 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         /*  SELECT brand.name AS Brand_Name
             FROM   product_variant
 
-            JOIN product ON product_variant.product_id = product.id
             JOIN brand   ON product_variant.brand_id   = brand.id
 
             WHERE product_variant.product_id =
@@ -745,9 +746,6 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 " AS " + colBrandName +
                 " FROM " + ProductVariantEntry.TABLE_NAME +
                 "" +
-                " JOIN " + ProductEntry.TABLE_NAME +
-                " ON " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_PRODUCT_ID +
-                " = " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_ID +
                 " JOIN " + BrandEntry.TABLE_NAME +
                 " ON " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_BRAND_ID +
                 " = " + BrandEntry.TABLE_NAME + "." + BrandEntry.COL_ID +
@@ -772,6 +770,88 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         }
 
         return brandsList;
+    }
+
+    List<String> getSizesList(ExpenseItem product) {
+        List<String> sizesList = new ArrayList<>();
+
+        if (product == null) return sizesList;
+
+        String productName = product.getItemName();
+        if (productName.isEmpty()) return sizesList;
+
+        // Result column name
+        String colSizeReal = "Size_Real";
+        String colSizeTxt = "Size_Txt";
+        String colUnit = "Unit";
+
+        // Sizes List SQL Query:
+        /*
+          SELECT
+            product_size.size        AS Size_Real,
+            fraction_text.val_as_txt AS Size_Txt,
+            unit.name                AS Unit
+
+          FROM product_variant
+
+          JOIN      product_size   ON product_variant.product_size_id = product_size.id
+          JOIN      unit           ON product_size.unit_id            = unit.id
+          LEFT JOIN fraction_text  ON product_size.size_txt           = fraction_text.id
+
+          WHERE product_variant.product_id =
+            (SELECT product.id FROM product WHERE product.name = 'Product Name');
+         */
+        String sizesQuery = "" +
+                " SELECT" +
+                " " + ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_SIZE + " AS " + colSizeReal + "," +
+                " " + FractionTextEntry.TABLE_NAME + "." + FractionTextEntry.COL_VAL_AS_TXT + " AS " + colSizeTxt + "," +
+                " " + UnitEntry.TABLE_NAME + "." + UnitEntry.COL_NAME + " AS " + colUnit +
+                " FROM " + ProductVariantEntry.TABLE_NAME +
+                "" +
+                " JOIN " + ProductSizeEntry.TABLE_NAME +
+                " ON " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_PRODUCT_SIZE_ID +
+                " = " + ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_ID +
+                " JOIN " + UnitEntry.TABLE_NAME +
+                " ON " + ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_UNIT_ID +
+                " = " + UnitEntry.TABLE_NAME + "." + UnitEntry.COL_ID +
+                " LEFT JOIN " + FractionTextEntry.TABLE_NAME +
+                " ON " + ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_SIZE_TXT +
+                " = " + FractionTextEntry.TABLE_NAME + "." + FractionTextEntry.COL_ID +
+                "" +
+                " WHERE " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_PRODUCT_ID + " = " +
+                " (SELECT " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_ID +
+                " FROM " + ProductEntry.TABLE_NAME +
+                " WHERE " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_NAME + " = '" + productName + "')";
+
+        Cursor sizesCursor = null;
+        try {
+            sizesCursor = mReadableDB.rawQuery(sizesQuery, null);
+            while (sizesCursor.moveToNext()) {
+                StringBuilder packagingSize = new StringBuilder();
+
+                String sizeTxt = sizesCursor.getString(
+                        sizesCursor.getColumnIndex(colSizeTxt));
+
+                if (sizeTxt == null) {
+                    double sizeReal = sizesCursor.getDouble(
+                            sizesCursor.getColumnIndex(colSizeReal));
+                    packagingSize.append(sizeReal);
+
+                } else {
+                    packagingSize.append(sizeTxt);
+                }
+
+                String unit = sizesCursor.getString(sizesCursor.getColumnIndex(colUnit));
+                packagingSize.append(unit);
+
+                sizesList.add(packagingSize.toString());
+            }
+
+        } finally {
+            if (sizesCursor != null) sizesCursor.close();
+        }
+
+        return sizesList;
     }
 
     StringBuilder buildSelectQuery(@NonNull String[] columnsSearch, String table, @NonNull ContentValues arguments) {

@@ -277,28 +277,6 @@ class ExpenseItem implements Parcelable {
     // ~~~~~~~Method for providing items in dropdown list in AutoCompleteTextViews~~~~~~~~~~~~ //
 
     /**
-     * This retrieves the available packaging/serving sizes for this product
-     * to be used as selection for AutoCompleteTextView size input.
-     *
-     * @return List of packaging sizes for this product.
-     */
-    List<String> suggestSizes() {
-        List<String> sizeSelection = new ArrayList<>();
-
-        if (this.mProduct.isEmpty()) return sizeSelection;
-
-        // List is to be populated with available packaging sizes for
-        // this product retrieved from database.
-        sizeSelection.add("1kilo");
-        sizeSelection.add("5kilo");
-        sizeSelection.add("10Kilo");
-        sizeSelection.add("25kilo");
-        sizeSelection.add("50kilo");
-
-        return sizeSelection;
-    }
-
-    /**
      * This retrieves the tags associated for this product.
      * This is used to update the mTags for this ExpenseItem whenever the
      * mProduct is changed.

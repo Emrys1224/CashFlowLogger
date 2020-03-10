@@ -206,7 +206,7 @@ public class ExpenseLogDetailsFragment extends Fragment
                 ArrayAdapter<String> sizeAdapter =
                         new ArrayAdapter<>(
                                 mContext, android.R.layout.simple_list_item_1,
-                                mExpenseItem.suggestSizes()
+                                mDB.getSizesList(mExpenseItem)
                         );
                 mSizeATV.setThreshold(1);
                 mSizeATV.setAdapter(sizeAdapter);
