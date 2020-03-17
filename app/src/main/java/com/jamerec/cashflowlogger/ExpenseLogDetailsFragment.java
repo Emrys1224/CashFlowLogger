@@ -27,7 +27,6 @@ import android.widget.TextView;
 
 import com.google.android.flexbox.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 

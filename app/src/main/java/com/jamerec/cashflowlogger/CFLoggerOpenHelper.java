@@ -56,20 +56,13 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             {ExpenseEntry.TABLE_NAME, ExpenseEntry.CREATE_TABLE}
     };
 
-    // Databases
+    // Database
     private SQLiteDatabase mWritableDB;
     private SQLiteDatabase mReadableDB;
 
     CFLoggerOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         Log.d(TAG, "Construct CFLoggerOpenHelper");
-
-//        logTablesTest();
-//
-//        String table = "source";
-//        String name = "Restaurant";
-//        queryIdTest(table, name);
-//        insertIdTest(table, name);
     }
 
     @Override
@@ -93,6 +86,13 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    /**
+     * Updates the database values for the first time. Initial values are set for tables that are
+     * queried every time and update is made, such as `funds`, `funds_allocation`, `income`,
+     * `balance`, `funds_balance` tables.
+     *
+     * @param db the database to be initialized
+     */
     private void initializeDB(@NonNull SQLiteDatabase db) {
         Log.d(TAG, "Initializing CFLogger DB");
 
@@ -179,29 +179,13 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         Log.d(TAG, "Initialized CFLogger DB");
     }
 
-    PhCurrency getCurrentBalance() {
-        Log.d(TAG, "Retrieving the current balance....");
-
-        if (mReadableDB == null) mReadableDB = getReadableDatabase();
-
-        PhCurrency latestBalance = new PhCurrency();
-        Cursor queryBalance = mReadableDB.query(
-                BalanceEntry.TABLE_NAME, new String[]{BalanceEntry.COL_AMOUNTx100}, null,
-                null, null, null, BalanceEntry.COL_ID + " DESC", "1");
-
-        if (queryBalance.getCount() > 0) {
-            queryBalance.moveToFirst();
-            latestBalance.setValue(
-                    queryBalance.getLong(
-                            queryBalance.getColumnIndex(BalanceEntry.COL_AMOUNTx100)));
-        }
-        queryBalance.close();
-
-        Log.d(TAG, "Current balance is " + latestBalance.toString());
-
-        return latestBalance;
-    }
-
+    /**
+     * Adds entry for tables for logging income.
+     *
+     * @param incomeSource source of income to be logged
+     * @param amount       the amount of income to be logged
+     * @param fundsList    the list of funds and the allocation amount for each fund
+     */
     void logIncome(String incomeSource, PhCurrency amount, ArrayList<FundItem> fundsList) {
         try {
             if (mReadableDB == null) mReadableDB = getReadableDatabase();
@@ -249,6 +233,12 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Adds entry for tables related for logging expense.
+     *
+     * @param expenseItem that contains the details of item/service etc. purchased
+     * @throws Exception
+     */
     void logExpense(ExpenseItem expenseItem) throws Exception {
         try {
             if (mReadableDB == null) mReadableDB = getReadableDatabase();
@@ -454,7 +444,20 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     }
 
-    private long updateCashBalance(PhCurrency amountDiff, long incomeId, long expenseId) throws IllegalArgumentException {
+    /**
+     * Adds entry for tables for recording the account balance.
+     *
+     * @param amountDiff the amount to be added or deducted from the current balance
+     * @param incomeId   the id of `income` entry during update of the balance; NULL if
+     *                   the update of balance is from expense
+     * @param expenseId  the id of `expense` entry during update of the balance; NULL if
+     *                   the update of balance is from income
+     * @return the id of `balance` entry
+     * @throws IllegalArgumentException when both of incomeId and expenseId has value
+     *                                  or if both values are NULL
+     */
+    private long updateCashBalance(PhCurrency amountDiff, long incomeId, long expenseId)
+            throws IllegalArgumentException {
         // * Check that only one of 'incomeId' and 'expenseId' has a valid id
         //   while the other should have a 'NULL_ID' as value, otherwise throw a IllegalArgumentException.
         if ((incomeId >= 0 && expenseId >= 0) || (incomeId < 0 && expenseId < 0))
@@ -502,6 +505,15 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return queryId(balanceTable, newBalanceEntry);
     }
 
+    /**
+     * Adds entry for tables logging the fund balance.
+     *
+     * @param fundId          the id of the fund which the balance is to be updated
+     * @param balanceUpdateId the id of the `balance` entry that has been added by
+     *                        logging an income or expense
+     * @param amountDiff      the amount to be added or subtracted from the fund
+     * @return                true if logging the record was successful
+     */
     private boolean updateFundBalance(long fundId, long balanceUpdateId, PhCurrency amountDiff) {
         String fundsBalanceTable = FundsBalanceEntry.TABLE_NAME;
         String fundIdCol = FundsBalanceEntry.COL_FUND_ID;
@@ -558,12 +570,29 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return entryAdded;
     }
 
+    /**
+     * Adds an entry to a look-up table whose column are just id and name.
+     *
+     * @param table to where an entry is to be added
+     * @param name  of the new entry to the look-up table
+     * @return      the id of the new entry
+     * @throws SQLiteConstraintException when an entry of the same name already exist
+     */
     long insertEntry(String table, String name) throws SQLiteConstraintException {
         ContentValues values = new ContentValues();
         values.put(NAME_COL, name);
         return insertEntry(table, values);
     }
 
+    /**
+     * Adds an entry to a table with the corresponding column and values.
+     *
+     * @param table  the table where an entry is to be added
+     * @param values the column-value pairs of the new entry
+     * @return       the id of the new entry
+     * @throws SQLiteConstraintException when an entry with the same values
+     *                                   already exist
+     */
     long insertEntry(String table, ContentValues values) throws SQLiteConstraintException {
         // * Add entry to 'table' with the given 'values' by calling mWritableDB.insert().
         try {
@@ -578,6 +607,15 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return queryId(table, values);
     }
 
+    /**
+     * Get the id of an entry in a look-up table.
+     *
+     * @param table the look-up table where to get the id
+     * @param name  the name value of the entry
+     * @return      > the id of the selected name;
+     *              > ID_NOT_FOUND if the entry does not exist;
+     *              > NO_ID_COL if the table does not have an id column
+     */
     long queryId(String table, String name) {
         ContentValues values = new ContentValues();
         values.put(NAME_COL, name);
@@ -585,15 +623,28 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return queryId(table, values);
     }
 
+    /**
+     * Get the id of an entry in a look-up table.
+     *
+     * @param table     the look-up table where to get the id
+     * @param arguments the values of the entry which the id is being searched
+     * @return          > the id of the selected name;
+     *                  > ID_NOT_FOUND if the entry does not exist;
+     *                  > NO_ID_COL if the table does not have an id column
+     */
     long queryId(String table, @NonNull ContentValues arguments) {
         long id;
 
         Set<Map.Entry<String, Object>> colValPairs = arguments.valueSet();
 
+        // Database query arguments
         String[] idColumn = new String[]{ID_COL};
         StringBuilder whereClause = new StringBuilder();
         String[] whereArgs = new String[colValPairs.size()];
 
+        // Build the whereClause
+        // Track loop count using local variables because the usual
+        // for loop version for this looks ugly :P
         int index = 0;
         int argsLastIndex = colValPairs.size() - 1;
         for (Map.Entry<String, Object> colValPair : colValPairs) {
@@ -610,12 +661,18 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         Cursor queryId = mReadableDB.query(
                 table, idColumn, whereClause.toString(), whereArgs, null, null, null);
 
-        if (queryId.getCount() <= 0) id = ID_NOT_FOUND;
+        // No entry of the given values was found
+        if (queryId.getCount() <= 0) {
+            id = ID_NOT_FOUND;
 
-        else {
+        } else {
             int idColIndex = queryId.getColumnIndex(ID_COL);
-            if (idColIndex < 0) id = NO_ID_COL;
-            else {
+
+            // The table has no id column
+            if (idColIndex < 0) {
+                id = NO_ID_COL;
+
+            } else {
                 queryId.moveToFirst();
                 id = queryId.getLong(idColIndex);
             }
@@ -628,6 +685,41 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Helper Methods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+    /**
+     * Get the current balance amount of the account.
+     *
+     * @return the current balance amount
+     */
+    PhCurrency getCurrentBalance() {
+        Log.d(TAG, "Retrieving the current balance....");
+
+        // Check for database initialization
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
+
+        PhCurrency latestBalance = new PhCurrency();
+        Cursor queryBalance = mReadableDB.query(
+                BalanceEntry.TABLE_NAME, new String[]{BalanceEntry.COL_AMOUNTx100}, null,
+                null, null, null, BalanceEntry.COL_ID + " DESC", "1");
+
+        if (queryBalance.getCount() > 0) {
+            queryBalance.moveToFirst();
+            latestBalance.setValue(
+                    queryBalance.getLong(
+                            queryBalance.getColumnIndex(BalanceEntry.COL_AMOUNTx100)));
+        }
+        queryBalance.close();
+
+        Log.d(TAG, "Current balance is " + latestBalance.toString());
+
+        return latestBalance;
+    }
+
+    /**
+     * Get the list of funds and percentage allocation when dividing the income using
+     *   the auto allocate feature in logging the income.
+     *
+     * @return list of funds and percentage allocation
+     */
     Map<String, Integer> getFundsAllocationPercentage() {
         Map<String, Integer> fundsAllocationPercentage = new HashMap<>();
 
@@ -669,37 +761,52 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return fundsAllocationPercentage;
     }
 
+    /**
+     * Adds new entry for each fund along with latest allocation percentage of the fund
+     *   which is used for auto allocation feature for logging of income
+     *
+     * @param fundsAllocationPercentage the list of fund with its new allocation percentage
+     * @return true if update is successful;
+     *         false if the allocation sum is not 100 percent
+     */
     boolean editFundsAllocationPercentage(@NonNull Map<String, Integer> fundsAllocationPercentage) {
         boolean editSuccess = false;
         try {
             if (mReadableDB == null) mReadableDB = getReadableDatabase();
             if (mWritableDB == null) mWritableDB = getWritableDatabase();
 
+            // Use transaction to roll back the database values if problem occurs
             mWritableDB.beginTransaction();
 
+            // Get the current date
             Date currentDate = Calendar.getInstance().getTime();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             String currentDateStr = dateFormat.format(currentDate);
 
-            int percentSum = 0;
+            // Iterate through the list of fund-percent allocation pair and
+            //   insert an entry accordingly.
+            int percentSum = 0;     // track running sum making sure it is 100
             for (Map.Entry<String, Integer> allocationEntry : fundsAllocationPercentage.entrySet()) {
                 String fundName = allocationEntry.getKey();
                 int percentAllocation = allocationEntry.getValue();
 
+                // Get the id of the fund and insert new entry if it does not exist.
                 long fundId = queryId(FundsEntry.TABLE_NAME, fundName);
                 if (fundId == ID_NOT_FOUND) {
                     fundId = insertEntry(FundsEntry.TABLE_NAME, fundName);
                 }
 
+                // Insert new entry with the corresponding column values
                 ContentValues newFundAllocationEntry = new ContentValues();
                 newFundAllocationEntry.put(FundsAllocationEntry.COL_DATE, currentDateStr);
                 newFundAllocationEntry.put(FundsAllocationEntry.COL_FUND_ID, fundId);
                 newFundAllocationEntry.put(FundsAllocationEntry.COL_PERCENT_ALLOCATION, percentAllocation);
                 mWritableDB.insert(FundsAllocationEntry.TABLE_NAME, null, newFundAllocationEntry);
 
-                percentSum += percentAllocation;
+                percentSum += percentAllocation;    // running sum of the percent allocation
             }
 
+            // Check if the allocation sum is 100
             if (percentSum == 100) {
                 editSuccess = true;
                 mWritableDB.setTransactionSuccessful();
@@ -714,14 +821,22 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     /*~~~~~~~~~~~~~~~~ Method for providing items in dropdown list in AutoCompleteTextViews ~~~~~~~~~~~~~~~~*/
 
+    /**
+     * Returns the list of funds that are active (allocation percentage is not zero)
+     *  as selection for drop down item in 'Deduct From' input fields.
+     *
+     * @return the list of active funds
+     */
     List<String> getFundsList() {
         List<String> fundsList = new ArrayList<>();
-
         Map<String, Integer> fundAllocations = getFundsAllocationPercentage();
+
+        // Populate list with the active funds
         for (Map.Entry<String, Integer> fundAllocation : fundAllocations.entrySet()) {
             String fundName = fundAllocation.getKey();
             int percentAllocation = fundAllocation.getValue();
 
+            // Check if fund is active
             if (percentAllocation > 0)
                 fundsList.add(fundName);
         }
@@ -729,6 +844,13 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return fundsList;
     }
 
+    /**
+     * Returns the list of brand that was recorded for this product to be used for
+     *  auto suggest feature of the 'Brand' input field.
+     *
+     * @param product the name of item/service purchased
+     * @return        the list of brand that was recorded for this product
+     */
     List<String> getBrandList(ExpenseItem product) {
         List<String> brandsList = new ArrayList<>();
 
@@ -782,6 +904,13 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return brandsList;
     }
 
+    /**
+     * Returns the list of packaging/order size that was recorded for an item/service
+     *  (if you know what I mean) to be used in auto suggest feature of 'Item Size' input field.
+     *
+     * @param product the name of item/service purchased
+     * @return        the list of sizes that was recorded for this product
+     */
     List<String> getSizesList(ExpenseItem product) {
         List<String> sizesList = new ArrayList<>();
 
@@ -839,13 +968,24 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             while (sizesCursor.moveToNext()) {
                 StringBuilder packagingSize = new StringBuilder();
 
+                // For sizes which the numeric value recorded is in fraction form
                 String sizeTxt = sizesCursor.getString(
                         sizesCursor.getColumnIndex(colSizeTxt));
 
                 if (sizeTxt == null) {
+                    // For sizes which the numeric value recorded is in decimal form
                     double sizeReal = sizesCursor.getDouble(
                             sizesCursor.getColumnIndex(colSizeReal));
-                    packagingSize.append(sizeReal);
+                    int sizeInt = (int) sizeReal;
+
+                    if (sizeReal - sizeInt != 0) {
+                        // Values with decimal place value
+                        packagingSize.append(sizeReal);
+
+                    } else {
+                        // Whole number values
+                        packagingSize.append(sizeInt);
+                    }
 
                 } else {
                     packagingSize.append(sizeTxt);
@@ -866,6 +1006,10 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Methods for verifying logging of records ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+    /**
+     * Prints the Income Record into Logcat showing the Date Time of log, Source of income,
+     *   and the amount(x100) of income added.
+     */
     private void printIncomeRecord() {
         StringBuilder incomeRecord = new StringBuilder("Income Record \nDate Time, Source, Amount_x100");
 
@@ -892,6 +1036,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         try {
             recordCursor = mReadableDB.rawQuery(recordQuery, null);
             while (recordCursor.moveToNext()) {
+                // Get the entry details
                 String dateTime = recordCursor.getString(
                         recordCursor.getColumnIndex(IncomeEntry.COL_DATETIME));
                 String incomeSource = recordCursor.getString(
@@ -899,6 +1044,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 long amountX100 = recordCursor.getLong(
                         recordCursor.getColumnIndex(IncomeEntry.COL_AMOUNTx100));
 
+                // Build the new record row
                 incomeRecord.append("\n")
                         .append(dateTime).append(", ")
                         .append(incomeSource).append(", ")
@@ -913,6 +1059,10 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * Prints the Expenses Record into Logcat showing the details as follows:
+     *  Item Name, Brand Name, Item Size, Quantity, Unit Price, Total Price, Remarks.
+     */
     private void printExpenseRecord() {
         StringBuilder expenseRecord = new StringBuilder(
                 "Expense Record\nItem Name, Brand Name, Item Size, Quantity, Unit Price, Total Price, Remarks");
@@ -1032,6 +1182,13 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Prints the Total Balance Record into Logcat showing the details as follows:
+     *      Date_Time, Update_By, Amount_x100,
+     *  where Date_Time is the time of log,
+     *        Update_By is whether the update was during an income or expense record log,
+     *        Amount_x100 is the amount x100.
+     */
     private void printBalanceRecord() {
         StringBuilder balanceRecord = new StringBuilder("Balance Record\n Date_Time, Update_By, Amount_x100");
 
@@ -1096,6 +1253,16 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Prints the Fund Balance Record of a particular into the Logcat showing
+     *  the details as follows:
+     *      Date_Time, Update_By, Amount_x100
+     *  where Date_Time is the time of log,
+     *        Update_By is whether the update was during an income or expense record log,
+     *        Amount_x100 is the amount x100.
+     *
+     * @param fundId the id of the fund which the record is to printed
+     */
     private void printFundRecord(long fundId) {
         // Get the fund name
         String fundName;
@@ -1160,8 +1327,9 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         try {
             recordCursor = mReadableDB.rawQuery(recordQuery, null);
             while (recordCursor.moveToNext()) {
+                // Get the entry details
                 String datetime = recordCursor.getString(
-                        recordCursor.getColumnIndex(colIncomeDatetime));
+                        recordCursor.getColumnIndex(colIncomeDatetime));    // Income Date_Time
                 String updateBy = "Income";
                 long amountX100 = recordCursor.getLong(
                         recordCursor.getColumnIndex(colAmountX100));
@@ -1169,10 +1337,11 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 // Determine the update source
                 if (datetime == null) {
                     datetime = recordCursor.getString(
-                            recordCursor.getColumnIndex(colExpenseDatetime));
+                            recordCursor.getColumnIndex(colExpenseDatetime)); // Expense Date_Time
                     updateBy = "Expense";
                 }
 
+                // Build the record row
                 fundRecord.append("\n")
                         .append(datetime).append(", ")
                         .append(updateBy).append(", ")
@@ -1186,19 +1355,30 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    StringBuilder buildSelectQuery(@NonNull String[] columnsSearch, String table, @NonNull ContentValues arguments) {
-        StringBuilder selectQuery = new StringBuilder();
-        selectQuery.append("SELECT `");
+    /**
+     * Builds the SELECT query which is to displayed for debugging purposes. This is limited only
+     * to SELECT queries which does not require table JOINs and has WHERE clause only.
+     *
+     * @param table         the table being queried
+     * @param columnsSearch the column of the result needed
+     * @param arguments     the arguments for the WHERE clause
+     * @return              the SQL query in String format
+     */
+    StringBuilder buildSelectQuery(String table, @NonNull String[] columnsSearch, @NonNull ContentValues arguments) {
+        StringBuilder selectQuery = new StringBuilder("SELECT `");
 
+        // Build the columns being searched
         for (int i = 0; i < columnsSearch.length; i++) {
             selectQuery.append(columnsSearch[i]);
             if (i < columnsSearch.length - 1) selectQuery.append("`, `");
         }
 
-        selectQuery.append("` FROM `")
+        selectQuery
+                .append("` FROM `")
                 .append(table)
                 .append("` WHERE ");
 
+        // Build the WHERE clause
         Set<Map.Entry<String, Object>> colValPairs = arguments.valueSet();
         int index = 0;
         int argsLastIndex = colValPairs.size() - 1;
@@ -1217,25 +1397,35 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return selectQuery;
     }
 
+    /**
+     * Builds the INSERT query which is to be displayed for debugging purposes.
+     *
+     * @param table   the table where the new entry is to be added
+     * @param colVals the column-value pairs of the entry to be added
+     * @return        the String format of the INSERT query
+     */
     @NonNull
     private StringBuilder buildInsertQuery(String table, @NonNull ContentValues colVals) {
         Set<Map.Entry<String, Object>> colValPairs = colVals.valueSet();
         int index = 0;
         int argsLastIndex = colValPairs.size() - 1;
-        StringBuilder columns = new StringBuilder("(");
-        StringBuilder values = new StringBuilder("(");
+        StringBuilder columns = new StringBuilder("("); // For columns to be updated
+        StringBuilder values = new StringBuilder("(");  // For the values of each column
         for (Map.Entry<String, Object> colValPair : colValPairs) {
             String column = colValPair.getKey();
             String value = colValPair.getValue().toString();
 
+            // Opening apostrophe
             columns.append("'").append(column);
             values.append("'").append(value);
 
+            // Closing apostrophe and coma between columns and values
             if (index < argsLastIndex) {
                 columns.append("', ");
                 values.append("', ");
 
             } else {
+                // Closing apostrophe and parenthesis for the last column-value pair
                 columns.append("')");
                 values.append("');");
             }
@@ -1243,67 +1433,17 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             index++;
         }
 
-        StringBuilder selectQuery = new StringBuilder();
-        selectQuery.append("INSERT INTO `")
+        // Build the INSERT query
+        StringBuilder insertQuery = new StringBuilder();
+        insertQuery
+                .append("INSERT INTO `")
                 .append(table)
                 .append("` ")
                 .append(columns)
                 .append(" VALUES")
                 .append(values);
 
-        return selectQuery;
-    }
-
-    private void logTablesTest() {
-        String query = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;";
-        Cursor cursor = null;
-
-        try {
-            if (mReadableDB == null) {
-                mReadableDB = getReadableDatabase();
-            }
-            cursor = mReadableDB.rawQuery(query, null);
-
-            if (cursor.moveToFirst()) {
-                StringBuilder data = new StringBuilder("List of CFL Tables:\n");
-
-                do {
-                    data.append(cursor.getString(cursor.getColumnIndex("name")));
-                    data.append("\n");
-                } while (cursor.moveToNext());
-
-                Log.d(TAG, data.toString());
-            }
-
-        } catch (Exception e) {
-            Log.d(TAG, "EXCEPTION! " + e);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
-
-    private void queryIdTest(String table, String name) {
-        Log.d(TAG, "Searching `id` of '" + name + "' from `" + table + "`....");
-
-        long newEntryId = queryId(SourceEntry.TABLE_NAME, name);
-        if (newEntryId == ID_NOT_FOUND) Log.d(TAG, "Entry does not exist!");
-        else Log.d(TAG, name + " has id of " + newEntryId);
-    }
-
-    private void insertIdTest(String table, String name) {
-        Log.d(TAG, "Inserting '" + name + "' into `" + table + "`....");
-
-        try {
-            long newEntryId = insertEntry(table, name);
-            if (newEntryId == ID_NOT_FOUND) Log.d(TAG, "Entry does not exist!");
-            else Log.d(TAG, name + " has id of " + newEntryId);
-
-        } catch (SQLiteConstraintException e) {
-            Log.d(TAG, e.getMessage());
-            e.printStackTrace();
-        }
+        return insertQuery;
     }
 
 }
