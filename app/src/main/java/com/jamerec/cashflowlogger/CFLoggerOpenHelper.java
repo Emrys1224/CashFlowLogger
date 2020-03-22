@@ -1004,6 +1004,58 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         return sizesList;
     }
 
+    /**
+     * Returns the Tags associated with the given product to be used in
+     * RecyclerView shown in ExpenseLogDetailsFragment.
+     *
+     * @param product the product which the tags being searched
+     * @return
+     */
+    List<String> retrieveTags(ExpenseItem product) {
+        List<String> tagsList = new ArrayList<>();
+
+        if (product == null) return tagsList;
+
+        String productName = product.getItemName();
+        if (productName.isEmpty()) return tagsList;
+
+        // Tags List SQL query:
+        /*
+            SELECT tag.name
+            FROM product_tags
+            JOIN tag ON product_tags.tag_id = tag.id
+            WHERE product_tags.product_id =
+                (SELECT product.id
+                 FROM product
+                 WHERE product.name = ItemName);
+         */
+        String tagsQuery = "" +
+                " SELECT " + TagEntry.TABLE_NAME + "." + TagEntry.COL_NAME +
+                " FROM " + ProductTagsEntry.TABLE_NAME +
+                " JOIN " + TagEntry.TABLE_NAME +
+                " ON " + ProductTagsEntry.TABLE_NAME + "." + ProductTagsEntry.COL_TAG_ID +
+                " = " + TagEntry.TABLE_NAME + "." + TagEntry.COL_ID +
+                " WHERE " + ProductTagsEntry.TABLE_NAME + "." + ProductTagsEntry.COL_PRODUCT_ID +
+                " = (SELECT " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_ID +
+                "    FROM " + ProductEntry.TABLE_NAME +
+                "    WHERE " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_NAME +
+                "    = '" + productName + "')";
+
+        Cursor tagsCursor = null;
+        try {
+            tagsCursor = mReadableDB.rawQuery(tagsQuery, null);
+            while (tagsCursor.moveToNext()) {
+                String tag = tagsCursor.getString(
+                        tagsCursor.getColumnIndex(TagEntry.COL_NAME));
+                tagsList.add(tag);
+            }
+
+        } finally {
+            if (tagsCursor != null) tagsCursor.close();
+        }
+        return tagsList;
+    }
+
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Methods for verifying logging of records ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
     /**

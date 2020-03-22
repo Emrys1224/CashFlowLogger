@@ -152,8 +152,7 @@ public class ExpenseLogDetailsFragment extends Fragment
                         // Get the dimension of the screen after the soft keyboard was shown.
                         Rect rect = new Rect();
                         view.getWindowVisibleDisplayFrame(rect);
-                        mScrollYReference = rect.bottom < mScrollYReference ?
-                                rect.bottom : mScrollYReference;
+                        mScrollYReference = Math.min(rect.bottom, mScrollYReference);
 //                          Log.d(TAG,
 //                                "Rect dimension/position" +
 //                                        "\nRect left: " + rect.left + "\nRect top: " + rect.top +
@@ -185,8 +184,9 @@ public class ExpenseLogDetailsFragment extends Fragment
         mItemATV.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                // Set/update the product name
                 String itemName = mItemATV.getText().toString();
-                mExpenseItem.setItemName(itemName);
+                mExpenseItem.setItemName(itemName, mDB);
 //                Log.d(TAG, mExpenseItem.toString());
 
                 // Update tags display as per product stored in database.

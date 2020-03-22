@@ -75,7 +75,7 @@ class ExpenseItem implements Parcelable {
         }
     };
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Getters~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Getters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     /**
      * Get the name the product.
@@ -166,16 +166,23 @@ class ExpenseItem implements Parcelable {
         return this.mRemarks;
     }
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Setters~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Setters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-    void setItemName(String itemName) {
+    /**
+     * Sets the name of the product, at the same time updates the tags for this product
+     * accordingly.
+     *
+     * @param itemName the name of the product purchased
+     * @param db       the database where to retrieve the tags associated with the product
+     */
+    void setItemName(String itemName, CFLoggerOpenHelper db) {
         if (this.mProduct.equals(itemName)) return;
 
         this.mProduct = itemName;
 
         // Change the tags according to the product in the database if already exist.
         this.mTags.clear();
-        this.mTags.addAll(retrieveTags());
+        this.mTags.addAll(db.retrieveTags(this));
     }
 
     /**
@@ -272,28 +279,6 @@ class ExpenseItem implements Parcelable {
      */
     void setRemarks(String remarks) {
         this.mRemarks = remarks;
-    }
-
-    // ~~~~~~~Method for providing items in dropdown list in AutoCompleteTextViews~~~~~~~~~~~~ //
-
-    /**
-     * This retrieves the tags associated for this product.
-     * This is used to update the mTags for this ExpenseItem whenever the
-     * mProduct is changed.
-     *
-     * @return the tags of this product.
-     */
-    private List<String> retrieveTags() {
-        List<String> tags = new ArrayList<>();
-
-        if (this.mProduct.isEmpty()) return tags;
-
-        // List is to be populated with tags for this product
-        // retrieved from the database.
-        tags.add("food");
-        tags.add("grains");
-
-        return tags;
     }
 
     /**
