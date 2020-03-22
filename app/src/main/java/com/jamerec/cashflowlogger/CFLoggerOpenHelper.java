@@ -821,6 +821,33 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     /*~~~~~~~~~~~~~~~~ Method for providing items in dropdown list in AutoCompleteTextViews ~~~~~~~~~~~~~~~~*/
 
+    List<String> getProductsList() {
+        List<String> productsList = new ArrayList<>();
+
+        // Products List SQL query:
+        /*
+            SELECT product.name FROM product;
+         */
+        String productsQuery = "" +
+                " SELECT " + ProductEntry.COL_NAME +
+                " FROM " + ProductEntry.TABLE_NAME;
+
+        Cursor productsCursor = null;
+        try {
+            productsCursor = mReadableDB.rawQuery(productsQuery, null);
+            while (productsCursor.moveToNext()) {
+                String productName = productsCursor.getString(
+                        productsCursor.getColumnIndex(ProductEntry.COL_NAME));
+                productsList.add(productName);
+            }
+
+        } finally {
+            if (productsCursor != null) productsCursor.close();
+        }
+
+        return productsList;
+    }
+
     /**
      * Returns the list of funds that are active (allocation percentage is not zero)
      *  as selection for drop down item in 'Deduct From' input fields.

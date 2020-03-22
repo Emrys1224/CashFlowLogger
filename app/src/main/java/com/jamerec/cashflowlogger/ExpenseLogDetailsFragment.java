@@ -180,6 +180,15 @@ public class ExpenseLogDetailsFragment extends Fragment
                 }
         );
 
+        // Add autocomplete suggestion item for mBrandATV.
+        ArrayAdapter<String> itemAdapter =
+                new ArrayAdapter<>(
+                        mContext, android.R.layout.simple_list_item_1,
+                        mDB.getProductsList()
+                );
+        mItemATV.setThreshold(1);
+        mItemATV.setAdapter(itemAdapter);
+
         // Set/update product name.
         mItemATV.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override

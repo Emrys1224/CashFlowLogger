@@ -182,7 +182,8 @@ class ExpenseItem implements Parcelable {
 
         // Change the tags according to the product in the database if already exist.
         this.mTags.clear();
-        this.mTags.addAll(db.retrieveTags(this));
+        if (db != null)
+            this.mTags.addAll(db.retrieveTags(this));
     }
 
     /**
