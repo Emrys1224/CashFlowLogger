@@ -117,6 +117,10 @@ class Measures implements Parcelable {
             return;
         }
 
+        // Also serves as flag to be set later to determine if the numeric value is
+        // a fraction or decimal format.
+        this.mDenominator = 0;
+
         // Extract numeric value.
         String sizeVal;
 
@@ -174,8 +178,8 @@ class Measures implements Parcelable {
         // Isolate the remaining String by splitting at the slash(/) char to get the
         // numerator and the denominator and assign to mNumerator and mDenominator accordingly.
         String[] fractionParts = sizeVal.split("/");
-        System.out.println("Numerator: " + fractionParts[0]);
-        System.out.println("Denominator: " + fractionParts[1]);
+//        System.out.println("Numerator: " + fractionParts[0]);
+//        System.out.println("Denominator: " + fractionParts[1]);
 
         int numerator = Integer.parseInt(fractionParts[0]);
         int denominator = Integer.parseInt(fractionParts[1]);

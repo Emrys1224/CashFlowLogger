@@ -432,12 +432,16 @@ public class ExpenseLogDetailsFragment extends Fragment
         if (getArguments() == null) return;
 
         // Update input values for editing.
+        try {
+            mQuantityET.setText(
+                    String.format(Locale.ENGLISH, "%.2f", mExpenseItem.getQuantity().getDouble()));
+        } catch (Measures.ClearedStateException e) {
+            e.printStackTrace();
+        }
         mItemATV.setText(mExpenseItem.getItemName());
         mBrandATV.setText(mExpenseItem.getBrand());
         mPricePCI.setAmount(mExpenseItem.getItemPrice());
         mSizeATV.setText(mExpenseItem.getSize().toString());
-        mQuantityET.setText(
-                String.format(Locale.ENGLISH, "%.2f", mExpenseItem.getQuantity()));
         mTotalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
         mFundSelectionS.setSelection(
                 mFundSelectionAdapter.getPosition(mExpenseItem.getFund()));

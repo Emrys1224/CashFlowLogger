@@ -56,7 +56,7 @@ public class ExpenseLogConfirmationFragment extends Fragment
 
         mContext = getContext();
         mExpenseItem = getArguments().getParcelable("expenseItem");
-        Log.d(TAG, mExpenseItem.toString());
+//        Log.d(TAG, mExpenseItem.toString());
 
         // Initialize widgets
         TextView itemTV = view.findViewById(R.id.detail_item);

@@ -316,9 +316,11 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             String sizeTextId = "NULL";
             try {
                 String sizeText = productSize.getFractionString();
-                long sizeTxtId = queryId(FractionTextEntry.TABLE_NAME, sizeText);
+                ContentValues sizeValues = new ContentValues();
+                sizeValues.put(FractionTextEntry.COL_VAL_AS_TXT, sizeText);
+                long sizeTxtId = queryId(FractionTextEntry.TABLE_NAME, sizeValues);
                 if (sizeTxtId == ID_NOT_FOUND)
-                    sizeTxtId = insertEntry(FractionTextEntry.TABLE_NAME, sizeText);
+                    sizeTxtId = insertEntry(FractionTextEntry.TABLE_NAME, sizeValues);
                 sizeTextId = String.valueOf(sizeTxtId);
 
             } catch (Measures.NotFractionException e) {
@@ -398,9 +400,11 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             String qtyTextId = "NULL";
             try {
                 String sizeText = itemQty.getFractionString();
-                long qtyTxtId = queryId(FractionTextEntry.TABLE_NAME, sizeText);
+                ContentValues sizeValues = new ContentValues();
+                sizeValues.put(FractionTextEntry.COL_VAL_AS_TXT, sizeText);
+                long qtyTxtId = queryId(FractionTextEntry.TABLE_NAME, sizeValues);
                 if (qtyTxtId == ID_NOT_FOUND)
-                    qtyTxtId = insertEntry(FractionTextEntry.TABLE_NAME, sizeText);
+                    qtyTxtId = insertEntry(FractionTextEntry.TABLE_NAME, sizeValues);
                 qtyTextId = String.valueOf(qtyTxtId);
 
             } catch (Measures.NotFractionException e) {
@@ -821,6 +825,11 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
     /*~~~~~~~~~~~~~~~~ Method for providing items in dropdown list in AutoCompleteTextViews ~~~~~~~~~~~~~~~~*/
 
+    /**
+     * Returns a list of products to be used for auto suggest feature of 'Item' input field.
+     *
+     * @return the list of products that was previously purchased
+     */
     List<String> getProductsList() {
         List<String> productsList = new ArrayList<>();
 
@@ -890,7 +899,9 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         String colBrandName = "Brand_Name";
 
         // Brands List SQL query:
-        /*  SELECT brand.name AS Brand_Name
+        /*  SELECT DISTINCT
+                brand.name AS Brand_Name
+
             FROM   product_variant
 
             JOIN brand   ON product_variant.brand_id   = brand.id
@@ -901,7 +912,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                  WHERE  product.name = 'Product Name');
          */
         String brandsQuery = "" +
-                " SELECT " + BrandEntry.TABLE_NAME + "." + BrandEntry.COL_NAME +
+                " SELECT DISTINCT " + BrandEntry.TABLE_NAME + "." + BrandEntry.COL_NAME +
                 " AS " + colBrandName +
                 " FROM " + ProductVariantEntry.TABLE_NAME +
                 "" +
@@ -953,7 +964,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
         // Sizes List SQL Query:
         /*
-          SELECT
+          SELECT DISTINCT
             product_size.size        AS Size_Real,
             fraction_text.val_as_txt AS Size_Txt,
             unit.name                AS Unit
@@ -968,7 +979,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             (SELECT product.id FROM product WHERE product.name = 'Product Name');
          */
         String sizesQuery = "" +
-                " SELECT" +
+                " SELECT DISTINCT" +
                 " " + ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_SIZE + " AS " + colSizeReal + "," +
                 " " + FractionTextEntry.TABLE_NAME + "." + FractionTextEntry.COL_VAL_AS_TXT + " AS " + colSizeTxt + "," +
                 " " + UnitEntry.TABLE_NAME + "." + UnitEntry.COL_NAME + " AS " + colUnit +
@@ -1036,7 +1047,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
      * RecyclerView shown in ExpenseLogDetailsFragment.
      *
      * @param product the product which the tags being searched
-     * @return
+     * @return        the tags associated with the given product
      */
     List<String> retrieveTags(ExpenseItem product) {
         List<String> tagsList = new ArrayList<>();
@@ -1144,7 +1155,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
      */
     private void printExpenseRecord() {
         StringBuilder expenseRecord = new StringBuilder(
-                "Expense Record\nItem Name, Brand Name, Item Size, Quantity, Unit Price, Total Price, Remarks");
+                "Expense Record\nDate_Time, Item, Brand, Size_Real, Size_Text," +
+                        " Unit, Qty_Real, Qty_Text, Unit_Price, Total_Price, Remarks");
 
         // Column names of returned table
         String colDateTime = "Date_Time";
@@ -1156,6 +1168,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         String colQtyReal = "Qty_Real";
         String colQtyTextID = "Qty_Text_ID";
         String colUnitPrice = "Unit_PriceX100";
+        String colTotalPrice = "Total_Price";
         String colRemarks = "Remarks";
 
         // Expense Record SQL query:
@@ -1169,6 +1182,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
              expense.quantity        AS Qty_Real,
              expense.quantity_txt    AS Qty_Text,
              item.priceX100          AS Unit_Price,
+             (item.priceX100 * expense.quantity) AS Total_Price,
              expense.remarks         AS Remarks
 
            FROM expense
@@ -1181,7 +1195,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
            ORDER BY expense.id ASC;
          */
-        String recordQuery = "SELECT " +
+        String recordQuery = "" +
+                " SELECT " +
                 ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_DATETIME + " AS " + colDateTime + "," +
                 ProductEntry.TABLE_NAME + "." + ProductEntry.COL_NAME + " AS " + colItem + "," +
                 BrandEntry.TABLE_NAME + "." + BrandEntry.COL_NAME + " AS " + colBrand + "," +
@@ -1191,6 +1206,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_QUANTITY + " AS " + colQtyReal + "," +
                 ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_QUANTITY_TXT + " AS " + colQtyTextID + "," +
                 ItemEntry.TABLE_NAME + "." + ItemEntry.COL_PRICEx100 + " AS " + colUnitPrice + "," +
+                "(" + ItemEntry.TABLE_NAME + "." + ItemEntry.COL_PRICEx100 + " * " +
+                ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_QUANTITY + ") AS " + colTotalPrice + "," +
                 ExpenseEntry.TABLE_NAME + "." + ExpenseEntry.COL_REMARKS + " AS " + colRemarks +
                 "" +
                 " FROM " + ExpenseEntry.TABLE_NAME +
@@ -1238,6 +1255,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                         recordCursor.getColumnIndex(colQtyTextID));
                 long unitPriceX100 = recordCursor.getLong(
                         recordCursor.getColumnIndex(colUnitPrice));
+                long totalPrice = recordCursor.getLong(
+                        recordCursor.getColumnIndex(colTotalPrice));
                 String remarks = recordCursor.getString(
                         recordCursor.getColumnIndex(colRemarks));
 
@@ -1246,11 +1265,12 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                         .append(itemName).append(", ")
                         .append(brandName).append(", ")
                         .append(sizeReal).append(", ")
-                        .append(sizeTextId).append(", ")
+                        .append(sizeTextId == 0 ? "NULL" : sizeTextId).append(", ")
                         .append(unit).append(", ")
                         .append(qtyReal).append(", ")
-                        .append(qtyTextId).append(", ")
+                        .append(qtyTextId == 0 ? "NULL" : qtyTextId).append(", ")
                         .append(unitPriceX100).append(", ")
+                        .append(totalPrice).append(", ")
                         .append(remarks);
             }
 
