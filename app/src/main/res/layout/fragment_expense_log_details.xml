@@ -173,6 +173,7 @@
             android:autofillHints=""
             android:ems="10"
             android:hint="@string/hint_quantity"
+            android:imeOptions="actionNext"
             android:inputType="numberDecimal"
             android:textSize="@dimen/txtSize_detail"
             app:layout_constraintEnd_toEndOf="parent"
@@ -232,8 +233,8 @@
             app:layout_constraintTop_toBottomOf="@+id/label_deduct_from" />
 
         <TextView
-            style="@style/error_msg"
             android:id="@+id/err_msg_fund"
+            style="@style/error_msg"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/dummy_err_msg"
@@ -242,10 +243,10 @@
             app:layout_constraintTop_toBottomOf="@+id/selection_fund" />
 
         <TextView
-            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
             android:id="@+id/label_tags"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
             android:text="@string/label_tags"
             android:textSize="@dimen/txtsize_label"
             app:layout_constraintStart_toStartOf="@+id/input_tags"
@@ -263,6 +264,7 @@
             android:id="@+id/input_tags"
             android:layout_width="@dimen/width_inputField"
             android:layout_height="wrap_content"
+            android:autofillHints=""
             android:hint="@string/hint_tags"
             android:imeOptions="actionDone"
             android:inputType="text|textCapWords"
@@ -272,19 +274,46 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/disp_tags" />
 
+        <TextView
+            android:id="@+id/label_remarks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
+            android:text="@string/label_remarks"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="@+id/input_remarks"
+            app:layout_constraintTop_toBottomOf="@+id/input_tags" />
+
+        <EditText
+            android:id="@+id/input_remarks"
+            android:layout_width="@dimen/width_inputField"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:gravity="top|start"
+            android:hint="@string/hint_remarks"
+            android:imeOptions="actionDone"
+            android:inputType="textMultiLine|textCapSentences"
+            android:lines="2"
+            android:maxLines="4"
+            android:scrollbars="vertical"
+            android:textSize="@dimen/txtSize_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_remarks" />
+
         <Button
             android:id="@+id/btn_log"
             style="@style/btn_detail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingTop_buttonGrp"
+            android:layout_marginTop="@dimen/spacingVert_button"
             android:layout_marginBottom="@dimen/spacingBottom_buttonGrp"
             android:text="@string/btn_done"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_cancel"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/input_tags" />
+            app:layout_constraintTop_toBottomOf="@+id/input_remarks" />
 
         <Button
             android:id="@+id/btn_cancel"

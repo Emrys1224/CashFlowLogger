@@ -225,7 +225,7 @@ class ExpenseItem implements Parcelable {
      *
      * @param quantity of the product purchased.
      */
-    void setQuantity(String quantity) {
+    void setQuantity(double quantity) {
         try {
             this.mQuantity.setValue(quantity + "orders");
         }
@@ -260,8 +260,11 @@ class ExpenseItem implements Parcelable {
      *
      * @param tag to be added.
      */
-    void addTag(String tag) {
+    boolean addTag(String tag) {
+        if (this.mTags.contains(tag)) return false;
+
         this.mTags.add(tag);
+        return true;
     }
 
     /**

@@ -10,12 +10,15 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
+import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -50,6 +53,7 @@ public class ExpenseLogDetailsFragment extends Fragment
     private TextView mFundErrMsgTV;
     private RecyclerView mTagsRV;
     private EditText mTagsET;
+    private EditText mRemarksET;
     private Button mBtnLog;
     private Button mBtnCancel;
 
@@ -112,6 +116,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         mFundErrMsgTV = view.findViewById(R.id.err_msg_fund);
         mTagsRV = view.findViewById(R.id.disp_tags);
         mTagsET = view.findViewById(R.id.input_tags);
+        mRemarksET = view.findViewById(R.id.input_remarks);
         mBtnLog = view.findViewById(R.id.btn_log);
         mBtnCancel = view.findViewById(R.id.btn_cancel);
 
@@ -222,11 +227,13 @@ public class ExpenseLogDetailsFragment extends Fragment
                 if (itemName.isEmpty()) {
                     // Show error message and retain focus.
                     mItemErrMsgTV.setText(R.string.err_msg_item_name_empty);
+                    mItemErrMsgTV.setVisibility(View.VISIBLE);
                     return true;
                 }
 
                 // Clear error message.
                 mItemErrMsgTV.setText("");
+                mItemErrMsgTV.setVisibility(View.GONE);
 
                 return false;
             }
@@ -243,11 +250,13 @@ public class ExpenseLogDetailsFragment extends Fragment
                 if (brandName.isEmpty()) {
                     // Show error message and retain focus.
                     mBrandErrMsgTV.setText(R.string.err_msg_brand_name_empty);
+                    mBrandErrMsgTV.setVisibility(View.VISIBLE);
                     return true;
                 }
 
                 // Clear error message.
                 mBrandErrMsgTV.setText("");
+                mBrandErrMsgTV.setVisibility(View.GONE);
 
                 return false;
             }
@@ -268,11 +277,13 @@ public class ExpenseLogDetailsFragment extends Fragment
                 if (itemPrice.isZero()) {
                     // Show error message and retain focus.
                     mPriceErrMsgTV.setText(R.string.err_msg_item_price_zero);
+                    mPriceErrMsgTV.setVisibility(View.VISIBLE);
                     return true;
                 }
 
                 // Clear error message.
                 mPriceErrMsgTV.setText("");
+                mPriceErrMsgTV.setVisibility(View.GONE);
 
                 return false;
             }
@@ -310,11 +321,13 @@ public class ExpenseLogDetailsFragment extends Fragment
                 if (errMsg != 0) {
                     // Show error message and retain focus.
                     mSizeErrMsgTV.setText(errMsg);
+                    mSizeErrMsgTV.setVisibility(View.VISIBLE);
                     return true;
                 }
 
                 // Clear error message.
                 mSizeErrMsgTV.setText("");
+                mSizeErrMsgTV.setVisibility(View.GONE);
 
                 return false;
             }
@@ -324,7 +337,9 @@ public class ExpenseLogDetailsFragment extends Fragment
         mQuantityET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                mExpenseItem.setQuantity(mQuantityET.getText().toString());
+                double quantity = mQuantityET.getText().toString().isEmpty() ?
+                        0 : Double.parseDouble(mQuantityET.getText().toString());
+                mExpenseItem.setQuantity(quantity);
 
 //                Log.d(TAG, mExpenseItem.toString());
 
@@ -333,11 +348,13 @@ public class ExpenseLogDetailsFragment extends Fragment
                 if (mExpenseItem.getQuantity().isCleared()) {
                     // Show error message and retain focus.
                     mQuantityErMsgTV.setText(R.string.err_msg_quantity_zero);
+                    mQuantityErMsgTV.setVisibility(View.VISIBLE);
                     return true;
                 }
 
                 // Clear error message.
                 mQuantityErMsgTV.setText("");
+                mQuantityErMsgTV.setVisibility(View.GONE);
 
                 // Show fund selection dropdown.
                 mFundSelectionS.performClick();
@@ -384,11 +401,13 @@ public class ExpenseLogDetailsFragment extends Fragment
                     // Show error message.
                     if (mExpenseItem.getFund().isEmpty()) {
                         mFundErrMsgTV.setText(R.string.err_msg_no_fund_selected);
+                        mFundErrMsgTV.setVisibility(View.VISIBLE);
                         return;
                     }
 
                     // Clear error message.
                     mFundErrMsgTV.setText("");
+                    mFundErrMsgTV.setVisibility(View.GONE);
                 }
             }
         });
@@ -404,21 +423,36 @@ public class ExpenseLogDetailsFragment extends Fragment
                     return false;    // Adding tags done.
                 }
 
-                // Add a tag and update UI display.
-                mExpenseItem.addTag(tag);
-                mTagItemAdapter.notifyDataSetChanged();
+                // Add a tag, if does not exist, and update UI display.
+                if (mExpenseItem.addTag(tag)) {
+                    mTagItemAdapter.notifyDataSetChanged();
 
-                mTagsET.setText("");
-
-//                Log.d(TAG, mExpenseItem.toString());
+                    mTagsET.setText("");
+//                    Log.d(TAG, mExpenseItem.toString());
+                }
 
                 return true;    // Keep focus for adding additional tags.
             }
         });
 
+        // Change soft keyboard "Enter" button into "Done" button
+        mRemarksET.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        mRemarksET.setRawInputType(InputType.TYPE_CLASS_TEXT);
+        // Add/update the remarks for this purchase
+        mRemarksET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                String remarks = mRemarksET.getText().toString();
+                mExpenseItem.setRemarks(remarks);
+
+                mBtnLog.requestFocus();
+
+                return false;
+            }
+        });
+
         // Submit ExpenseItem
         mBtnLog.setOnClickListener(this);
-
         // Return to home page.
         mBtnCancel.setOnClickListener(this);
 
@@ -432,20 +466,21 @@ public class ExpenseLogDetailsFragment extends Fragment
         if (getArguments() == null) return;
 
         // Update input values for editing.
+        mItemATV.setText(mExpenseItem.getItemName());
+        mBrandATV.setText(mExpenseItem.getBrand());
+        mPricePCI.setAmount(mExpenseItem.getItemPrice());
+        mSizeATV.setText(mExpenseItem.getSize().toString());
+        mTotalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
+        mFundSelectionS.setSelection(mFundSelectionAdapter.getPosition(mExpenseItem.getFund()));
+        mTagItemAdapter.notifyDataSetChanged();
+        mRemarksET.setText(mExpenseItem.getRemarks());
         try {
             mQuantityET.setText(
                     String.format(Locale.ENGLISH, "%.2f", mExpenseItem.getQuantity().getDouble()));
         } catch (Measures.ClearedStateException e) {
             e.printStackTrace();
         }
-        mItemATV.setText(mExpenseItem.getItemName());
-        mBrandATV.setText(mExpenseItem.getBrand());
-        mPricePCI.setAmount(mExpenseItem.getItemPrice());
-        mSizeATV.setText(mExpenseItem.getSize().toString());
-        mTotalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
-        mFundSelectionS.setSelection(
-                mFundSelectionAdapter.getPosition(mExpenseItem.getFund()));
-        mTagItemAdapter.notifyDataSetChanged();
+
     }
 
     @Override

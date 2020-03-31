@@ -43,6 +43,7 @@
     <style name="error_msg">
         <item name="android:textColor">@color/colorAccent</item>
         <item name="android:textSize">@dimen/txtSize_err_msg</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <style name="spinner">
