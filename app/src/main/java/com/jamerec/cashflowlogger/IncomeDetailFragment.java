@@ -16,6 +16,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,7 +41,6 @@ public class IncomeDetailFragment extends Fragment
     private Button mBtnCancel;
 
     private OnSubmitIncomeDetailListener submitListener;
-    private String[] mIncomeSources;
 
     public IncomeDetailFragment() {
         // Required empty public constructor
@@ -59,41 +61,19 @@ public class IncomeDetailFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_income_detail, container, false);
+
         mContext = getContext();
 
         // Income source dummy data fetched from DB
         // To be used for selection for income source data input.
-        String[] incomeSources = {
-                "Youtube",
-                "TuloyPoKayo.com",
-                "Salary"
-        };
-        mIncomeSources = incomeSources;
-
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_income_detail, container, false);
+        CFLoggerOpenHelper db = new CFLoggerOpenHelper(mContext);
+        List<String> incomeSources = db.getIncomeSourceList();
 
         // Autocomplete income source suggestions
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(mContext, android.R.layout.simple_list_item_1, mIncomeSources);
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(mContext, android.R.layout.simple_list_item_1, incomeSources);
         mIncomeSourceSelection = view.findViewById(R.id.input_income_source);
-
-        // Setup listener to show all options
-        mIncomeSourceSelection.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        mIncomeSourceSelection.showDropDown();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        v.performClick();
-                        break;
-                    default:
-                        break;
-                }
-                return false;
-            }
-        });
         mIncomeSourceSelection.setThreshold(1);
         mIncomeSourceSelection.setAdapter(catAdapter);
 

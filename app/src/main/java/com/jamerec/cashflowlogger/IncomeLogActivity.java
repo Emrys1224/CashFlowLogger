@@ -15,7 +15,7 @@ import java.util.Map;
 public class IncomeLogActivity extends AppCompatActivity
         implements
         IncomeDetailFragment.OnSubmitIncomeDetailListener,
-        FundAllocationFragment.OnSubmitFundAllocationListener,
+        IncomeAllocationFragment.OnSubmitFundAllocationListener,
         IncomeDetailsConfirmationFragment.OnConfirmIncomeLogListener {
 
     private final String TAG = getClass().getSimpleName();
@@ -66,7 +66,7 @@ public class IncomeLogActivity extends AppCompatActivity
             case R.id.btn_allocate_man:
                 Bundle incomeDetail = new Bundle();
                 incomeDetail.putParcelable("incomeAmount", mIncomeAmount);
-                FundAllocationFragment fundAllocationFragment = new FundAllocationFragment();
+                IncomeAllocationFragment fundAllocationFragment = new IncomeAllocationFragment();
                 fundAllocationFragment.setArguments(incomeDetail);
                 loadFragment(fundAllocationFragment);
                 break;

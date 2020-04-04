@@ -826,12 +826,52 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
     /*~~~~~~~~~~~~~~~~ Method for providing items in dropdown list in AutoCompleteTextViews ~~~~~~~~~~~~~~~~*/
 
     /**
+     * Returns a list of previous sources of income to be used in auto suggest feature
+     * in 'From' input field in IncomeDetailFragment.
+     *
+     * @return a list of sources of income that has been previously recorded
+     */
+    List<String> getIncomeSourceList() {
+        List<String> incomeSourceList = new ArrayList<>();
+
+        // Check for database initialization
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
+
+        // Products List SQL
+        // query:
+        /*
+            SELECT source.name FROM source;
+         */
+        String incomeSourceQuery = "" +
+                " SELECT " + SourceEntry.COL_NAME +
+                " FROM " + SourceEntry.TABLE_NAME;
+
+        Cursor incomeSourceCursor = null;
+        try {
+            incomeSourceCursor = mReadableDB.rawQuery(incomeSourceQuery, null);
+            while (incomeSourceCursor.moveToNext()) {
+                String productName = incomeSourceCursor.getString(
+                        incomeSourceCursor.getColumnIndex(ProductEntry.COL_NAME));
+                incomeSourceList.add(productName);
+            }
+
+        } finally {
+            if (incomeSourceCursor != null) incomeSourceCursor.close();
+        }
+
+        return incomeSourceList;
+    }
+
+    /**
      * Returns a list of products to be used for auto suggest feature of 'Item' input field.
      *
      * @return the list of products that was previously purchased
      */
     List<String> getProductsList() {
         List<String> productsList = new ArrayList<>();
+
+        // Check for database initialization
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
 
         // Products List SQL query:
         /*
@@ -895,6 +935,9 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         String productName = product.getItemName();
         if (productName.isEmpty()) return brandsList;
 
+        // Check for database initialization
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
+
         // Result column name
         String colBrandName = "Brand_Name";
 
@@ -956,6 +999,9 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
         String productName = product.getItemName();
         if (productName.isEmpty()) return sizesList;
+
+        // Check for database initialization
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
 
         // Result column name
         String colSizeReal = "Size_Real";
@@ -1056,6 +1102,9 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
 
         String productName = product.getItemName();
         if (productName.isEmpty()) return tagsList;
+
+        // Check for database initialization
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
 
         // Tags List SQL query:
         /*
