@@ -223,7 +223,7 @@
             app:layout_constraintTop_toTopOf="@+id/label_fund" />
 
         <TextView
-            android:id="@+id/textView15"
+            android:id="@+id/label_tags"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacingVert_fieldItem"
@@ -239,24 +239,47 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
             app:layout_constraintEnd_toEndOf="@+id/detail_fund"
-            app:layout_constraintStart_toStartOf="@+id/textView15"
-            app:layout_constraintTop_toBottomOf="@+id/textView15" />
+            app:layout_constraintStart_toStartOf="@+id/label_tags"
+            app:layout_constraintTop_toBottomOf="@+id/label_tags" />
+
+        <TextView
+            android:id="@+id/label_remarks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:text="@string/label_remarks"
+            android:textColor="@color/txtColor_label"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintStart_toStartOf="@+id/label_tags"
+            app:layout_constraintTop_toBottomOf="@+id/detail_tags" />
+
+        <TextView
+            android:id="@+id/detail_remarks"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:text="@string/dummy_remarks"
+            android:textColor="@color/txtColor_detail"
+            android:textSize="@dimen/txtsize_label"
+            app:layout_constraintEnd_toEndOf="@+id/detail_tags"
+            app:layout_constraintStart_toStartOf="@+id/detail_tags"
+            app:layout_constraintTop_toBottomOf="@+id/label_remarks" />
 
         <Button
             android:id="@+id/btn_log"
             style="@style/btn_detail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingTop_buttonGrp"
+            android:layout_marginTop="@dimen/spacingVert_button"
             android:layout_marginBottom="@dimen/spacingBottom_buttonGrp"
             android:text="@string/btn_txt_log_expense"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_edit"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/detail_tags" />
+            app:layout_constraintTop_toBottomOf="@+id/detail_remarks" />
 
         <Button
             android:id="@+id/btn_edit"

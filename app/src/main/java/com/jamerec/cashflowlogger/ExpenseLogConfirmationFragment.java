@@ -66,6 +66,7 @@ public class ExpenseLogConfirmationFragment extends Fragment
         TextView quantityTV = view.findViewById(R.id.detail_quantity);
         TextView totalPriceTV = view.findViewById(R.id.detail_total_price);
         TextView fundTV = view.findViewById(R.id.detail_fund);
+        TextView remarksTV = view.findViewById(R.id.detail_remarks);
         Button btnLogExpense = view.findViewById(R.id.btn_log);
         Button btnEditExpenseDetails = view.findViewById(R.id.btn_edit);
 
@@ -77,6 +78,7 @@ public class ExpenseLogConfirmationFragment extends Fragment
         quantityTV.setText(mExpenseItem.getQuantity().toString());
         totalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
         fundTV.setText(mExpenseItem.getFund());
+        remarksTV.setText(mExpenseItem.getRemarks());
 
         // Set up tags display.
         RecyclerView tagsRV = view.findViewById(R.id.detail_tags);
