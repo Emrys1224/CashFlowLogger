@@ -66,7 +66,7 @@ public class IncomeAllocationFragment extends Fragment
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_fund_allocation, container, false);
+        View view = inflater.inflate(R.layout.fragment_income_allocation, container, false);
 
         mContext = getContext();
         mIncomeAmount = getArguments() != null ?
