@@ -4,6 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -393,6 +395,7 @@ class Measures implements Parcelable {
      * @param number2 to calculate the greatest common factor with.
      * @return the Greatest Common Factor.
      */
+    @Contract(pure = true)
     private int findGCF(int number1, int number2) {
 //		System.out.println("number 1: " + number1 + "\t|| number 2: " + number2);
         // base case

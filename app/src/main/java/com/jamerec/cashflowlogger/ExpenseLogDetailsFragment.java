@@ -28,7 +28,10 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.android.flexbox.*;
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexWrap;
+import com.google.android.flexbox.FlexboxLayoutManager;
+import com.google.android.flexbox.JustifyContent;
 
 import java.util.List;
 import java.util.Locale;
@@ -37,32 +40,49 @@ public class ExpenseLogDetailsFragment extends Fragment
         implements View.OnClickListener {
     private final String TAG = getClass().getSimpleName();
 
+    // Input validation status
+    private final boolean FAILED = false;
+    private final boolean PASSED = true;
+
     private NestedScrollView mWindowNSV;
+
+    // Input Field Widgets
     private AutoCompleteTextView mItemATV;
-    private TextView mItemErrMsgTV;
     private AutoCompleteTextView mBrandATV;
-    private TextView mBrandErrMsgTV;
     private PhCurrencyInput mPricePCI;
-    private TextView mPriceErrMsgTV;
     private AutoCompleteTextView mSizeATV;
-    private TextView mSizeErrMsgTV;
     private EditText mQuantityET;
-    private TextView mQuantityErMsgTV;
     private TextView mTotalPriceTV;
     private Spinner mFundSelectionS;
-    private TextView mFundErrMsgTV;
     private RecyclerView mTagsRV;
     private EditText mTagsET;
     private EditText mRemarksET;
+
+    // Error Messages Widgets
+    private TextView mItemErrMsgTV;
+    private TextView mBrandErrMsgTV;
+    private TextView mPriceErrMsgTV;
+    private TextView mSizeErrMsgTV;
+    private TextView mQuantityErMsgTV;
+    private TextView mFundErrMsgTV;
+
+    // Button Widgets
     private Button mBtnLog;
     private Button mBtnCancel;
 
     private Context mContext;
     private CFLoggerOpenHelper mDB;
     private OnSubmitExpenseDetailsListener mListener;
+
+    // Purchase item data
     private ExpenseItem mExpenseItem;
+
+    // Adapters
     private ArrayAdapter<String> mFundSelectionAdapter;
     private TagItemAdapter mTagItemAdapter;
+
+    // For tracking screen scroll position for proper positioning of input fields
+    // along with the soft keyboard
     private int mScrollYReference;
 
     public ExpenseLogDetailsFragment() {
@@ -198,44 +218,43 @@ public class ExpenseLogDetailsFragment extends Fragment
         mItemATV.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                // Set/update the product name
                 String itemName = mItemATV.getText().toString();
+
+                // Nothing is changed so skip the validation.
+                if (!itemName.isEmpty() && itemName.equals(mExpenseItem.getItemName()))
+                    return false;
+
+                // Set/update the product name
                 mExpenseItem.setItemName(itemName, mDB);
 //                Log.d(TAG, mExpenseItem.toString());
 
-                // Update tags display as per product stored in database.
-                mTagItemAdapter.notifyDataSetChanged();
+                // Retain the view focus and show the error message
+                if (validateItemName() == FAILED) return true;
 
-                // Add autocomplete suggestion item for mBrandATV.
-                ArrayAdapter<String> brandAdapter =
-                        new ArrayAdapter<>(
-                                mContext, android.R.layout.simple_list_item_1,
-                                mDB.getBrandList(mExpenseItem)
-                        );
-                mBrandATV.setThreshold(1);
-                mBrandATV.setAdapter(brandAdapter);
-
-                // Add autocomplete suggestion item for mSizeATV.
-                ArrayAdapter<String> sizeAdapter =
-                        new ArrayAdapter<>(
-                                mContext, android.R.layout.simple_list_item_1,
-                                mDB.getSizesList(mExpenseItem)
-                        );
-                mSizeATV.setThreshold(1);
-                mSizeATV.setAdapter(sizeAdapter);
-
-                if (itemName.isEmpty()) {
-                    // Show error message and retain focus.
-                    mItemErrMsgTV.setText(R.string.err_msg_item_name_empty);
-                    mItemErrMsgTV.setVisibility(View.VISIBLE);
-                    return true;
-                }
-
-                // Clear error message.
-                mItemErrMsgTV.setText("");
-                mItemErrMsgTV.setVisibility(View.GONE);
+                // Set/update the items for auto suggest and item tags in other input fields
+                setAutoSuggestions();
 
                 return false;
+            }
+        });
+        mItemATV.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    String itemName = mItemATV.getText().toString();
+
+                    // Nothing is changed so skip the validation.
+                    if (!itemName.isEmpty() && itemName.equals(mExpenseItem.getItemName()))
+                        return;
+
+                    // Set/update the product name
+                    mExpenseItem.setItemName(itemName, mDB);
+//                Log.d(TAG, mExpenseItem.toString());
+
+                    // Retain the view focus and show the error message
+                    validateItemName();
+                    setAutoSuggestions();
+                }
             }
         });
 
@@ -243,22 +262,24 @@ public class ExpenseLogDetailsFragment extends Fragment
         mBrandATV.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                String brandName = mBrandATV.getText().toString();
-                mExpenseItem.setBrand(brandName);
+                mExpenseItem.setBrand(mBrandATV.getText().toString());
 //                Log.d(TAG, mExpenseItem.toString());
 
-                if (brandName.isEmpty()) {
-                    // Show error message and retain focus.
-                    mBrandErrMsgTV.setText(R.string.err_msg_brand_name_empty);
-                    mBrandErrMsgTV.setVisibility(View.VISIBLE);
-                    return true;
+                // Retain the view focus and show the error message if
+                // there is an error
+                return validateBrandName() == FAILED;
+            }
+        });
+        mBrandATV.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    mExpenseItem.setBrand(mBrandATV.getText().toString());
+//                    Log.d(TAG, mExpenseItem.toString());
+
+                    // Check and display if an error occurs
+                    validateBrandName();
                 }
-
-                // Clear error message.
-                mBrandErrMsgTV.setText("");
-                mBrandErrMsgTV.setVisibility(View.GONE);
-
-                return false;
             }
         });
 
@@ -266,26 +287,24 @@ public class ExpenseLogDetailsFragment extends Fragment
         mPricePCI.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                PhCurrency itemPrice = mPricePCI.getAmount();
-                mExpenseItem.setPrice(itemPrice);
+                mExpenseItem.setPrice(mPricePCI.getAmount());
 //                Log.d(TAG, mExpenseItem.toString());
 
-                // Update total price display.
-                mTotalPriceTV.setText(
-                        mExpenseItem.getTotalPrice().toString());
+                // Retain the view focus and show the error message if
+                // there is an error
+                return validatePrice() == FAILED;
+            }
+        });
+        mPricePCI.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    mExpenseItem.setPrice(mPricePCI.getAmount());
+//                    Log.d(TAG, mExpenseItem.toString());
 
-                if (itemPrice.isZero()) {
-                    // Show error message and retain focus.
-                    mPriceErrMsgTV.setText(R.string.err_msg_item_price_zero);
-                    mPriceErrMsgTV.setVisibility(View.VISIBLE);
-                    return true;
+                    // Check and display if an error occurs
+                    validatePrice();
                 }
-
-                // Clear error message.
-                mPriceErrMsgTV.setText("");
-                mPriceErrMsgTV.setVisibility(View.GONE);
-
-                return false;
             }
         });
 
@@ -293,6 +312,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         mSizeATV.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
                 // Update packaging size value.
                 int errMsg = 0;
                 try {
@@ -394,9 +414,8 @@ public class ExpenseLogDetailsFragment extends Fragment
 
                 // Hide the soft keyboard.
                 if (hasFocus) {
-                    InputMethodManager imm = (InputMethodManager)
-                            mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(mFundSelectionS.getWindowToken(), 0);
+                    hideSoftKeyboard();
+
                 } else {
                     // Show error message.
                     if (mExpenseItem.getFund().isEmpty()) {
@@ -419,19 +438,35 @@ public class ExpenseLogDetailsFragment extends Fragment
                 String tag = mTagsET.getText().toString();
 
                 if (tag.isEmpty()) {
-                    mBtnLog.requestFocus();
+                    mRemarksET.requestFocus();
                     return false;    // Adding tags done.
                 }
 
                 // Add a tag, if does not exist, and update UI display.
                 if (mExpenseItem.addTag(tag)) {
                     mTagItemAdapter.notifyDataSetChanged();
-
-                    mTagsET.setText("");
 //                    Log.d(TAG, mExpenseItem.toString());
                 }
 
+                mTagsET.setText("");
+
                 return true;    // Keep focus for adding additional tags.
+            }
+        });
+        mTagsET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                String tag = mTagsET.getText().toString();
+
+                if (tag.isEmpty()) return;    // Do nothing
+
+                // Add a tag, if does not exist, and update UI display.
+                if (mExpenseItem.addTag(tag)) {
+                    mTagItemAdapter.notifyDataSetChanged();
+//                    Log.d(TAG, mExpenseItem.toString());
+                }
+
+                mTagsET.setText("");
             }
         });
 
@@ -439,15 +474,14 @@ public class ExpenseLogDetailsFragment extends Fragment
         mRemarksET.setImeOptions(EditorInfo.IME_ACTION_DONE);
         mRemarksET.setRawInputType(InputType.TYPE_CLASS_TEXT);
         // Add/update the remarks for this purchase
-        mRemarksET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mRemarksET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                String remarks = mRemarksET.getText().toString();
-                mExpenseItem.setRemarks(remarks);
-
-                mBtnLog.requestFocus();
-
-                return false;
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    mExpenseItem.setRemarks(mRemarksET.getText().toString());
+                    hideSoftKeyboard();
+                    mBtnLog.requestFocus();
+                }
             }
         });
 
@@ -522,7 +556,112 @@ public class ExpenseLogDetailsFragment extends Fragment
     }
 
     /**
-     * This passes the expense details
+     * Hides the soft keyboard.
+     */
+    private void hideSoftKeyboard() {
+        InputMethodManager imm = (InputMethodManager)
+                mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mFundSelectionS.getWindowToken(), 0);
+    }
+
+    /**
+     * Checks if there is an item name given and update the error display
+     * accordingly.
+     *
+     * @return FAILED if the item name is empty;
+     * PASSED if there is an item name given
+     */
+    private boolean validateItemName() {
+        if (mExpenseItem.getItemName().isEmpty()) {
+            // Show error message and retain focus.
+            mItemErrMsgTV.setText(R.string.err_msg_item_name_empty);
+            mItemErrMsgTV.setVisibility(View.VISIBLE);
+            return FAILED;
+        }
+
+        // Clear error message.
+        mItemErrMsgTV.setText("");
+        mItemErrMsgTV.setVisibility(View.GONE);
+
+        return PASSED;
+    }
+
+    /**
+     * Checks if there is an brand name given and update the error display
+     * accordingly.
+     *
+     * @return FAILED if the brand name is empty;
+     * PASSED if there is an brand name given
+     */
+    private boolean validateBrandName() {
+        if (mExpenseItem.getBrand().isEmpty()) {
+            // Show error message and retain focus.
+            mBrandErrMsgTV.setText(R.string.err_msg_brand_name_empty);
+            mBrandErrMsgTV.setVisibility(View.VISIBLE);
+            return FAILED;
+        }
+
+        // Clear error message.
+        mBrandErrMsgTV.setText("");
+        mBrandErrMsgTV.setVisibility(View.GONE);
+
+        return PASSED;
+    }
+
+    /**
+     * Checks that the item price is not zero
+     *
+     * @return FAILED if the item price is zero;
+     *         PASSED if the item price is not zero
+     */
+    private boolean validatePrice() {
+        // Update total price display.
+        mTotalPriceTV.setText(
+                mExpenseItem.getTotalPrice().toString());
+
+        if (mExpenseItem.getItemPrice().isZero()) {
+            // Show error message and retain focus.
+            mPriceErrMsgTV.setText(R.string.err_msg_item_price_zero);
+            mPriceErrMsgTV.setVisibility(View.VISIBLE);
+            return FAILED;
+        }
+
+        // Clear error message.
+        mPriceErrMsgTV.setText("");
+        mPriceErrMsgTV.setVisibility(View.GONE);
+
+        return PASSED;
+    }
+
+    /**
+     * Sets/updates the auto suggest items input fields and the tags displayed
+     * that are associated with the given expense item.
+     */
+    private void setAutoSuggestions() {
+        // Update tags display as per product stored in database.
+        mTagItemAdapter.notifyDataSetChanged();
+
+        // Add autocomplete suggestion item for mBrandATV.
+        ArrayAdapter<String> brandAdapter =
+                new ArrayAdapter<>(
+                        mContext, android.R.layout.simple_list_item_1,
+                        mDB.getBrandList(mExpenseItem)
+                );
+        mBrandATV.setThreshold(1);
+        mBrandATV.setAdapter(brandAdapter);
+
+        // Add autocomplete suggestion item for mSizeATV.
+        ArrayAdapter<String> sizeAdapter =
+                new ArrayAdapter<>(
+                        mContext, android.R.layout.simple_list_item_1,
+                        mDB.getSizesList(mExpenseItem)
+                );
+        mSizeATV.setThreshold(1);
+        mSizeATV.setAdapter(sizeAdapter);
+    }
+
+    /**
+     * This passes the expense details for logging into database
      */
     public interface OnSubmitExpenseDetailsListener {
         void submitExpenseDetails(ExpenseItem expenseItem);

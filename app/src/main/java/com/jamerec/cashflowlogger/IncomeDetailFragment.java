@@ -26,16 +26,20 @@ public class IncomeDetailFragment extends Fragment
         implements View.OnClickListener {
 
     private final String TAG = getClass().getSimpleName();
+
+    // Input validation status
     private final boolean FAILED = false;
     private final boolean PASSED = true;
 
-    // Text Fields
+    // Input Field Widgets
     private AutoCompleteTextView mIncomeSourceATV;
     private PhCurrencyInput mIncomeAmountPCI;
+
+    // Error Messages Widgets
     private TextView mFromErrMsgTV;
     private TextView mAmountErrMsgTV;
 
-    // Buttons
+    // Buttons Widgets
     private Button mBtnAllocateAuto;
     private Button mBtnAllocateManual;
     private Button mBtnCancel;
@@ -184,20 +188,6 @@ public class IncomeDetailFragment extends Fragment
     }
 
     /**
-     * This interface submits the income details for further processing...
-     */
-    public interface OnSubmitIncomeDetailListener {
-        /**
-         * Submits the income details
-         *
-         * @param incomeSource source of income
-         * @param incomeAmount income amount
-         * @param btnID        id of the button that calls this method
-         */
-        void submitIncomeDetails(String incomeSource, PhCurrency incomeAmount, int btnID);
-    }
-
-    /**
      * Validate that there is a value set for income source and update the error status
      *
      * @return FAILED if there is no value set;
@@ -235,6 +225,20 @@ public class IncomeDetailFragment extends Fragment
         mAmountErrMsgTV.setVisibility(View.GONE);
 
         return PASSED;
+    }
+
+    /**
+     * This interface submits the income details for further processing...
+     */
+    public interface OnSubmitIncomeDetailListener {
+        /**
+         * Submits the income details
+         *
+         * @param incomeSource source of income
+         * @param incomeAmount income amount
+         * @param btnID        id of the button that calls this method
+         */
+        void submitIncomeDetails(String incomeSource, PhCurrency incomeAmount, int btnID);
     }
 
 }
