@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -33,6 +32,7 @@ import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -153,7 +153,9 @@ public class ExpenseLogDetailsFragment extends Fragment
                 mExpenseItem.getTotalPrice().toString());
 
         // List of funds retrieved from database
-        List<String> funds = mDB.getFundsList();
+        List<String> funds = new ArrayList<>();
+        funds.add("");
+        funds.addAll(mDB.getFundsList());
 
         // Set up fund selection dropdown
         mFundSelectionAdapter = new ArrayAdapter<>(mContext, R.layout.spinner_item, funds);
@@ -221,7 +223,8 @@ public class ExpenseLogDetailsFragment extends Fragment
                 String itemName = mItemATV.getText().toString();
 
                 // Nothing is changed so skip the validation.
-                if (!itemName.isEmpty() && itemName.equals(mExpenseItem.getItemName()))
+                if (!itemName.isEmpty()
+                        && itemName.equals(mExpenseItem.getItemName()))
                     return false;
 
                 // Set/update the product name
@@ -244,7 +247,8 @@ public class ExpenseLogDetailsFragment extends Fragment
                     String itemName = mItemATV.getText().toString();
 
                     // Nothing is changed so skip the validation.
-                    if (!itemName.isEmpty() && itemName.equals(mExpenseItem.getItemName()))
+                    if (!itemName.isEmpty()
+                            && itemName.equals(mExpenseItem.getItemName()))
                         return;
 
                     // Set/update the product name
@@ -262,7 +266,14 @@ public class ExpenseLogDetailsFragment extends Fragment
         mBrandATV.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                mExpenseItem.setBrand(mBrandATV.getText().toString());
+                String brand = mBrandATV.getText().toString();
+
+                // Nothing is changed so skip the validation.
+                if (!brand.isEmpty()
+                        && brand.equals(mExpenseItem.getBrand()))
+                    return false;
+
+                mExpenseItem.setBrand(brand);
 //                Log.d(TAG, mExpenseItem.toString());
 
                 // Retain the view focus and show the error message if
@@ -274,6 +285,13 @@ public class ExpenseLogDetailsFragment extends Fragment
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
+                    String brand = mBrandATV.getText().toString();
+
+                    // Nothing is changed so skip the validation.
+                    if (!brand.isEmpty()
+                            && brand.equals(mExpenseItem.getBrand()))
+                        return;
+
                     mExpenseItem.setBrand(mBrandATV.getText().toString());
 //                    Log.d(TAG, mExpenseItem.toString());
 
@@ -287,7 +305,14 @@ public class ExpenseLogDetailsFragment extends Fragment
         mPricePCI.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                mExpenseItem.setPrice(mPricePCI.getAmount());
+                PhCurrency itemPrice = mPricePCI.getAmount();
+
+                // Nothing is changed so skip the validation.
+                if (!itemPrice.isZero()
+                        && itemPrice.equals(mExpenseItem.getItemPrice()))
+                    return false;
+
+                mExpenseItem.setPrice(itemPrice);
 //                Log.d(TAG, mExpenseItem.toString());
 
                 // Retain the view focus and show the error message if
@@ -299,7 +324,14 @@ public class ExpenseLogDetailsFragment extends Fragment
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    mExpenseItem.setPrice(mPricePCI.getAmount());
+                    PhCurrency itemPrice = mPricePCI.getAmount();
+
+                    // Nothing is changed so skip the validation.
+                    if (!itemPrice.isZero()
+                            && itemPrice.equals(mExpenseItem.getItemPrice()))
+                        return;
+
+                    mExpenseItem.setPrice(itemPrice);
 //                    Log.d(TAG, mExpenseItem.toString());
 
                     // Check and display if an error occurs
@@ -312,44 +344,36 @@ public class ExpenseLogDetailsFragment extends Fragment
         mSizeATV.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                String size = mSizeATV.getText().toString();
 
-                // Update packaging size value.
-                int errMsg = 0;
-                try {
-                    mExpenseItem.setSize(mSizeATV.getText().toString());
+                // Nothing is changed so skip the validation.
+                if (!size.isEmpty()
+                        && size.equals(mExpenseItem.getSize().toString()))
+                    return false;
 
-                } catch (Measures.InvalidValueException ive) {
-                    errMsg = R.string.err_msg_no_set_value;
+                int updateResult = mExpenseItem.setSize(size);
 
-                } catch (Measures.NoValidUnitException iue) {
-                    errMsg = R.string.err_msg_no_set_unit;
+                // Retain the view focus and show the error message if
+                // there is an error
+                return validateSize(updateResult) == FAILED;
+            }
+        });
+        mSizeATV.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    String size = mSizeATV.getText().toString();
 
-                } catch (Measures.ZeroDenominatorException zde) {
-                    errMsg = R.string.err_msg_zero_denominator;
+                    // Nothing is changed so skip the validation.
+                    if (!size.isEmpty()
+                            && size.equals(mExpenseItem.getSize().toString()))
+                        return;
+
+                    int updateResult = mExpenseItem.setSize(size);
+
+                    // Check and display if an error occurs
+                    validateSize(updateResult);
                 }
-
-                try {
-                    if (mExpenseItem.getSize().getDouble() == 0)
-                        errMsg = R.string.err_msg_size_zero;
-
-                } catch (IllegalAccessException iae) {
-                    errMsg = R.string.err_msg_set_size_empty;
-                }
-
-//                Log.d(TAG, mExpenseItem.toString());
-
-                if (errMsg != 0) {
-                    // Show error message and retain focus.
-                    mSizeErrMsgTV.setText(errMsg);
-                    mSizeErrMsgTV.setVisibility(View.VISIBLE);
-                    return true;
-                }
-
-                // Clear error message.
-                mSizeErrMsgTV.setText("");
-                mSizeErrMsgTV.setVisibility(View.GONE);
-
-                return false;
             }
         });
 
@@ -359,27 +383,36 @@ public class ExpenseLogDetailsFragment extends Fragment
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 double quantity = mQuantityET.getText().toString().isEmpty() ?
                         0 : Double.parseDouble(mQuantityET.getText().toString());
-                mExpenseItem.setQuantity(quantity);
+
+                if (quantity == 0)
+                    mExpenseItem.getQuantity().clear();
+                else
+                    mExpenseItem.setQuantity(quantity);
 
 //                Log.d(TAG, mExpenseItem.toString());
 
-                mTotalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
+                // Retain the view focus and show the error message if
+                // there is an error
+                return validateQuantity() == FAILED;
+            }
+        });
+        mQuantityET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    double quantity = mQuantityET.getText().toString().isEmpty() ?
+                            0 : Double.parseDouble(mQuantityET.getText().toString());
 
-                if (mExpenseItem.getQuantity().isCleared()) {
-                    // Show error message and retain focus.
-                    mQuantityErMsgTV.setText(R.string.err_msg_quantity_zero);
-                    mQuantityErMsgTV.setVisibility(View.VISIBLE);
-                    return true;
+                    if (quantity == 0)
+                        mExpenseItem.getQuantity().clear();
+                    else
+                        mExpenseItem.setQuantity(quantity);
+
+//                Log.d(TAG, mExpenseItem.toString());
+
+                    // Check and display if an error occurs
+                    validateQuantity();
                 }
-
-                // Clear error message.
-                mQuantityErMsgTV.setText("");
-                mQuantityErMsgTV.setVisibility(View.GONE);
-
-                // Show fund selection dropdown.
-                mFundSelectionS.performClick();
-
-                return false;
             }
         });
 
@@ -540,18 +573,24 @@ public class ExpenseLogDetailsFragment extends Fragment
         }
 
         // Show error messages.
-        if (mExpenseItem.getItemName().isEmpty())
-            mItemErrMsgTV.setText(R.string.err_msg_item_name_empty);
-        if (mExpenseItem.getBrand().isEmpty())
-            mBrandErrMsgTV.setText(R.string.err_msg_brand_name_empty);
-        if (mExpenseItem.getItemPrice().isZero())
+        validateItemName();
+        validateBrandName();
+        if (mExpenseItem.getItemPrice().isZero()) {
             mPriceErrMsgTV.setText(R.string.err_msg_item_price_zero);
-        if (mExpenseItem.getSize().isCleared())
+            mPriceErrMsgTV.setVisibility(View.VISIBLE);
+        }
+        if (mExpenseItem.getSize().isCleared()) {
             mSizeErrMsgTV.setText(R.string.err_msg_set_size_empty);
-        if (mExpenseItem.getQuantity().isCleared())
+            mSizeErrMsgTV.setVisibility(View.VISIBLE);
+        }
+        if (mExpenseItem.getQuantity().isCleared()) {
             mQuantityErMsgTV.setText(R.string.err_msg_quantity_zero);
-        if (mExpenseItem.getFund().isEmpty())
+            mQuantityErMsgTV.setVisibility(View.VISIBLE);
+        }
+        if (mExpenseItem.getFund().isEmpty()) {
             mFundErrMsgTV.setText(R.string.err_msg_no_fund_selected);
+            mFundErrMsgTV.setVisibility(View.VISIBLE);
+        }
 
     }
 
@@ -612,7 +651,7 @@ public class ExpenseLogDetailsFragment extends Fragment
      * Checks that the item price is not zero
      *
      * @return FAILED if the item price is zero;
-     *         PASSED if the item price is not zero
+     * PASSED if the item price is not zero
      */
     private boolean validatePrice() {
         // Update total price display.
@@ -629,6 +668,83 @@ public class ExpenseLogDetailsFragment extends Fragment
         // Clear error message.
         mPriceErrMsgTV.setText("");
         mPriceErrMsgTV.setVisibility(View.GONE);
+
+        return PASSED;
+    }
+
+    /**
+     * Check if size for the purchased for had ben set properly.
+     *
+     * @param updateResult for updating the size value
+     * @return FAILED if an error occured;
+     * PASSED if no error found
+     */
+    private boolean validateSize(int updateResult) {
+        int errMsg = 0;
+
+        // Update packaging size value and check for errors
+        switch (updateResult) {
+            case ExpenseItem.EMPTY_STRING:
+                errMsg = R.string.err_msg_set_size_empty;
+                break;
+            case ExpenseItem.INVALID_VALUE:
+                errMsg = R.string.err_msg_no_set_value;
+                break;
+            case ExpenseItem.NO_UNIT:
+                errMsg = R.string.err_msg_no_set_unit;
+                break;
+            case ExpenseItem.ZERO_DENOMINATOR:
+                errMsg = R.string.err_msg_zero_denominator;
+                break;
+        }
+
+        try {
+            if (mExpenseItem.getSize().getDouble() == 0)
+                errMsg = R.string.err_msg_size_zero;
+
+        } catch (Measures.ClearedStateException e) {
+            errMsg = R.string.err_msg_set_size_empty;
+        }
+
+//         Log.d(TAG, mExpenseItem.toString());
+
+        if (errMsg != 0) {
+            // Show error message and retain focus.
+            mSizeErrMsgTV.setText(errMsg);
+            mSizeErrMsgTV.setVisibility(View.VISIBLE);
+            return FAILED;
+        }
+
+        // Clear error message.
+        mSizeErrMsgTV.setText("");
+        mSizeErrMsgTV.setVisibility(View.GONE);
+
+        return PASSED;
+    }
+
+    /**
+     * Check if the quantity is set and display error accordingly.
+     * Also update the displayed total price of the purchase item.
+     *
+     * @return FAILED if quantity was not set;
+     * PASSED if quantity was set
+     */
+    private boolean validateQuantity() {
+        mTotalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
+
+        if (mExpenseItem.getQuantity().isCleared()) {
+            // Show error message and retain focus.
+            mQuantityErMsgTV.setText(R.string.err_msg_quantity_zero);
+            mQuantityErMsgTV.setVisibility(View.VISIBLE);
+            return FAILED;
+        }
+
+        // Clear error message.
+        mQuantityErMsgTV.setText("");
+        mQuantityErMsgTV.setVisibility(View.GONE);
+
+        // Show fund selection dropdown.
+        mFundSelectionS.performClick();
 
         return PASSED;
     }

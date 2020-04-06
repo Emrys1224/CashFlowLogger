@@ -78,7 +78,13 @@ public class ExpenseLogConfirmationFragment extends Fragment
         quantityTV.setText(mExpenseItem.getQuantity().toString());
         totalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
         fundTV.setText(mExpenseItem.getFund());
-        remarksTV.setText(mExpenseItem.getRemarks());
+        if (mExpenseItem.getRemarks().isEmpty()) {
+            remarksTV.setText(R.string.no_remarks);
+            remarksTV.setTextColor(getResources().getColor(R.color.button_main));
+        }
+        else {
+            remarksTV.setText(mExpenseItem.getRemarks());
+        }
 
         // Set up tags display.
         RecyclerView tagsRV = view.findViewById(R.id.detail_tags);

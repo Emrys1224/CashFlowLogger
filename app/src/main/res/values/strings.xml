@@ -66,4 +66,5 @@
     <string name="label_remarks">Remarks</string>
     <string name="hint_remarks">Put remarks about this purchase here</string>
     <string name="dummy_remarks">Remarks about this purchased item</string>
+    <string name="no_remarks">No Remarks</string>
 </resources>

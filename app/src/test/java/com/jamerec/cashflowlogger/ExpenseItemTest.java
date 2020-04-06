@@ -19,11 +19,11 @@ public class ExpenseItemTest {
         String fund = "Basic Needs";
 
         ExpenseItem test = new ExpenseItem();
-        test.setItemName(product);
+        test.setItemName(product, null);
         test.setBrand(brand);
         test.setPrice(new PhCurrency(price));
         test.setSize(size);
-        test.setQuantity(String.valueOf(quantity));
+        test.setQuantity(quantity);
         test.setFund(fund);
 
         assertEquals(product, test.getItemName());
@@ -40,7 +40,7 @@ public class ExpenseItemTest {
     @Test
     public void modify_tags_test() {
         ExpenseItem test = new ExpenseItem();
-        test.setItemName("Rice");
+        test.setItemName("Rice", null);
         System.out.println("Test tags");
         for (String tag : test.getTags()) {
             System.out.println(tag);
@@ -73,11 +73,11 @@ public class ExpenseItemTest {
         String fund = "Basic Needs";
 
         ExpenseItem test = new ExpenseItem();
-        test.setItemName(product);
+        test.setItemName(product, null);
         test.setBrand(brand);
         test.setPrice(new PhCurrency(price));
         test.setSize(size);
-        test.setQuantity(String.valueOf(quantity));
+        test.setQuantity(quantity);
         test.setFund(fund);
 
         System.out.println("Initial Values");

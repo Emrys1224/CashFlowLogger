@@ -12,6 +12,12 @@ import java.util.List;
  * and get the details between Activities and Fragments.
  */
 class ExpenseItem implements Parcelable {
+    // Measures value setting return values.
+    static final int DONE = 999;
+    static final int EMPTY_STRING = 1000;
+    static final int INVALID_VALUE = 1001;
+    static final int NO_UNIT = 1002;
+    static final int ZERO_DENOMINATOR = 1003;
 
     private String mProduct;        // Product name
     private String mBrand;          // Brand name
@@ -33,7 +39,7 @@ class ExpenseItem implements Parcelable {
         this.mQuantity = new Measures();
         this.mFund = "";
         this.mTags = new ArrayList<>();
-        this.mRemarks = "NULL";
+        this.mRemarks = "";
     }
 
     /**
@@ -208,16 +214,27 @@ class ExpenseItem implements Parcelable {
      * Set the packaging size etc. of the product.
      *
      * @param size of the product e.g. 1kilo, 1order, 2liters, 1pack.
-     * @throws Measures.InvalidValueException    if no numeric value found.
-     * @throws Measures.NoValidUnitException     if no valid unit of measure found.
-     * @throws Measures.ZeroDenominatorException if a fractional value with zero as denominator is the given string.
+     * @return DONE if update of value was successful;
+     *         EMPTY_STRING if the given String is empty;
+     *         INVALID_VALUE if no numeric value format was found;
+     *         NO_UNIT if no unit of measure was found;
+     *         ZERO_DENOMINATOR if the denominator for fraction formatted String is zero
      */
-    void setSize(String size) throws
-            Measures.InvalidValueException,
-            Measures.NoValidUnitException,
-            Measures.ZeroDenominatorException {
+    int setSize(String size) {
+        if (size.isEmpty()) return EMPTY_STRING;
 
-        this.mSize.setValue(size);
+        try {
+            this.mSize.setValue(size);
+
+        } catch (Measures.InvalidValueException ive) {
+            return INVALID_VALUE;
+        } catch (Measures.NoValidUnitException nvue) {
+            return NO_UNIT;
+        } catch (Measures.ZeroDenominatorException zde) {
+            return ZERO_DENOMINATOR;
+        }
+
+        return DONE;
     }
 
     /**
@@ -236,9 +253,9 @@ class ExpenseItem implements Parcelable {
             System.out.println(ive.getMessage());
             ive.printStackTrace();
 
-        } catch (Measures.NoValidUnitException iue) {
-            System.out.println(iue.getMessage());
-            iue.printStackTrace();
+        } catch (Measures.NoValidUnitException nvue) {
+            System.out.println(nvue.getMessage());
+            nvue.printStackTrace();
 
         } catch (Measures.ZeroDenominatorException zde) {
             System.out.println(zde.getMessage());
