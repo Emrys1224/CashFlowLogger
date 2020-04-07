@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -43,6 +44,9 @@ public class ExpenseLogDetailsFragment extends Fragment
     // Input validation status
     private final boolean FAILED = false;
     private final boolean PASSED = true;
+
+    // First item in 'Deduct From' input field. Also serves as a hint.
+    private final String FUND_SEL_HINT = "-- Select Fund --";
 
     private NestedScrollView mWindowNSV;
 
@@ -84,6 +88,10 @@ public class ExpenseLogDetailsFragment extends Fragment
     // For tracking screen scroll position for proper positioning of input fields
     // along with the soft keyboard
     private int mScrollYReference;
+
+    // Flag for checking if mFundSelectionS.setOnItemSelectedListener()
+    // making sure that it has initialized.
+    private boolean mInitialized = false;
 
     public ExpenseLogDetailsFragment() {
         // Required empty public constructor
@@ -154,7 +162,7 @@ public class ExpenseLogDetailsFragment extends Fragment
 
         // List of funds retrieved from database
         List<String> funds = new ArrayList<>();
-        funds.add("");
+        funds.add(FUND_SEL_HINT);
         funds.addAll(mDB.getFundsList());
 
         // Set up fund selection dropdown
@@ -388,7 +396,6 @@ public class ExpenseLogDetailsFragment extends Fragment
                     mExpenseItem.getQuantity().clear();
                 else
                     mExpenseItem.setQuantity(quantity);
-
 //                Log.d(TAG, mExpenseItem.toString());
 
                 // Retain the view focus and show the error message if
@@ -408,7 +415,7 @@ public class ExpenseLogDetailsFragment extends Fragment
                     else
                         mExpenseItem.setQuantity(quantity);
 
-//                Log.d(TAG, mExpenseItem.toString());
+//                    Log.d(TAG, mExpenseItem.toString());
 
                     // Check and display if an error occurs
                     validateQuantity();
@@ -420,18 +427,23 @@ public class ExpenseLogDetailsFragment extends Fragment
         mFundSelectionS.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mExpenseItem.setFund(
-                        parent.getItemAtPosition(position).toString());
+                // Check that initial execution of this method is done during
+                // creation of this fragment.
+                if (mInitialized) {
+                    String selectedFund = parent.getItemAtPosition(position).toString();
 
-//                Log.d(TAG, mExpenseItem.toString());
+                    // Fund not selected
+                    if (selectedFund.equals(FUND_SEL_HINT))
+                        mExpenseItem.setFund("");
+                    else
+                        mExpenseItem.setFund(selectedFund);
+//                    Log.d(TAG, mExpenseItem.toString());
 
-                if (!mExpenseItem.getItemName().isEmpty()) {
                     mTagsET.requestFocus();
 
-                    // Show soft keyboard.
-                    InputMethodManager imm = (InputMethodManager)
-                            mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.showSoftInput(mTagsET, InputMethodManager.SHOW_IMPLICIT);
+                } else {
+                    // Initial execution of this function after creation of this fragment
+                    mInitialized = true;
                 }
             }
 
@@ -444,14 +456,12 @@ public class ExpenseLogDetailsFragment extends Fragment
         mFundSelectionS.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-
-                // Hide the soft keyboard.
                 if (hasFocus) {
                     hideSoftKeyboard();
 
                 } else {
-                    // Show error message.
                     if (mExpenseItem.getFund().isEmpty()) {
+                        // Show error message.
                         mFundErrMsgTV.setText(R.string.err_msg_no_fund_selected);
                         mFundErrMsgTV.setVisibility(View.VISIBLE);
                         return;
