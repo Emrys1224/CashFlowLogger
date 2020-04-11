@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="txtsize_label">22sp</dimen>
+    <dimen name="txtSize_label">22sp</dimen>
     <dimen name="txtSize_detail">26sp</dimen>
     <dimen name="radius">5dp</dimen>
     <dimen name="spacing_details_item">18dp</dimen>
     <dimen name="spacingTop_fromHeading">30dp</dimen>
-    <dimen name="txtsize_list_item">24sp</dimen>
+    <dimen name="txtSize_list_item">24sp</dimen>
     <dimen name="log_expense_input">330dp</dimen>
     <dimen name="margin_left">35dp</dimen>
     <dimen name="margin_right">35dp</dimen>
-    <dimen name="margin_item_vert">15dp</dimen>
+    <dimen name="margin_item_top">15dp</dimen>
     <dimen name="spacingTop_ofHeading">30dp</dimen>
     <dimen name="txtSize_err_msg">16sp</dimen>
     <dimen name="spacingTop_buttonGrp">30dp</dimen>
-    <dimen name="spacingVert_button">25dp</dimen>
-    <dimen name="spacingVert_fieldGrp">15dp</dimen>
+    <dimen name="spacingTop_button">25dp</dimen>
+    <dimen name="spacingTop_fieldGrp">15dp</dimen>
     <dimen name="width_inputField">335dp</dimen>
     <dimen name="spacingBottom_buttonGrp">30dp</dimen>
-    <dimen name="spacingVert_fieldItem">5dp</dimen>
+    <dimen name="spacingTop_fieldItem">5dp</dimen>
     <dimen name="width_label">100dp</dimen>
     <dimen name="width_detail">215dp</dimen>
     <dimen name="spacingLeft_detail">20dp</dimen>
+    <dimen name="clickable_text">18sp</dimen>
+    <dimen name="spacingTop_fieldGrp2">10dp</dimen>
 </resources>

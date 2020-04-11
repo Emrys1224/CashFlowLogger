@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacingTop_fromHeading"
             android:text="@string/label_item"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/input_item"
             app:layout_constraintTop_toBottomOf="@+id/heading_income_logging" />
 
@@ -63,9 +63,9 @@
             android:id="@+id/label_brand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
+            android:layout_marginTop="@dimen/spacingTop_fieldGrp"
             android:text="@string/label_brand"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/input_brand"
             app:layout_constraintTop_toBottomOf="@+id/err_msg_item" />
 
@@ -97,9 +97,9 @@
             android:id="@+id/label_price_per_item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
+            android:layout_marginTop="@dimen/spacingTop_fieldGrp"
             android:text="@string/label_price_per_item"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/input_price"
             app:layout_constraintTop_toBottomOf="@+id/err_msg_brand" />
 
@@ -126,9 +126,9 @@
             android:id="@+id/label_item_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
+            android:layout_marginTop="@dimen/spacingTop_fieldGrp"
             android:text="@string/label_item_size"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/input_size"
             app:layout_constraintTop_toBottomOf="@+id/err_msg_price" />
 
@@ -160,9 +160,9 @@
             android:id="@+id/label_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
+            android:layout_marginTop="@dimen/spacingTop_fieldGrp"
             android:text="@string/label_quantity"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/input_quantity"
             app:layout_constraintTop_toBottomOf="@+id/err_msg_size" />
 
@@ -195,9 +195,9 @@
             android:id="@+id/label_total_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
+            android:layout_marginTop="@dimen/spacingTop_fieldGrp"
             android:text="@string/label_total_price"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/disp_total_price"
             app:layout_constraintTop_toBottomOf="@+id/err_msg_quantity" />
 
@@ -217,9 +217,9 @@
             android:id="@+id/label_deduct_from"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
+            android:layout_marginTop="@dimen/spacingTop_fieldGrp"
             android:text="@string/label_deduct_from"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/selection_fund"
             app:layout_constraintTop_toBottomOf="@+id/disp_total_price" />
 
@@ -246,9 +246,9 @@
             android:id="@+id/label_tags"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
+            android:layout_marginTop="@dimen/spacingTop_fieldGrp"
             android:text="@string/label_tags"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/input_tags"
             app:layout_constraintTop_toBottomOf="@+id/err_msg_fund" />
 
@@ -278,9 +278,9 @@
             android:id="@+id/label_remarks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
+            android:layout_marginTop="@dimen/spacingTop_fieldGrp"
             android:text="@string/label_remarks"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/input_remarks"
             app:layout_constraintTop_toBottomOf="@+id/input_tags" />
 
@@ -306,7 +306,7 @@
             style="@style/btn_detail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_button"
+            android:layout_marginTop="@dimen/spacingTop_button"
             android:layout_marginBottom="@dimen/spacingBottom_buttonGrp"
             android:text="@string/btn_done"
             app:layout_constraintBottom_toBottomOf="parent"

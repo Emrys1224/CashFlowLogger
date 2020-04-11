@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacingTop_fromHeading"
             android:text="@string/label_allocation"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/list_funds"
             app:layout_constraintTop_toBottomOf="@+id/heading_income_logging" />
 
@@ -47,7 +47,7 @@
             android:id="@+id/txt_remaining"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldGrp"
+            android:layout_marginTop="@dimen/spacingTop_fieldGrp"
             android:padding="5dp"
             android:text="@string/dummy_txt_amount"
             android:textColor="@color/txtColor_detail"
@@ -65,7 +65,7 @@
             android:layout_marginRight="10dp"
             android:text="@string/label_remaining"
             android:textColor="@color/txtColor_label"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintBaseline_toBaselineOf="@+id/txt_remaining"
             app:layout_constraintEnd_toStartOf="@+id/txt_remaining"
             app:layout_constraintHorizontal_bias="0.5"
@@ -76,7 +76,7 @@
             android:id="@+id/item_fund_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:layout_marginTop="@dimen/spacingTop_fieldItem"
             android:padding="6dp"
             android:text="@string/dummy_txt_fund_name"
             android:textColor="@color/txtColor_detail"
@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
             android:text="@string/label_fund"
             android:textColor="@color/txtColor_label"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintBaseline_toBaselineOf="@+id/item_fund_name"
             app:layout_constraintStart_toStartOf="@+id/label_remaining" />
 
@@ -103,7 +103,7 @@
             android:layout_height="wrap_content"
             android:text="@string/label_amount"
             android:textColor="@color/txtColor_label"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintBaseline_toBaselineOf="@+id/input_amount"
             app:layout_constraintStart_toStartOf="@+id/label_fund" />
 
@@ -111,7 +111,7 @@
             android:id="@+id/input_amount"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:layout_marginTop="@dimen/spacingTop_fieldItem"
             android:padding="6dp"
             android:textColor="@color/txtColor_detail"
             android:textSize="@dimen/txtSize_detail"

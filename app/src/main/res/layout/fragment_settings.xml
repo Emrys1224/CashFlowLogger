@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SettingsFragment">
+
+    <TextView
+        android:id="@+id/heading_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacingTop_ofHeading"
+        android:text="@string/heading_settings"
+        android:textColor="@color/txtColor_heading"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/label_username"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacingTop_fromHeading"
+        android:text="@string/label_user_name"
+        android:textSize="@dimen/txtSize_label"
+        app:layout_constraintStart_toStartOf="@+id/setting_username"
+        app:layout_constraintTop_toBottomOf="@+id/heading_settings" />
+
+    <TextView
+        android:id="@+id/btn_edit_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_edit"
+        android:textColor="@color/design_default_color_primary_dark"
+        android:textSize="@dimen/clickable_text"
+        app:layout_constraintBottom_toBottomOf="@+id/label_username"
+        app:layout_constraintEnd_toEndOf="@+id/setting_username"
+        app:layout_constraintTop_toTopOf="@+id/label_username" />
+
+    <TextView
+        android:id="@+id/setting_username"
+        android:layout_width="@dimen/width_inputField"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_username"
+        android:textSize="@dimen/txtSize_detail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/label_username" />
+
+    <EditText
+        android:id="@+id/input_username"
+        android:layout_width="@dimen/width_inputField"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:hint="@string/dummy_username"
+        android:inputType="text|textCapWords"
+        android:maxLines="1"
+        android:textSize="@dimen/txtSize_detail"
+        app:layout_constraintEnd_toEndOf="@+id/setting_username"
+        app:layout_constraintStart_toStartOf="@+id/setting_username"
+        app:layout_constraintTop_toBottomOf="@+id/setting_username" />
+
+    <TextView
+        android:id="@+id/err_username"
+        style="@style/error_msg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_err_msg"
+        app:layout_constraintEnd_toEndOf="@+id/input_username"
+        app:layout_constraintStart_toStartOf="@+id/input_username"
+        app:layout_constraintTop_toBottomOf="@+id/input_username" />
+
+    <TextView
+        android:id="@+id/label_password"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacingTop_fieldGrp"
+        android:text="@string/label_password"
+        android:textSize="@dimen/txtSize_label"
+        app:layout_constraintStart_toStartOf="@+id/err_username"
+        app:layout_constraintTop_toBottomOf="@+id/err_username" />
+
+    <TextView
+        android:id="@+id/btn_edit_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_edit"
+        android:textColor="@color/design_default_color_primary_dark"
+        android:textSize="@dimen/clickable_text"
+        app:layout_constraintBottom_toBottomOf="@+id/label_password"
+        app:layout_constraintEnd_toEndOf="@+id/err_username"
+        app:layout_constraintTop_toTopOf="@+id/label_password" />
+
+    <TextView
+        android:id="@+id/setting_password"
+        android:layout_width="@dimen/width_inputField"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_password"
+        android:textSize="@dimen/txtSize_detail"
+        app:layout_constraintEnd_toEndOf="@+id/err_username"
+        app:layout_constraintStart_toStartOf="@+id/err_username"
+        app:layout_constraintTop_toBottomOf="@+id/label_password" />
+
+    <TextView
+        android:id="@+id/label_language"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacingTop_fieldGrp"
+        android:text="@string/label_language"
+        android:textSize="@dimen/txtSize_label"
+        app:layout_constraintStart_toStartOf="@+id/setting_password"
+        app:layout_constraintTop_toBottomOf="@+id/setting_password" />
+
+    <TextView
+        android:id="@+id/btn_edit_language"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_edit"
+        android:textColor="@color/design_default_color_primary_dark"
+        android:textSize="@dimen/clickable_text"
+        app:layout_constraintBottom_toBottomOf="@+id/label_language"
+        app:layout_constraintEnd_toEndOf="@+id/setting_language"
+        app:layout_constraintTop_toTopOf="@+id/label_language" />
+
+    <TextView
+        android:id="@+id/setting_language"
+        android:layout_width="@dimen/width_inputField"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_language"
+        android:textSize="@dimen/txtSize_detail"
+        app:layout_constraintEnd_toEndOf="@+id/setting_password"
+        app:layout_constraintStart_toStartOf="@+id/setting_password"
+        app:layout_constraintTop_toBottomOf="@+id/label_language" />
+
+    <Spinner
+        android:id="@+id/selection_language"
+        style="@style/spinner"
+        android:layout_width="@dimen/width_inputField"
+        android:layout_height="30dp"
+        app:layout_constraintEnd_toEndOf="@+id/setting_language"
+        app:layout_constraintStart_toStartOf="@+id/setting_language"
+        app:layout_constraintTop_toBottomOf="@+id/setting_language" />
+
+    <TextView
+        android:id="@+id/err_language"
+        style="@style/error_msg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_err_msg"
+        app:layout_constraintEnd_toEndOf="@+id/selection_language"
+        app:layout_constraintStart_toStartOf="@+id/selection_language"
+        app:layout_constraintTop_toBottomOf="@+id/selection_language" />
+
+    <TextView
+        android:id="@+id/label_currency"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacingTop_fieldGrp"
+        android:text="@string/label_currency"
+        android:textSize="@dimen/txtSize_label"
+        app:layout_constraintStart_toStartOf="@+id/err_language"
+        app:layout_constraintTop_toBottomOf="@+id/err_language" />
+
+    <TextView
+        android:id="@+id/btn_edit_currency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_edit"
+        android:textColor="@color/design_default_color_primary_dark"
+        android:textSize="@dimen/clickable_text"
+        app:layout_constraintBottom_toBottomOf="@+id/label_currency"
+        app:layout_constraintEnd_toEndOf="@+id/err_language"
+        app:layout_constraintTop_toTopOf="@+id/label_currency" />
+
+    <TextView
+        android:id="@+id/setting_currency"
+        android:layout_width="@dimen/width_inputField"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_currency"
+        android:textSize="@dimen/txtSize_detail"
+        app:layout_constraintEnd_toEndOf="@+id/err_language"
+        app:layout_constraintStart_toStartOf="@+id/err_language"
+        app:layout_constraintTop_toBottomOf="@+id/label_currency" />
+
+    <Spinner
+        android:id="@+id/selection_currency"
+        style="@style/spinner"
+        android:layout_width="@dimen/width_inputField"
+        android:layout_height="30dp"
+        app:layout_constraintEnd_toEndOf="@+id/setting_currency"
+        app:layout_constraintStart_toStartOf="@+id/setting_currency"
+        app:layout_constraintTop_toBottomOf="@+id/setting_currency" />
+
+    <TextView
+        android:id="@+id/err_currency"
+        style="@style/error_msg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_err_msg"
+        app:layout_constraintEnd_toEndOf="@+id/selection_currency"
+        app:layout_constraintStart_toStartOf="@+id/selection_currency"
+        app:layout_constraintTop_toBottomOf="@+id/selection_currency" />
+
+    <TextView
+        android:id="@+id/label_fund_allocation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacingTop_fieldGrp"
+        android:text="@string/label_fund_allocation"
+        android:textSize="@dimen/txtSize_label"
+        app:layout_constraintStart_toStartOf="@+id/err_currency"
+        app:layout_constraintTop_toBottomOf="@+id/err_currency" />
+
+    <TextView
+        android:id="@+id/btn_edit_fund_allocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_edit"
+        android:textColor="@color/design_default_color_primary_dark"
+        android:textSize="@dimen/clickable_text"
+        app:layout_constraintBottom_toBottomOf="@+id/label_fund_allocation"
+        app:layout_constraintEnd_toEndOf="@+id/err_currency"
+        app:layout_constraintTop_toTopOf="@+id/label_fund_allocation" />
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/disp_tags"
+        android:layout_width="@dimen/width_inputField"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/err_currency"
+        app:layout_constraintStart_toStartOf="@+id/err_currency"
+        app:layout_constraintTop_toBottomOf="@+id/label_fund_allocation" />
+
+    <TextView
+        android:id="@+id/label_report"
+        android:layout_width="163dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacingTop_fieldGrp"
+        android:text="@string/label_report"
+        android:textSize="@dimen/txtSize_label"
+        app:layout_constraintStart_toStartOf="@+id/disp_tags"
+        app:layout_constraintTop_toBottomOf="@+id/disp_tags" />
+
+    <CheckBox
+        android:id="@+id/checkBox_daily"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacingTop_fieldGrp2"
+        android:text="@string/label_daily"
+        android:textColor="@color/txtColor_detail"
+        android:textSize="@dimen/txtSize_detail"
+        app:layout_constraintStart_toStartOf="@+id/label_report"
+        app:layout_constraintTop_toBottomOf="@+id/label_report" />
+
+    <Spinner
+        android:id="@+id/selection_hour"
+        style="@style/spinner"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="108dp"
+        android:layout_marginLeft="108dp"
+        app:layout_constraintBottom_toBottomOf="@+id/checkBox_daily"
+        app:layout_constraintEnd_toStartOf="@+id/setting_col1"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/checkBox_daily"
+        app:layout_constraintTop_toTopOf="@+id/checkBox_daily"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/setting_col1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/colon"
+        android:textSize="@dimen/txtSize_detail"
+        app:layout_constraintBottom_toBottomOf="@+id/selection_hour"
+        app:layout_constraintEnd_toStartOf="@+id/selection_minute"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintStart_toEndOf="@+id/selection_hour"
+        app:layout_constraintTop_toTopOf="@+id/selection_hour"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Spinner
+        android:id="@+id/selection_minute"
+        style="@style/spinner"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/selection_hour"
+        app:layout_constraintEnd_toStartOf="@+id/selection_am_pm"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/setting_col1"
+        app:layout_constraintTop_toTopOf="@+id/selection_hour" />
+
+    <Spinner
+        android:id="@+id/selection_am_pm"
+        style="@style/spinner"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/selection_minute"
+        app:layout_constraintEnd_toEndOf="@+id/disp_tags"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/selection_minute"
+        app:layout_constraintTop_toTopOf="@+id/selection_minute"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <CheckBox
+        android:id="@+id/checkBox_weekly"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacingTop_fieldGrp2"
+        android:text="@string/label_weekly"
+        android:textColor="@color/txtColor_detail"
+        android:textSize="@dimen/txtSize_detail"
+        app:layout_constraintStart_toStartOf="@+id/checkBox_daily"
+        app:layout_constraintTop_toBottomOf="@+id/checkBox_daily" />
+
+    <Spinner
+        android:id="@+id/selection_day"
+        style="@style/spinner"
+        android:layout_width="40dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginLeft="25dp"
+        app:layout_constraintBottom_toBottomOf="@+id/checkBox_weekly"
+        app:layout_constraintStart_toEndOf="@+id/checkBox_weekly"
+        app:layout_constraintTop_toTopOf="@+id/checkBox_weekly"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Spinner
+        android:id="@+id/selection_hour2"
+        style="@style/spinner"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/checkBox_weekly"
+        app:layout_constraintStart_toStartOf="@+id/selection_hour"
+        app:layout_constraintTop_toTopOf="@+id/checkBox_weekly"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/setting_col2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/colon"
+        android:textSize="@dimen/txtSize_detail"
+        app:layout_constraintBottom_toBottomOf="@+id/selection_hour2"
+        app:layout_constraintStart_toStartOf="@+id/setting_col1"
+        app:layout_constraintTop_toBottomOf="@+id/selection_hour"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Spinner
+        android:id="@+id/selection_minute2"
+        style="@style/spinner"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/selection_hour2"
+        app:layout_constraintStart_toStartOf="@+id/selection_minute"
+        app:layout_constraintTop_toBottomOf="@+id/selection_hour"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Spinner
+        android:id="@+id/selection_am_pm2"
+        style="@style/spinner"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/selection_minute2"
+        app:layout_constraintStart_toStartOf="@+id/selection_am_pm"
+        app:layout_constraintTop_toTopOf="@+id/selection_minute2" />
+
+    <CheckBox
+        android:id="@+id/checkBox_monthly"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacingTop_fieldGrp2"
+        android:text="@string/label_monthly"
+        android:textColor="@color/txtColor_detail"
+        android:textSize="@dimen/txtSize_detail"
+        app:layout_constraintStart_toStartOf="@+id/checkBox_weekly"
+        app:layout_constraintTop_toBottomOf="@+id/checkBox_weekly" />
+
+    <Spinner
+        android:id="@+id/selection_date"
+        style="@style/spinner"
+        android:layout_width="40dp"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/checkBox_monthly"
+        app:layout_constraintStart_toStartOf="@+id/selection_day"
+        app:layout_constraintTop_toTopOf="@+id/checkBox_monthly" />
+
+    <Spinner
+        android:id="@+id/selection_hour3"
+        style="@style/spinner"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/checkBox_monthly"
+        app:layout_constraintStart_toStartOf="@+id/selection_hour2"
+        app:layout_constraintTop_toTopOf="@+id/checkBox_monthly" />
+
+    <TextView
+        android:id="@+id/setting_col3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/colon"
+        android:textSize="@dimen/txtSize_detail"
+        app:layout_constraintBottom_toBottomOf="@+id/selection_hour3"
+        app:layout_constraintStart_toStartOf="@+id/setting_col2"
+        app:layout_constraintTop_toBottomOf="@+id/selection_hour2"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Spinner
+        android:id="@+id/selection_minute3"
+        style="@style/spinner"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/setting_col3"
+        app:layout_constraintStart_toStartOf="@+id/selection_minute2"
+        app:layout_constraintTop_toTopOf="@+id/selection_hour3" />
+
+    <Spinner
+        android:id="@+id/selection_am_pm3"
+        style="@style/spinner"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/selection_minute3"
+        app:layout_constraintStart_toStartOf="@+id/selection_am_pm2"
+        app:layout_constraintTop_toTopOf="@+id/selection_minute3" />
+
+    <Button
+        android:id="@+id/btn_save"
+        style="@style/btn_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacingTop_button"
+        android:layout_marginBottom="@dimen/spacingBottom_buttonGrp"
+        android:text="@string/btn_save"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_back"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkBox_monthly" />
+
+    <Button
+        android:id="@+id/btn_back"
+        style="@style/btn_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_back"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btn_save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btn_save" />
+
+</android.support.constraint.ConstraintLayout>
