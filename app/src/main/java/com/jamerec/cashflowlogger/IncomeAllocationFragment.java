@@ -17,12 +17,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FundAllocationFragment extends Fragment
+public class IncomeAllocationFragment extends Fragment
         implements FundListAdapter.FundItemClickListener {
 
     private final String TAG = getClass().getSimpleName();
@@ -44,7 +45,7 @@ public class FundAllocationFragment extends Fragment
     private RecyclerView.LayoutManager mLayoutMgr;
     private int mFundSelectedIndex;
 
-    public FundAllocationFragment() {
+    public IncomeAllocationFragment() {
         // Required empty public constructor
     }
 
@@ -65,7 +66,7 @@ public class FundAllocationFragment extends Fragment
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_fund_allocation, container, false);
+        View view = inflater.inflate(R.layout.fragment_income_allocation, container, false);
 
         mContext = getContext();
         mIncomeAmount = getArguments() != null ?
@@ -74,17 +75,12 @@ public class FundAllocationFragment extends Fragment
         mFundsList = new ArrayList<>();
         mFundSelectedIndex = 0;
 
-        // Categories dummy data from preference setting
-        // To be used for selection in allocating funds from the income.
-        String[] fundNames = {
-                "Basic Necessity",
-                "Education",
-                "Investment",
-                "Health",
-                "Retirement",
-                "Leisure"
-        };
-        for (String fundName : fundNames) {
+        // Get the list of funds for manual allocation
+        CFLoggerOpenHelper dataBase = new CFLoggerOpenHelper(mContext);
+        Map<String, Integer> fundsAllocationPercentage = dataBase.getFundsAllocationPercentage();
+        for (Map.Entry<String, Integer> fundAllocation : fundsAllocationPercentage.entrySet()) {
+            String fundName = fundAllocation.getKey();
+
             mFundsList.add(new FundItem(fundName, new PhCurrency()));
         }
 
@@ -136,6 +132,7 @@ public class FundAllocationFragment extends Fragment
                         mAllocateAmountPCI.getAmount().isZero()) {
                     mBtnAddAllocation.setEnabled(false);
                     mErrorMsgTV.setText(getString(R.string.err_msg_amountZero));
+                    mErrorMsgTV.setVisibility(View.VISIBLE);
                     return;
                 }
 
@@ -145,6 +142,7 @@ public class FundAllocationFragment extends Fragment
                 // Notify if the remaining amount is less than the amount to be allocated.
                 if (mRemainingAmount.compareTo(fundAmount) < 0) {
                     mErrorMsgTV.setText(getString(R.string.err_msg_amountTooBig));
+                    mErrorMsgTV.setVisibility(View.VISIBLE);
                     return;
                 }
 
@@ -170,6 +168,7 @@ public class FundAllocationFragment extends Fragment
                 if (fundsWithAllocation == mFundsList.size() - 1 &&
                         totalAllocatedAmount.compareTo(mIncomeAmount) < 0) {
                     mErrorMsgTV.setText(getString(R.string.err_msg_allocationIncomplete));
+                    mErrorMsgTV.setVisibility(View.VISIBLE);
                     return;
                 }
 
@@ -184,6 +183,7 @@ public class FundAllocationFragment extends Fragment
 
                 // Clear error message.
                 mErrorMsgTV.setText("");
+                mErrorMsgTV.setVisibility(View.GONE);
 
                 // Check if all the income has been allocated
                 if (mRemainingAmount.isZero()) {

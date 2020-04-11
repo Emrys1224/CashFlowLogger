@@ -1,71 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/txt_balance"
-        android:layout_width="wrap_content"
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:background="@drawable/text_border"
-        android:padding="15dp"
-        android:text="@string/dummy_txt_amount"
-        android:textColor="@color/txt_balance"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:theme="@style/AppTheme.AppBarOverlay">
 
-    <TextView
-        android:id="@+id/label_balance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/label_balance"
-        android:textSize="25sp"
-        app:layout_constraintEnd_toEndOf="@+id/txt_balance"
-        app:layout_constraintStart_toStartOf="@+id/txt_balance"
-        app:layout_constraintTop_toBottomOf="@+id/txt_balance" />
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-    <Button
-        android:id="@+id/btn_log_income"
-        style="@style/btn_main"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:onClick="logIncome"
-        android:text="@string/btn_txt_log_income"
-        app:layout_constraintEnd_toEndOf="@+id/btn_log_expense"
-        app:layout_constraintStart_toStartOf="@+id/btn_log_expense"
-        app:layout_constraintTop_toBottomOf="@+id/label_balance" />
+    </android.support.design.widget.AppBarLayout>
 
-    <Button
-        android:id="@+id/btn_log_expense"
-        style="@style/btn_main"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:onClick="logExpenses"
-        android:text="@string/btn_txt_log_expenses"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_log_income" />
+    <include layout="@layout/home_main" />
 
-    <Button
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:onClick="viewRecord"
-        android:id="@+id/btn_view_record"
-        style="@style/btn_main"
-        android:layout_marginTop="50dp"
-        android:text="@string/btn_txt_view_record"
-        app:layout_constraintEnd_toEndOf="@+id/btn_log_expense"
-        app:layout_constraintHorizontal_bias="0.533"
-        app:layout_constraintStart_toStartOf="@+id/btn_log_expense"
-        app:layout_constraintTop_toBottomOf="@+id/btn_log_expense" />
-
-</android.support.constraint.ConstraintLayout>
+</android.support.design.widget.CoordinatorLayout>

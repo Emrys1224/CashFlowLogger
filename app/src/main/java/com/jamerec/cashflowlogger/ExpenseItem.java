@@ -4,36 +4,49 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
-import org.jetbrains.annotations.Contract;
-
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is meant to hold the details for expenses to easily manipulate
+ * and get the details between Activities and Fragments.
+ */
 class ExpenseItem implements Parcelable {
-    //  Result for setting the product size.
-    static final int SET_SIZE_OK = 24;      // Given size is good.
-    static final int NO_SET_VALUE = 36;     // Given size has no numeric value.
-    static final int NO_SET_UNIT = 48;      // Given size has no unit indicated.
-    static final int SET_SIZE_EMPTY = 60;   // No given size.
+    // Measures value setting return values.
+    static final int DONE = 999;
+    static final int EMPTY_STRING = 1000;
+    static final int INVALID_VALUE = 1001;
+    static final int NO_UNIT = 1002;
+    static final int ZERO_DENOMINATOR = 1003;
 
     private String mProduct;        // Product name
     private String mBrand;          // Brand name
     private PhCurrency mPrice;      // Price per item
-    private String mSize;           // Packaging/serving size of the product
-    private double mQuantity;       // Quantity of item purchased
+    private Measures mSize;         // Packaging/serving size of the product
+    private Measures mQuantity;     // Quantity of item purchased
     private String mFund;           // Fund from where it is to be deducted
     private List<String> mTags;     // Tags where this product is categorized
+    private String mRemarks;
 
+    /**
+     * Creates an ExpenseItem with empty details.
+     */
     ExpenseItem() {
         this.mProduct = "";
         this.mBrand = "";
         this.mPrice = new PhCurrency();
-        this.mSize = "";
-        this.mQuantity = 0D;
+        this.mSize = new Measures();
+        this.mQuantity = new Measures();
         this.mFund = "";
         this.mTags = new ArrayList<>();
+        this.mRemarks = "";
     }
 
+    /**
+     * Creates a deep copy of an ExpenseItem.
+     *
+     * @param item to copy the details from.
+     */
     ExpenseItem(@NonNull ExpenseItem item) {
         this.mProduct = item.mProduct;
         this.mBrand = item.mBrand;
@@ -42,35 +55,33 @@ class ExpenseItem implements Parcelable {
         this.mQuantity = item.mQuantity;
         this.mFund = item.mFund;
         this.mTags.addAll(item.mTags);
+        this.mRemarks = item.mRemarks;
     }
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Getters~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-
-    protected ExpenseItem(@NonNull Parcel in) {
+    protected ExpenseItem(Parcel in) {
         mProduct = in.readString();
         mBrand = in.readString();
         mPrice = in.readParcelable(PhCurrency.class.getClassLoader());
-        mSize = in.readString();
-        mQuantity = in.readDouble();
+        mSize = in.readParcelable(Measures.class.getClassLoader());
+        mQuantity = in.readParcelable(Measures.class.getClassLoader());
         mFund = in.readString();
         mTags = in.createStringArrayList();
+        mRemarks = in.readString();
     }
 
     public static final Creator<ExpenseItem> CREATOR = new Creator<ExpenseItem>() {
-        @NonNull
-        @Contract("_ -> new")
         @Override
         public ExpenseItem createFromParcel(Parcel in) {
             return new ExpenseItem(in);
         }
 
-        @NonNull
-        @Contract(value = "_ -> new", pure = true)
         @Override
         public ExpenseItem[] newArray(int size) {
             return new ExpenseItem[size];
         }
     };
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Getters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     /**
      * Get the name the product.
@@ -106,7 +117,13 @@ class ExpenseItem implements Parcelable {
      */
     PhCurrency getTotalPrice() {
         PhCurrency totalPrice = new PhCurrency(this.mPrice);
-        totalPrice.multiplyBy(this.mQuantity);
+        try {
+            totalPrice.multiplyBy(this.mQuantity.getDouble());
+
+        } catch (IllegalAccessException iae) {
+            totalPrice.multiplyBy(0);
+        }
+
         return totalPrice;
     }
 
@@ -115,7 +132,7 @@ class ExpenseItem implements Parcelable {
      *
      * @return packaging/serving size.
      */
-    String getSize() {
+    Measures getSize() {
         return this.mSize;
     }
 
@@ -124,7 +141,7 @@ class ExpenseItem implements Parcelable {
      *
      * @return the quantity of purchased product.
      */
-    double getQuantity() {
+    Measures getQuantity() {
         return this.mQuantity;
     }
 
@@ -146,16 +163,33 @@ class ExpenseItem implements Parcelable {
         return new ArrayList<>(this.mTags);
     }
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Setters~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+    /**
+     * Get the remarks for this expense item.
+     *
+     * @return remarks for this item.
+     */
+    String getRemarks() {
+        return this.mRemarks;
+    }
 
-    void setItemName(String itemName) {
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Setters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+    /**
+     * Sets the name of the product, at the same time updates the tags for this product
+     * accordingly.
+     *
+     * @param itemName the name of the product purchased
+     * @param db       the database where to retrieve the tags associated with the product
+     */
+    void setItemName(String itemName, CFLoggerOpenHelper db) {
         if (this.mProduct.equals(itemName)) return;
 
         this.mProduct = itemName;
 
         // Change the tags according to the product in the database if already exist.
         this.mTags.clear();
-        this.mTags.addAll(retrieveTags());
+        if (db != null)
+            this.mTags.addAll(db.retrieveTags(this));
     }
 
     /**
@@ -179,24 +213,28 @@ class ExpenseItem implements Parcelable {
     /**
      * Set the packaging size etc. of the product.
      *
-     * @param size of the product e.g. 1kilo, 1order, 2liters, 1pack
-     * @return SET_SIZE_OK (24) if size is set successfully;
-     * NO_SET_VALUE (36) if there is no numeric value given;
-     * NO_SET_UNIT (48) if there is unit of measurement given.
+     * @param size of the product e.g. 1kilo, 1order, 2liters, 1pack.
+     * @return DONE if update of value was successful;
+     *         EMPTY_STRING if the given String is empty;
+     *         INVALID_VALUE if no numeric value format was found;
+     *         NO_UNIT if no unit of measure was found;
+     *         ZERO_DENOMINATOR if the denominator for fraction formatted String is zero
      */
     int setSize(String size) {
-        if (size.isEmpty()) return SET_SIZE_EMPTY;
+        if (size.isEmpty()) return EMPTY_STRING;
 
-        // Extract unit of measurement.
-        String unitMeasure = size.replaceAll("[\\d.]", "");
-        if (unitMeasure.isEmpty()) return NO_SET_UNIT;
+        try {
+            this.mSize.setValue(size);
 
-        // Extract numeric value.
-        String sizeVal = size.replaceAll("[^\\d.]", "");
-        if (sizeVal.isEmpty()) return NO_SET_VALUE;
+        } catch (Measures.InvalidValueException ive) {
+            return INVALID_VALUE;
+        } catch (Measures.NoValidUnitException nvue) {
+            return NO_UNIT;
+        } catch (Measures.ZeroDenominatorException zde) {
+            return ZERO_DENOMINATOR;
+        }
 
-        this.mSize = size;
-        return SET_SIZE_OK;
+        return DONE;
     }
 
     /**
@@ -205,7 +243,24 @@ class ExpenseItem implements Parcelable {
      * @param quantity of the product purchased.
      */
     void setQuantity(double quantity) {
-        this.mQuantity = quantity;
+        try {
+            this.mQuantity.setValue(quantity + "orders");
+        }
+
+        // Since this is to be set with a number EditText so the chance of triggering
+        // these of exception is low unless I forgot about it and used it somewhere else....
+        catch (Measures.InvalidValueException ive) {
+            System.out.println(ive.getMessage());
+            ive.printStackTrace();
+
+        } catch (Measures.NoValidUnitException nvue) {
+            System.out.println(nvue.getMessage());
+            nvue.printStackTrace();
+
+        } catch (Measures.ZeroDenominatorException zde) {
+            System.out.println(zde.getMessage());
+            zde.printStackTrace();
+        }
     }
 
     /**
@@ -222,8 +277,11 @@ class ExpenseItem implements Parcelable {
      *
      * @param tag to be added.
      */
-    void addTag(String tag) {
+    boolean addTag(String tag) {
+        if (this.mTags.contains(tag)) return false;
+
         this.mTags.add(tag);
+        return true;
     }
 
     /**
@@ -235,73 +293,41 @@ class ExpenseItem implements Parcelable {
         this.mTags.remove(tag);
     }
 
-    // ~~~~~~~Method for providing items in dropdown list in AutoCompleteTextViews~~~~~~~~~~~~ //
-
     /**
-     * This retrieves the brands associated with this product and provided as
-     * selection for AutoCompleteTextView brand input.
+     * Set the remarks for the expense item.
      *
-     * @return List of brands for this product.
+     * @param remarks for this expense item.
      */
-    List<String> suggestBrands() {
-        List<String> brandSelection = new ArrayList<>();
-
-        if (this.mProduct.isEmpty()) return brandSelection;
-
-        // List is to be populated with brands for this product
-        // retrieved from the database.
-        brandSelection.add("Liwayway");
-        brandSelection.add("Mayumi");
-        brandSelection.add("Dalisay");
-        brandSelection.add("Mang Jose");
-        brandSelection.add("Mama Rosa");
-
-        return brandSelection;
+    void setRemarks(String remarks) {
+        this.mRemarks = remarks;
     }
 
     /**
-     * This retrieves the available packaging/serving sizes for this product
-     * to be used as selection for AutoCompleteTextView size input.
+     * Confirms that all the fields are filled and are ready to be saved in the database.
      *
-     * @return List of packaging sizes for this product.
+     * @return true when the ExpenseItem fields are complete, false otherwise.
      */
-    List<String> suggestSizes() {
-        List<String> sizeSelection = new ArrayList<>();
-
-        if (this.mProduct.isEmpty()) return sizeSelection;
-
-        // List is to be populated with available packaging sizes for
-        // this product retrieved from database.
-        sizeSelection.add("1kilo");
-        sizeSelection.add("5kilo");
-        sizeSelection.add("10Kilo");
-        sizeSelection.add("25kilo");
-        sizeSelection.add("50kilo");
-
-        return sizeSelection;
-    }
-
-    /**
-     * This retrieves the tags associated for this product.
-     *
-     * @return the tags of this product.
-     */
-    private List<String> retrieveTags() {
-        List<String> tags = new ArrayList<>();
-
-        if (this.mProduct.isEmpty()) return tags;
-
-        // List is to be populated with tags for this product
-        // retrieved from the database.
-        tags.add("food");
-        tags.add("grains");
-
-        return tags;
-    }
-
-    boolean isReadyToLog() {
+    boolean readyToLog() {
         return !mProduct.isEmpty() && !mBrand.isEmpty() && !mPrice.isZero() &&
-                !mSize.isEmpty() && mQuantity != 0 && !mFund.isEmpty();
+                !mSize.isCleared() && !mQuantity.isCleared() && !mFund.isEmpty();
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder tags = new StringBuilder();
+        for (String tag : mTags) {
+            tags.append(tag).append(", ");
+        }
+        return "Expense Item Details\n" +
+                "Product:\t\t\t" + getItemName() +
+                "\nBrand:\t\t\t\t" + getBrand() +
+                "\nPrice per Item:\t\t" + getItemPrice() +
+                "\nPackaging Size:\t\t" + getSize() +
+                "\nQuantity purchased:\t" + getQuantity() +
+                "\nTotal Price:\t\t" + getTotalPrice() +
+                "\nDeduct From:\t\t" + getFund() +
+                "\nTags:\t\t\t\t" + tags;
     }
 
     @Override
@@ -314,27 +340,9 @@ class ExpenseItem implements Parcelable {
         dest.writeString(mProduct);
         dest.writeString(mBrand);
         dest.writeParcelable(mPrice, flags);
-        dest.writeString(mSize);
-        dest.writeDouble(mQuantity);
+        dest.writeParcelable(mSize, flags);
+        dest.writeParcelable(mQuantity, flags);
         dest.writeString(mFund);
         dest.writeStringList(mTags);
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        StringBuilder tags = new StringBuilder();
-        for(String tag : mTags) {
-            tags.append(tag).append(", ");
-        }
-        return  "Expense Item Details\n" +
-                "Product:\t\t\t" + getItemName() +
-                "\nBrand:\t\t\t\t" + getBrand() +
-                "\nPrice per Item:\t\t" + getItemPrice().toString() +
-                "\nPackaging Size:\t\t" + getSize() +
-                "\nQuantity purchased:\t" + getQuantity() +
-                "\nTotal Price:\t\t" + getTotalPrice().toString() +
-                "\nDeduct From:\t\t" + getFund() +
-                "\nTags:\t\t\t\t" + tags;
     }
 }

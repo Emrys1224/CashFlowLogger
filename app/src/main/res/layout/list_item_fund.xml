@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="@string/dummy_txt_fund_name"
-        android:textSize="@dimen/txtsize_label" />
+        android:textSize="@dimen/txtSize_label" />
 
     <TextView
         android:id="@+id/amount"
@@ -22,5 +22,5 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="@string/dummy_txt_amount"
-        android:textSize="@dimen/txtsize_list_item" />
+        android:textSize="@dimen/txtSize_list_item" />
 </LinearLayout>

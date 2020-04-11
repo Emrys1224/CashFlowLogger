@@ -9,14 +9,14 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import java.util.List;
 
 
 /**
@@ -26,21 +26,31 @@ public class IncomeDetailFragment extends Fragment
         implements View.OnClickListener {
 
     private final String TAG = getClass().getSimpleName();
-    private Context mContext;
 
-    // Text Fields
-    private AutoCompleteTextView mIncomeSourceSelection;
-    private PhCurrencyInput mIncomeAmountInput;
-    private TextView mFromErrMsg;
-    private TextView mAmountErrMsg;
+    // Input validation status
+    private final boolean FAILED = false;
+    private final boolean PASSED = true;
 
-    // Buttons
+    // Input Field Widgets
+    private AutoCompleteTextView mIncomeSourceATV;
+    private PhCurrencyInput mIncomeAmountPCI;
+
+    // Error Messages Widgets
+    private TextView mFromErrMsgTV;
+    private TextView mAmountErrMsgTV;
+
+    // Buttons Widgets
     private Button mBtnAllocateAuto;
     private Button mBtnAllocateManual;
     private Button mBtnCancel;
 
+    private Context mContext;
     private OnSubmitIncomeDetailListener submitListener;
-    private String[] mIncomeSources;
+
+    // Income Details
+    String mIncomeSource;
+    PhCurrency mIncomeAmount;
+
 
     public IncomeDetailFragment() {
         // Required empty public constructor
@@ -61,56 +71,71 @@ public class IncomeDetailFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mContext = getContext();
-
-        // Income source dummy data fetched from DB
-        // To be used for selection for income source data input.
-        String[] incomeSources = {
-                "Youtube",
-                "TuloyPoKayo.com",
-                "Salary"
-        };
-        mIncomeSources = incomeSources;
-
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_income_detail, container, false);
 
-        // Autocomplete income source suggestions
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(mContext, android.R.layout.simple_list_item_1, mIncomeSources);
-        mIncomeSourceSelection = view.findViewById(R.id.input_income_source);
+        mContext = getContext();
+        mIncomeSource = "";
+        mIncomeAmount = new PhCurrency();
 
-        // Setup listener to show all options
-        mIncomeSourceSelection.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        mIncomeSourceSelection.showDropDown();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        v.performClick();
-                        break;
-                    default:
-                        break;
-                }
-                return false;
-            }
-        });
-        mIncomeSourceSelection.setThreshold(1);
-        mIncomeSourceSelection.setAdapter(catAdapter);
-
-        mIncomeAmountInput = view.findViewById(R.id.input_amount);
-
-        mFromErrMsg = view.findViewById(R.id.err_msg_from);
-        mAmountErrMsg = view.findViewById(R.id.err_msg_amount);
-
-        // Clear error message.
-        mFromErrMsg.setText("");
-        mAmountErrMsg.setText("");
-
+        // Initialize widgets
+        mIncomeSourceATV = view.findViewById(R.id.input_income_source);
+        mIncomeAmountPCI = view.findViewById(R.id.input_amount);
+        mFromErrMsgTV = view.findViewById(R.id.err_msg_from);
+        mAmountErrMsgTV = view.findViewById(R.id.err_msg_amount);
         mBtnAllocateAuto = view.findViewById(R.id.btn_allocate_auto);
         mBtnAllocateManual = view.findViewById(R.id.btn_allocate_man);
         mBtnCancel = view.findViewById(R.id.btn_cancel);
+
+        // Income source data fetched from DB
+        // To be used for selection for income source data input.
+        CFLoggerOpenHelper db = new CFLoggerOpenHelper(mContext);
+        List<String> incomeSources = db.getIncomeSourceList();
+
+        // Autocomplete income source suggestions
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(mContext, android.R.layout.simple_list_item_1, incomeSources);
+        mIncomeSourceATV.setThreshold(1);
+        mIncomeSourceATV.setAdapter(catAdapter);
+
+        // Set/update income source
+        mIncomeSourceATV.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                mIncomeSource = mIncomeSourceATV.getText().toString();
+                return validateIncomeSource() == FAILED;
+            }
+        });
+        mIncomeSourceATV.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    mIncomeSource = mIncomeSourceATV.getText().toString();
+                    validateIncomeSource();
+                }
+            }
+        });
+
+        // Set/update income amount
+        mIncomeAmountPCI.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                mIncomeAmount.setValue(mIncomeAmountPCI.getAmount());
+                return validateIncomeAmount() == FAILED;
+            }
+        });
+        mIncomeAmountPCI.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    mIncomeAmount.setValue(mIncomeAmountPCI.getAmount());
+                    validateIncomeAmount();
+                }
+            }
+        });
+
+        // Clear error message.
+        mFromErrMsgTV.setText("");
+        mAmountErrMsgTV.setText("");
 
         // Setup button click listeners
         mBtnAllocateAuto.setOnClickListener(this);
@@ -122,24 +147,22 @@ public class IncomeDetailFragment extends Fragment
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         // For when edit is selected in IncomeDetailsConfirmationFragment
         if (getArguments() != null) {
-            String incomeSource = getArguments().getString("incomeSource", "");
-            PhCurrency incomeAmount = getArguments().getParcelable("incomeAmount");
+            mIncomeSource = getArguments().getString("incomeSource", "");
+            mIncomeAmount = getArguments().getParcelable("incomeAmount");
 
-            mIncomeSourceSelection.setText(incomeSource);
-            mIncomeAmountInput.setAmount(incomeAmount);
-
-            mBtnAllocateAuto.setEnabled(true);
-            mBtnAllocateManual.setEnabled(true);
+            mIncomeSourceATV.setText(mIncomeSource);
+            if (mIncomeAmount != null)
+                mIncomeAmountPCI.setAmount(mIncomeAmount);
         }
 
-        super.onViewCreated(view, savedInstanceState);
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         int btnID = v.getId();
 
         // Exit IncomeLogActivity
@@ -149,33 +172,59 @@ public class IncomeDetailFragment extends Fragment
             return;
         }
 
-        // Income details
-        boolean hasError = false;
-        String incomeSource = mIncomeSourceSelection.getText().toString();
-        PhCurrency incomeAmount = mIncomeAmountInput.getAmount();
-
-        // Clear error messages.
-        mFromErrMsg.setText("");
-        mAmountErrMsg.setText("");
-
-        // Validate inputs and display error message accordingly.
-        if (incomeSource.isEmpty()) {
-            mFromErrMsg.setText(R.string.err_msg_from_isEmpty);
-            hasError = true;
+        // Check income details and show if error occurs
+        if (validateIncomeSource() == FAILED && validateIncomeAmount() == FAILED) {
+            return;
         }
-        if (incomeAmount.isZero()) {
-            mAmountErrMsg.setText(R.string.err_msg_amountIsZero);
-            hasError = true;
-        }
-        if (hasError) return;
 
-        submitListener.submitIncomeDetails(incomeSource, incomeAmount, btnID);
+        // Proceed to allocation of income into funds as per the button pressed
+        submitListener.submitIncomeDetails(mIncomeSource, mIncomeAmount, btnID);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         submitListener = null;
+    }
+
+    /**
+     * Validate that there is a value set for income source and update the error status
+     *
+     * @return FAILED if there is no value set;
+     *         PASSED if the value is set
+     */
+    private boolean validateIncomeSource() {
+        if (mIncomeSource.isEmpty()) {
+            mFromErrMsgTV.setText(R.string.err_msg_from_isEmpty);
+            mFromErrMsgTV.setVisibility(View.VISIBLE);
+            return FAILED;
+        }
+
+        // Clear error message
+        mFromErrMsgTV.setText("");
+        mFromErrMsgTV.setVisibility(View.GONE);
+
+        return PASSED;
+    }
+
+    /**
+     * Validate the income amount set is not zero and update the error status
+     *
+     * @return FAILED if the value set is zero;
+     *         PASSED if the value is not zero;
+     */
+    private boolean validateIncomeAmount() {
+        if (mIncomeAmount.isZero()) {
+            mAmountErrMsgTV.setText(R.string.err_msg_amountIsZero);
+            mAmountErrMsgTV.setVisibility(View.VISIBLE);
+            return FAILED;
+        }
+
+        // Clear error message
+        mAmountErrMsgTV.setText("");
+        mAmountErrMsgTV.setVisibility(View.GONE);
+
+        return PASSED;
     }
 
     /**
@@ -191,4 +240,5 @@ public class IncomeDetailFragment extends Fragment
          */
         void submitIncomeDetails(String incomeSource, PhCurrency incomeAmount, int btnID);
     }
+
 }

@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:text="@string/label_source"
             android:textColor="@color/txtColor_label"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintBaseline_toBaselineOf="@+id/disp_source"
             app:layout_constraintStart_toStartOf="@+id/label_amount" />
 
@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:text="@string/label_amount"
             android:textColor="@color/txtColor_label"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintBaseline_toBaselineOf="@+id/disp_amount"
             app:layout_constraintStart_toStartOf="@+id/label_allocation" />
 
@@ -63,7 +63,7 @@
             android:id="@+id/disp_amount"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:layout_marginTop="@dimen/spacingTop_fieldItem"
             android:padding="2dp"
             android:text="@string/dummy_txt_amount"
             android:textColor="@color/txtColor_detail"
@@ -76,10 +76,10 @@
             android:id="@+id/label_allocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingVert_fieldItem"
+            android:layout_marginTop="@dimen/spacingTop_fieldItem"
             android:text="@string/label_allocation"
             android:textColor="@color/txtColor_label"
-            android:textSize="@dimen/txtsize_label"
+            android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/list_funds"
             app:layout_constraintTop_toBottomOf="@+id/disp_amount" />
 

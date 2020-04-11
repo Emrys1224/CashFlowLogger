@@ -10,11 +10,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class IncomeLogActivity extends AppCompatActivity
         implements
         IncomeDetailFragment.OnSubmitIncomeDetailListener,
-        FundAllocationFragment.OnSubmitFundAllocationListener,
+        IncomeAllocationFragment.OnSubmitFundAllocationListener,
         IncomeDetailsConfirmationFragment.OnConfirmIncomeLogListener {
 
     private final String TAG = getClass().getSimpleName();
@@ -26,9 +27,13 @@ public class IncomeLogActivity extends AppCompatActivity
     private PhCurrency mIncomeAmount;
     private ArrayList<FundItem> mFundsList;
 
+    private  CFLoggerOpenHelper mDB;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mDB = new CFLoggerOpenHelper(this);
 
         mFragmentManager = getSupportFragmentManager();
 
@@ -61,7 +66,7 @@ public class IncomeLogActivity extends AppCompatActivity
             case R.id.btn_allocate_man:
                 Bundle incomeDetail = new Bundle();
                 incomeDetail.putParcelable("incomeAmount", mIncomeAmount);
-                FundAllocationFragment fundAllocationFragment = new FundAllocationFragment();
+                IncomeAllocationFragment fundAllocationFragment = new IncomeAllocationFragment();
                 fundAllocationFragment.setArguments(incomeDetail);
                 loadFragment(fundAllocationFragment);
                 break;
@@ -84,31 +89,19 @@ public class IncomeLogActivity extends AppCompatActivity
     private void allocateFundsAutomatically() {
         mFundsList = new ArrayList<>();
 
-        // Fund names and percent allocation
-        // To be retrieved from SharedPreference and defined in the settings menu
-        String[] fundNames = {
-                "Basic Necessity",
-                "Education",
-                "Investment",
-                "Health",
-                "Retirement",
-                "Leisure"
-        };
-        double[] percentAllocation = {
-                0.55,
-                0.1,
-                0.15,
-                0.05,
-                0.05,
-                0.1,
-        };
+        Map<String, Integer> fundsAllocationPercentage = mDB.getFundsAllocationPercentage();
+        for (Map.Entry<String, Integer> fundAllocation : fundsAllocationPercentage.entrySet()) {
+            String fundName = fundAllocation.getKey();
+            int percentAllocation = fundAllocation.getValue();
 
-        int index = 0;
-        for (String fundName : fundNames) {
-            PhCurrency fundAmount = new PhCurrency(mIncomeAmount);
-            fundAmount.multiplyBy(percentAllocation[index]);
-            mFundsList.add(new FundItem(fundName, fundAmount));
-            index++;
+            if (percentAllocation > 0) {
+                double allocationDecimal = percentAllocation / 100D;
+
+                PhCurrency fundAmount = new PhCurrency(mIncomeAmount);
+                fundAmount.multiplyBy(allocationDecimal);
+
+                mFundsList.add(new FundItem(fundName, fundAmount));
+            }
         }
     }
 
@@ -134,7 +127,8 @@ public class IncomeLogActivity extends AppCompatActivity
     public void confirmIncomeLog(int buttonID) {
         switch (buttonID) {
             case R.id.btn_allocate:
-                // Add the income data entry to the DB here....
+                // Add the income data entry to the DB
+                mDB.logIncome(mIncomeSource, mIncomeAmount, mFundsList);
 
                 Toast.makeText(this,
                         "Successfully allocated and recorded the income.",

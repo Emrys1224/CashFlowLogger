@@ -56,7 +56,7 @@ public class ExpenseLogConfirmationFragment extends Fragment
 
         mContext = getContext();
         mExpenseItem = getArguments().getParcelable("expenseItem");
-        Log.d(TAG, mExpenseItem.toString());
+//        Log.d(TAG, mExpenseItem.toString());
 
         // Initialize widgets
         TextView itemTV = view.findViewById(R.id.detail_item);
@@ -66,6 +66,7 @@ public class ExpenseLogConfirmationFragment extends Fragment
         TextView quantityTV = view.findViewById(R.id.detail_quantity);
         TextView totalPriceTV = view.findViewById(R.id.detail_total_price);
         TextView fundTV = view.findViewById(R.id.detail_fund);
+        TextView remarksTV = view.findViewById(R.id.detail_remarks);
         Button btnLogExpense = view.findViewById(R.id.btn_log);
         Button btnEditExpenseDetails = view.findViewById(R.id.btn_edit);
 
@@ -73,11 +74,17 @@ public class ExpenseLogConfirmationFragment extends Fragment
         itemTV.setText(mExpenseItem.getItemName());
         brandTV.setText(mExpenseItem.getBrand());
         priceTV.setText(mExpenseItem.getItemPrice().toString());
-        itemSizeTV.setText(mExpenseItem.getSize());
-        quantityTV.setText(
-                String.format(Locale.ENGLISH, "%.2f", mExpenseItem.getQuantity()));
+        itemSizeTV.setText(mExpenseItem.getSize().toString());
+        quantityTV.setText(mExpenseItem.getQuantity().toString());
         totalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
         fundTV.setText(mExpenseItem.getFund());
+        if (mExpenseItem.getRemarks().isEmpty()) {
+            remarksTV.setText(R.string.no_remarks);
+            remarksTV.setTextColor(getResources().getColor(R.color.button_main));
+        }
+        else {
+            remarksTV.setText(mExpenseItem.getRemarks());
+        }
 
         // Set up tags display.
         RecyclerView tagsRV = view.findViewById(R.id.detail_tags);

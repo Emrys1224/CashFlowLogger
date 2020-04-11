@@ -3,30 +3,58 @@ package com.jamerec.cashflowlogger;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
 import android.view.View;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
+    private final String TAG = getClass().getSimpleName();
 
-    // Update balance display here
-  }
+    private CFLoggerOpenHelper mDB;
 
-  public void logIncome(View view) {
-    Intent intent =new Intent(this, IncomeLogActivity.class);
-    startActivity(intent);
-  }
+    private TextView mBalanceDisp;
 
-  public void logExpenses(View view) {
-    Intent intent =new Intent(this, ExpensesLogActivity.class);
-    startActivity(intent);
-  }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "MainActivity.onCreate() started....");
 
-  public void viewRecord(View view) {
-    Intent intent =new Intent(this, RecordViewActivity.class);
-    startActivity(intent);
-  }
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        mDB = new CFLoggerOpenHelper(this);
+
+        // Update balance display
+        PhCurrency balance = mDB.getCurrentBalance();
+        mBalanceDisp = findViewById(R.id.txt_balance);
+        mBalanceDisp.setText(balance.toString());
+
+        Log.d(TAG, "MainActivity.onCreate() done....");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    public void logIncome(View view) {
+        Intent intent = new Intent(this, IncomeLogActivity.class);
+        startActivity(intent);
+    }
+
+    public void logExpenses(View view) {
+        Intent intent = new Intent(this, ExpensesLogActivity.class);
+        startActivity(intent);
+    }
+
+    public void viewRecord(View view) {
+        Intent intent = new Intent(this, RecordViewActivity.class);
+        startActivity(intent);
+    }
 }
