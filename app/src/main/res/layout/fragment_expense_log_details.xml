@@ -264,7 +264,6 @@
             android:id="@+id/input_tags"
             android:layout_width="@dimen/width_inputField"
             android:layout_height="wrap_content"
-            android:autofillHints=""
             android:hint="@string/hint_tags"
             android:imeOptions="actionDone"
             android:inputType="text|textCapWords"
@@ -272,7 +271,8 @@
             android:textSize="@dimen/txtSize_detail"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/disp_tags" />
+            app:layout_constraintTop_toBottomOf="@+id/disp_tags"
+            android:autofillHints="" />
 
         <TextView
             android:id="@+id/label_remarks"
