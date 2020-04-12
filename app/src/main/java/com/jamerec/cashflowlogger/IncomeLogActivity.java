@@ -10,7 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 public class IncomeLogActivity extends AppCompatActivity
         implements
@@ -25,7 +25,7 @@ public class IncomeLogActivity extends AppCompatActivity
     // Income details
     private String mIncomeSource;
     private PhCurrency mIncomeAmount;
-    private ArrayList<FundItem> mFundsList;
+    private ArrayList<FundAllocationAmount> mFundsList;
 
     private  CFLoggerOpenHelper mDB;
 
@@ -77,7 +77,7 @@ public class IncomeLogActivity extends AppCompatActivity
     }
 
     @Override
-    public void submitFundAllocation(ArrayList<FundItem> fundList) {
+    public void submitFundAllocation(ArrayList<FundAllocationAmount> fundList) {
         this.mFundsList = fundList;
 
         confirmIncomeLogging();
@@ -89,10 +89,10 @@ public class IncomeLogActivity extends AppCompatActivity
     private void allocateFundsAutomatically() {
         mFundsList = new ArrayList<>();
 
-        Map<String, Integer> fundsAllocationPercentage = mDB.getFundsAllocationPercentage();
-        for (Map.Entry<String, Integer> fundAllocation : fundsAllocationPercentage.entrySet()) {
-            String fundName = fundAllocation.getKey();
-            int percentAllocation = fundAllocation.getValue();
+        List<FundAllocationPercentage> fundsAllocationPercentage = mDB.getFundsAllocationPercentage();
+        for (FundAllocationPercentage fundAllocation : fundsAllocationPercentage) {
+            String fundName = fundAllocation.getFundName();
+            int percentAllocation = fundAllocation.getPercentAllocation();
 
             if (percentAllocation > 0) {
                 double allocationDecimal = percentAllocation / 100D;
@@ -100,7 +100,7 @@ public class IncomeLogActivity extends AppCompatActivity
                 PhCurrency fundAmount = new PhCurrency(mIncomeAmount);
                 fundAmount.multiplyBy(allocationDecimal);
 
-                mFundsList.add(new FundItem(fundName, fundAmount));
+                mFundsList.add(new FundAllocationAmount(fundName, fundAmount));
             }
         }
     }

@@ -4,10 +4,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import org.jetbrains.annotations.Contract;
+
 /**
- * Data model used displaying fund allocation list.
+ * Data model used displaying fund allocation amount.
  */
-public class FundItem implements Parcelable {
+public class FundAllocationAmount implements Parcelable {
 
     private final String mFundName;
     private PhCurrency mFundAmount;
@@ -17,25 +19,29 @@ public class FundItem implements Parcelable {
      * @param fundName name of the fund
      * @param fundAmount amount allocated in the fund
      */
-    FundItem(String fundName, PhCurrency fundAmount) {
+    FundAllocationAmount(String fundName, PhCurrency fundAmount) {
         this.mFundName = fundName;
         this.mFundAmount = new PhCurrency(fundAmount);
     }
 
-    protected FundItem(Parcel in) {
+    protected FundAllocationAmount(@NonNull Parcel in) {
         mFundName = in.readString();
         mFundAmount = in.readParcelable(PhCurrency.class.getClassLoader());
     }
 
-    public static final Creator<FundItem> CREATOR = new Creator<FundItem>() {
+    public static final Creator<FundAllocationAmount> CREATOR = new Creator<FundAllocationAmount>() {
+        @NonNull
+        @Contract("_ -> new")
         @Override
-        public FundItem createFromParcel(Parcel in) {
-            return new FundItem(in);
+        public FundAllocationAmount createFromParcel(Parcel in) {
+            return new FundAllocationAmount(in);
         }
 
+        @NonNull
+        @Contract(value = "_ -> new", pure = true)
         @Override
-        public FundItem[] newArray(int size) {
-            return new FundItem[size];
+        public FundAllocationAmount[] newArray(int size) {
+            return new FundAllocationAmount[size];
         }
     };
 
@@ -86,7 +92,7 @@ public class FundItem implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeString(mFundName);
         dest.writeParcelable(mFundAmount, flags);
     }

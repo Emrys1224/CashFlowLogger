@@ -205,4 +205,18 @@
         <item>29</item>
         <item>30</item>
     </string-array>
+    <string-array name="language">
+        <item>Filipino</item>
+        <item>Esperanto</item>
+        <item>Bahasa Melayu</item>
+        <item>English</item>
+        <item>Klingon</item>
+    </string-array>
+    <string-array name="currency">
+        <item>Philippine Peso</item>
+        <item>US Dollar</item>
+        <item>Malaysian Ringgit</item>
+        <item>British Pound</item>
+        <item>Euro</item>
+    </string-array>
 </resources>

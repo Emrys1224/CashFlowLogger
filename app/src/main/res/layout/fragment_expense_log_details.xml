@@ -253,7 +253,7 @@
             app:layout_constraintTop_toBottomOf="@+id/err_msg_fund" />
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/disp_tags"
+            android:id="@+id/disp_allocation"
             android:layout_width="@dimen/width_inputField"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
@@ -271,7 +271,7 @@
             android:textSize="@dimen/txtSize_detail"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/disp_tags"
+            app:layout_constraintTop_toBottomOf="@+id/disp_allocation"
             android:autofillHints="" />
 
         <TextView

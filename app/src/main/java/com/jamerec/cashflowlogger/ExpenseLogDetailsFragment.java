@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -142,7 +141,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         mTotalPriceTV = view.findViewById(R.id.disp_total_price);
         mFundSelectionS = view.findViewById(R.id.selection_fund);
         mFundErrMsgTV = view.findViewById(R.id.err_msg_fund);
-        mTagsRV = view.findViewById(R.id.disp_tags);
+        mTagsRV = view.findViewById(R.id.disp_allocation);
         mTagsET = view.findViewById(R.id.input_tags);
         mRemarksET = view.findViewById(R.id.input_remarks);
         mBtnLog = view.findViewById(R.id.btn_log);

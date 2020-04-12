@@ -8,18 +8,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundListItem> {
 
     private final String TAG = getClass().getSimpleName();
 
-    private ArrayList<com.jamerec.cashflowlogger.FundItem> mFundsList;
+    private List mFundsList;
     private LayoutInflater mInflater;
     private FundItemClickListener mListener;
 
     FundListAdapter(Context context,
-                    ArrayList<com.jamerec.cashflowlogger.FundItem> fundsList,
+                    List fundsList,
                     FundItemClickListener listener) {
         this.mFundsList = fundsList;
         this.mInflater = LayoutInflater.from(context);
@@ -35,9 +35,25 @@ public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundLi
 
     @Override
     public void onBindViewHolder(@NonNull final FundListItem fundListItem, int fundIndex) {
-        FundItem fundItem = mFundsList.get(fundIndex);
-        fundListItem.mFundName.setText(fundItem.getName());
-        fundListItem.mFundAmount.setText(fundItem.getAmount().toString());
+        String name = "";
+        String amount = "";
+        Object fundItem = mFundsList.get(fundIndex);
+
+        if (fundItem instanceof FundAllocationAmount) {
+            FundAllocationAmount thisFundItem = (FundAllocationAmount) fundItem;
+            name = thisFundItem.getName();
+            amount = thisFundItem.getAmount().toString();
+        }
+
+        if (fundItem instanceof FundAllocationPercentage) {
+            FundAllocationPercentage thisFundItem =
+                    (FundAllocationPercentage) fundItem;
+            name = thisFundItem.getFundName();
+            amount = thisFundItem.getPercentAllocation() + "%";
+        }
+
+        fundListItem.mFundName.setText(name);
+        fundListItem.mFundAmount.setText(amount);
 
         // Implement a ClickListener if the caller has FundItemClickListener.
         if (mListener == null) return;
@@ -55,7 +71,7 @@ public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundLi
         return mFundsList.size();
     }
 
-    class FundListItem extends RecyclerView.ViewHolder {
+    static class FundListItem extends RecyclerView.ViewHolder {
         final View mItemView;
         final TextView mFundName;
         final TextView mFundAmount;

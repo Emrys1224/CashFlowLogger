@@ -29,7 +29,7 @@ public class IncomeDetailsConfirmationFragment extends Fragment
     private Button mBtnEdit;
 
     private Context mContext;
-    private ArrayList<FundItem> mFundList;
+    private ArrayList<FundAllocationAmount> mFundList;
     private OnConfirmIncomeLogListener logListener;
 
     public IncomeDetailsConfirmationFragment() {
