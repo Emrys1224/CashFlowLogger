@@ -38,13 +38,10 @@
 
         <TextView
             android:id="@+id/btn_edit_username"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/clickable_textview"
             android:layout_marginStart="160dp"
             android:layout_marginLeft="160dp"
             android:text="@string/btn_edit"
-            android:textColor="@color/design_default_color_primary_dark"
-            android:textSize="@dimen/clickable_text"
             app:layout_constraintBottom_toBottomOf="@+id/label_username"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -65,8 +62,9 @@
             android:id="@+id/input_username"
             android:layout_width="@dimen/width_inputField"
             android:layout_height="wrap_content"
+            android:imeOptions="actionDone"
             android:autofillHints=""
-            android:hint="@string/dummy_username"
+            android:hint="@string/hint_user_name"
             android:inputType="text|textCapWords"
             android:maxLines="1"
             android:textSize="@dimen/txtSize_detail"
@@ -98,11 +96,8 @@
 
         <TextView
             android:id="@+id/btn_edit_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/clickable_textview"
             android:text="@string/btn_edit"
-            android:textColor="@color/design_default_color_primary_dark"
-            android:textSize="@dimen/clickable_text"
             app:layout_constraintBottom_toBottomOf="@+id/label_password"
             app:layout_constraintEnd_toEndOf="@+id/btn_edit_username"
             app:layout_constraintTop_toTopOf="@+id/label_password" />
@@ -127,47 +122,15 @@
             app:layout_constraintStart_toStartOf="@+id/setting_password"
             app:layout_constraintTop_toBottomOf="@+id/setting_password" />
 
-        <TextView
-            android:id="@+id/btn_edit_language"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_edit"
-            android:textColor="@color/design_default_color_primary_dark"
-            android:textSize="@dimen/clickable_text"
-            app:layout_constraintBottom_toBottomOf="@+id/label_language"
-            app:layout_constraintEnd_toEndOf="@+id/btn_edit_password"
-            app:layout_constraintTop_toTopOf="@+id/label_language" />
-
-        <TextView
-            android:id="@+id/setting_language"
-            android:layout_width="@dimen/width_inputField"
-            android:layout_height="wrap_content"
-            android:text="@string/dummy_language"
-            android:textSize="@dimen/txtSize_detail"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/label_language" />
-
         <Spinner
             android:id="@+id/selection_language"
             style="@style/spinner"
             android:layout_width="@dimen/width_inputField"
-            android:layout_height="30dp"
+            android:layout_height="wrap_content"
             android:entries="@array/language"
-            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/setting_language" />
-
-        <TextView
-            android:id="@+id/err_language"
-            style="@style/error_msg"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/dummy_err_msg"
-            app:layout_constraintEnd_toEndOf="@+id/btn_edit_language"
-            app:layout_constraintStart_toStartOf="@+id/label_language"
-            app:layout_constraintTop_toBottomOf="@+id/selection_language" />
+            app:layout_constraintTop_toBottomOf="@+id/label_language" />
 
         <TextView
             android:id="@+id/label_currency"
@@ -177,49 +140,17 @@
             android:text="@string/label_currency"
             android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/label_language"
-            app:layout_constraintTop_toBottomOf="@+id/err_language" />
-
-        <TextView
-            android:id="@+id/btn_edit_currency"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_edit"
-            android:textColor="@color/design_default_color_primary_dark"
-            android:textSize="@dimen/clickable_text"
-            app:layout_constraintBottom_toBottomOf="@+id/label_currency"
-            app:layout_constraintEnd_toEndOf="@+id/btn_edit_language"
-            app:layout_constraintTop_toTopOf="@+id/label_currency" />
-
-        <TextView
-            android:id="@+id/setting_currency"
-            android:layout_width="@dimen/width_inputField"
-            android:layout_height="wrap_content"
-            android:text="@string/dummy_currency"
-            android:textSize="@dimen/txtSize_detail"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/label_currency" />
+            app:layout_constraintTop_toBottomOf="@+id/selection_language" />
 
         <Spinner
             android:id="@+id/selection_currency"
             style="@style/spinner"
             android:layout_width="@dimen/width_inputField"
-            android:layout_height="30dp"
+            android:layout_height="wrap_content"
             android:entries="@array/currency"
-            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/setting_currency" />
-
-        <TextView
-            android:id="@+id/err_currency"
-            style="@style/error_msg"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/dummy_err_msg"
-            app:layout_constraintEnd_toEndOf="@+id/btn_edit_currency"
-            app:layout_constraintStart_toStartOf="@+id/label_currency"
-            app:layout_constraintTop_toBottomOf="@+id/selection_currency" />
+            app:layout_constraintTop_toBottomOf="@+id/label_currency" />
 
         <TextView
             android:id="@+id/label_fund_allocation"
@@ -229,17 +160,14 @@
             android:text="@string/label_fund_allocation"
             android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/label_currency"
-            app:layout_constraintTop_toBottomOf="@+id/err_currency" />
+            app:layout_constraintTop_toBottomOf="@+id/selection_currency" />
 
         <TextView
             android:id="@+id/btn_edit_fund_allocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/clickable_textview"
             android:text="@string/btn_edit"
-            android:textColor="@color/design_default_color_primary_dark"
-            android:textSize="@dimen/clickable_text"
             app:layout_constraintBottom_toBottomOf="@+id/label_fund_allocation"
-            app:layout_constraintEnd_toEndOf="@+id/btn_edit_currency"
+            app:layout_constraintEnd_toEndOf="@+id/btn_edit_username"
             app:layout_constraintTop_toTopOf="@+id/label_fund_allocation" />
 
 

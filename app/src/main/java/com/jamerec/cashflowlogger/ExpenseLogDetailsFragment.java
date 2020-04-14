@@ -56,7 +56,7 @@ public class ExpenseLogDetailsFragment extends Fragment
     private AutoCompleteTextView mSizeATV;
     private EditText mQuantityET;
     private TextView mTotalPriceTV;
-    private Spinner mFundSelectionS;
+    private Spinner mFundSelectionSpr;
     private RecyclerView mTagsRV;
     private AutoCompleteTextView mTagsATV;
     private EditText mRemarksET;
@@ -139,7 +139,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         mQuantityET = view.findViewById(R.id.input_quantity);
         mQuantityErMsgTV = view.findViewById(R.id.err_msg_quantity);
         mTotalPriceTV = view.findViewById(R.id.disp_total_price);
-        mFundSelectionS = view.findViewById(R.id.selection_fund);
+        mFundSelectionSpr = view.findViewById(R.id.selection_fund);
         mFundErrMsgTV = view.findViewById(R.id.err_msg_fund);
         mTagsRV = view.findViewById(R.id.disp_allocation);
         mTagsATV = view.findViewById(R.id.input_tags);
@@ -166,7 +166,7 @@ public class ExpenseLogDetailsFragment extends Fragment
 
         // Set up fund selection dropdown
         mFundSelectionAdapter = new ArrayAdapter<>(mContext, R.layout.spinner_item, funds);
-        mFundSelectionS.setAdapter(mFundSelectionAdapter);
+        mFundSelectionSpr.setAdapter(mFundSelectionAdapter);
 
         // Set up tags display.
         FlexboxLayoutManager flexBoxLayoutMgr = new FlexboxLayoutManager(mContext);
@@ -446,7 +446,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         });
 
         // Set/update the fund from where to deduct this purchased item.
-        mFundSelectionS.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mFundSelectionSpr.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 // Check that initial execution of this method is done during
@@ -473,9 +473,9 @@ public class ExpenseLogDetailsFragment extends Fragment
             public void onNothingSelected(AdapterView<?> parent) { /* Do Nothing */ }
         });
 
-        mFundSelectionS.setFocusable(true);
-        mFundSelectionS.setFocusableInTouchMode(true);
-        mFundSelectionS.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        mFundSelectionSpr.setFocusable(true);
+        mFundSelectionSpr.setFocusableInTouchMode(true);
+        mFundSelectionSpr.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
@@ -570,7 +570,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         mPricePCI.setAmount(mExpenseItem.getItemPrice());
         mSizeATV.setText(mExpenseItem.getSize().toString());
         mTotalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
-        mFundSelectionS.setSelection(mFundSelectionAdapter.getPosition(mExpenseItem.getFund()));
+        mFundSelectionSpr.setSelection(mFundSelectionAdapter.getPosition(mExpenseItem.getFund()));
         mTagItemAdapter.notifyDataSetChanged();
         mRemarksET.setText(mExpenseItem.getRemarks());
         try {
@@ -632,7 +632,7 @@ public class ExpenseLogDetailsFragment extends Fragment
     private void hideSoftKeyboard() {
         InputMethodManager imm = (InputMethodManager)
                 mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(mFundSelectionS.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mFundSelectionSpr.getWindowToken(), 0);
     }
 
     /**
@@ -779,7 +779,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         mQuantityErMsgTV.setVisibility(View.GONE);
 
         // Show fund selection dropdown.
-        mFundSelectionS.performClick();
+        mFundSelectionSpr.performClick();
 
         return PASSED;
     }
