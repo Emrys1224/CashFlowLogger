@@ -1,9 +1,12 @@
 package com.jamerec.cashflowlogger;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,11 +21,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -51,6 +57,9 @@ public class SettingsFragment extends Fragment {
     private boolean mDurationWeekly;
     private boolean mDurationMonthly;
     private List<FundAllocationPercentage> mAllocation;
+
+    // Flag if allocation was changed
+    private boolean mIsAllocationChanged = false;
 
     // Settings value
     private TextView mUserNameTV;
@@ -101,7 +110,7 @@ public class SettingsFragment extends Fragment {
         mDB = new CFLoggerOpenHelper(mContext);
 
         // Get the setting values from SharedPreference and database.
-        SharedPreferences settingPref = mContext.getSharedPreferences(SETTING_PREF, Context.MODE_PRIVATE);
+        final SharedPreferences settingPref = mContext.getSharedPreferences(SETTING_PREF, Context.MODE_PRIVATE);
         Resources resources = mContext.getResources();
         mUserName = settingPref.getString(USER_NAME, resources.getString(R.string.dummy_username));
         mPassword = settingPref.getString(PASSWORD, resources.getString(R.string.dummy_password));
@@ -146,6 +155,10 @@ public class SettingsFragment extends Fragment {
 
         // Initialize error display widgets
         mErrUserNameTV = view.findViewById(R.id.err_username);
+
+        // Initialize Buttons
+        mSaveBtn = view.findViewById(R.id.btn_save);
+        mBackBtn = view.findViewById(R.id.btn_back);
 
         // Display the setting values
         mUserNameTV.setText(mUserName);
@@ -207,6 +220,16 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        // Edit password
+        mPasswordBtn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onClick(View v) {
+                ((SettingsActivity) Objects.requireNonNull(getActivity()))
+                        .loadFragment(new PasswordSettingFragment());
+            }
+        });
+
         // Set/update language setting
         mLanguageSpr.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -216,6 +239,82 @@ public class SettingsFragment extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) { /* Do nothing */ }
+        });
+
+        // Set/update currency setting
+        mCurrencySpr.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mCurrency = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { /* Do nothing */ }
+        });
+
+        // Edit fund allocation percentage
+        mAllocationBtn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onClick(View v) {
+                ((SettingsActivity) Objects.requireNonNull(getActivity()))
+                        .loadFragment(new AllocationSettingFragment());
+            }
+        });
+
+        // Set/update Cash Flow Report duration setting
+        mDailyCB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mDurationDaily = isChecked;
+            }
+        });
+        mWeeklyCB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mDurationWeekly = isChecked;
+            }
+        });
+        mMonthlyCB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mDurationMonthly = isChecked;
+            }
+        });
+
+        // Save changes in the settings
+        mSaveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor settingsEditor = settingPref.edit();
+                settingsEditor.putString(USER_NAME, mUserName);
+                settingsEditor.putString(PASSWORD, mPassword);
+                settingsEditor.putString(LANGUAGE, mLanguage);
+                settingsEditor.putString(CURRENCY, mCurrency);
+                settingsEditor.putBoolean(DAILY, mDurationDaily);
+                settingsEditor.putBoolean(WEEKLY, mDurationWeekly);
+                settingsEditor.putBoolean(MONTHLY,mDurationMonthly);
+                // set the CashFlowReportService here
+
+                if (mIsAllocationChanged) mDB.editFundsAllocationPercentage(mAllocation);
+
+                if (settingsEditor.commit()) {
+                    Toast.makeText(mContext, R.string.notify_save_done, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(mContext, MainActivity.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(mContext, R.string.notify_save_failed, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // Cancel change of settings
+        mBackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, MainActivity.class);
+                startActivity(intent);
+            }
         });
 
         return view;

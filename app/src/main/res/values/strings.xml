@@ -86,6 +86,8 @@
     <string name="btn_back">Back</string>
     <string name="err_msg_user_name_empty">User name should not be empty</string>
     <string name="hint_user_name">Enter your user name</string>
+    <string name="notify_save_done">Settings changed successfully</string>
+    <string name="notify_save_failed">Change settings failed</string>
     <string-array name="hour_12">
         <item>01</item>
         <item>02</item>

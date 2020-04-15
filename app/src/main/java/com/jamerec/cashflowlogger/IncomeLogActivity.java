@@ -20,8 +20,6 @@ public class IncomeLogActivity extends AppCompatActivity
 
     private final String TAG = getClass().getSimpleName();
 
-    private FragmentManager mFragmentManager;
-
     // Income details
     private String mIncomeSource;
     private PhCurrency mIncomeAmount;
@@ -32,21 +30,15 @@ public class IncomeLogActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mDB = new CFLoggerOpenHelper(this);
-
-        mFragmentManager = getSupportFragmentManager();
-
-        // Get the account balance, list of income sources and the list of funds from DB here....
-        // Account balance dummy data
         loadFragment(new IncomeDetailFragment());
     }
 
     public void loadFragment(Fragment detailFragment) {
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-
-        fragmentTransaction.replace(android.R.id.content, detailFragment);
-        fragmentTransaction.commit();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(android.R.id.content, detailFragment)
+                .commit();
     }
 
     @Override
