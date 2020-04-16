@@ -36,15 +36,6 @@ import java.util.Objects;
  */
 public class SettingsFragment extends Fragment {
 
-    final static String SETTING_PREF = "com.jamerec.cashflowlogger.settingpref";
-    final static String USER_NAME = "user_name";
-    final static String PASSWORD = "password";
-    final static String LANGUAGE = "language";
-    final static String CURRENCY = "currency";
-    final static String DAILY = "daily";
-    final static String WEEKLY = "weekly";
-    final static String MONTHLY = "monthly";
-
     private Context mContext;
     private CFLoggerOpenHelper mDB;
 
@@ -110,15 +101,15 @@ public class SettingsFragment extends Fragment {
         mDB = new CFLoggerOpenHelper(mContext);
 
         // Get the setting values from SharedPreference and database.
-        final SharedPreferences settingPref = mContext.getSharedPreferences(SETTING_PREF, Context.MODE_PRIVATE);
+        final SharedPreferences settingPref = mContext.getSharedPreferences(SettingsActivity.SETTING_PREF, Context.MODE_PRIVATE);
         Resources resources = mContext.getResources();
-        mUserName = settingPref.getString(USER_NAME, resources.getString(R.string.dummy_username));
-        mPassword = settingPref.getString(PASSWORD, resources.getString(R.string.dummy_password));
-        mLanguage = settingPref.getString(LANGUAGE, resources.getString(R.string.dummy_language));
-        mCurrency = settingPref.getString(CURRENCY, resources.getString(R.string.dummy_currency));
-        mDurationDaily = settingPref.getBoolean(DAILY, false);
-        mDurationWeekly = settingPref.getBoolean(WEEKLY, false);
-        mDurationMonthly = settingPref.getBoolean(MONTHLY, false);
+        mUserName = settingPref.getString(SettingsActivity.USER_NAME, resources.getString(R.string.dummy_username));
+        mPassword = settingPref.getString(SettingsActivity.PASSWORD, resources.getString(R.string.dummy_password));
+        mLanguage = settingPref.getString(SettingsActivity.LANGUAGE, resources.getString(R.string.dummy_language));
+        mCurrency = settingPref.getString(SettingsActivity.CURRENCY, resources.getString(R.string.dummy_currency));
+        mDurationDaily = settingPref.getBoolean(SettingsActivity.DAILY, false);
+        mDurationWeekly = settingPref.getBoolean(SettingsActivity.WEEKLY, false);
+        mDurationMonthly = settingPref.getBoolean(SettingsActivity.MONTHLY, false);
         mAllocation = mDB.getFundsAllocationPercentage();
 
         // Initialize setting values widgets
@@ -257,7 +248,7 @@ public class SettingsFragment extends Fragment {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(View v) {
-                ((SettingsActivity) Objects.requireNonNull(getActivity()))
+                ((SettingsActivity) (Objects.requireNonNull(getActivity())))
                         .loadFragment(new AllocationSettingFragment());
             }
         });
@@ -287,13 +278,13 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 SharedPreferences.Editor settingsEditor = settingPref.edit();
-                settingsEditor.putString(USER_NAME, mUserName);
-                settingsEditor.putString(PASSWORD, mPassword);
-                settingsEditor.putString(LANGUAGE, mLanguage);
-                settingsEditor.putString(CURRENCY, mCurrency);
-                settingsEditor.putBoolean(DAILY, mDurationDaily);
-                settingsEditor.putBoolean(WEEKLY, mDurationWeekly);
-                settingsEditor.putBoolean(MONTHLY,mDurationMonthly);
+                settingsEditor.putString(SettingsActivity.USER_NAME, mUserName);
+                settingsEditor.putString(SettingsActivity.PASSWORD, mPassword);
+                settingsEditor.putString(SettingsActivity.LANGUAGE, mLanguage);
+                settingsEditor.putString(SettingsActivity.CURRENCY, mCurrency);
+                settingsEditor.putBoolean(SettingsActivity.DAILY, mDurationDaily);
+                settingsEditor.putBoolean(SettingsActivity.WEEKLY, mDurationWeekly);
+                settingsEditor.putBoolean(SettingsActivity.MONTHLY,mDurationMonthly);
                 // set the CashFlowReportService here
 
                 if (mIsAllocationChanged) mDB.editFundsAllocationPercentage(mAllocation);

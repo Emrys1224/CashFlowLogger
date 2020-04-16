@@ -71,7 +71,7 @@
     <string name="label_user_name">User Name</string>
     <string name="dummy_username">Juan dela Cruz</string>
     <string name="label_password">Password</string>
-    <string name="dummy_password">* * * * * * * *</string>
+    <string name="dummy_password">asd123$</string>
     <string name="label_language">Language</string>
     <string name="dummy_language">Esperanto</string>
     <string name="label_currency">Currency</string>
@@ -95,7 +95,10 @@
     <string name="label_current_password">Current Password</string>
     <string name="hint_confirm_new_password">Re enter new password</string>
     <string name="hint_old_password">Enter the current password</string>
-    <string name="err_password_pattern">Password must be at least 8 characters containing a letter, a number, and a special character(!@#$%^&amp;*)</string>
+    <string name="err_password_pattern">Password must be at least 6 characters containing a letter, a number, and a special character(!@#$%^&amp;*)</string>
+    <string name="err_msg_confirm_new_password">This does not match the new password</string>
+    <string name="err_msg_wrong_password">Wrong password</string>
+    <string name="notify_password_changed">Password change successful</string>
     <string-array name="hour_12">
         <item>01</item>
         <item>02</item>

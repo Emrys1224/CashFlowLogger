@@ -8,6 +8,15 @@ import android.os.Bundle;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    final static String SETTING_PREF = "com.jamerec.cashflowlogger.settingpref";
+    final static String USER_NAME = "user_name";
+    final static String PASSWORD = "password";
+    final static String LANGUAGE = "language";
+    final static String CURRENCY = "currency";
+    final static String DAILY = "daily";
+    final static String WEEKLY = "weekly";
+    final static String MONTHLY = "monthly";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
