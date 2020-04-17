@@ -95,7 +95,7 @@ public class IncomeAllocationFragment extends Fragment
         mFundAllocationRV.setHasFixedSize(true);
         mLayoutMgr = new LinearLayoutManager(mContext);
         mFundAllocationRV.setLayoutManager(mLayoutMgr);
-        mFundListAdapter = new FundListAdapter(mContext, mFundsList, this);
+        mFundListAdapter = new FundListAdapter(mContext, mFundsList, this, R.layout.list_item_fund);
         mFundAllocationRV.setAdapter(mFundListAdapter);
 
         // Setup display text

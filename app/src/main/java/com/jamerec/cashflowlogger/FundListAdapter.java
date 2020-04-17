@@ -17,19 +17,22 @@ public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundLi
     private List mFundsList;
     private LayoutInflater mInflater;
     private FundItemClickListener mListener;
+    private int mItemLayout;
 
     FundListAdapter(Context context,
                     List fundsList,
-                    FundItemClickListener listener) {
+                    FundItemClickListener listener,
+                    int itemLayout) {
         this.mFundsList = fundsList;
         this.mInflater = LayoutInflater.from(context);
         this.mListener = listener;
+        this.mItemLayout = itemLayout;
     }
 
     @NonNull
     @Override
     public FundListItem onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View fundItemView = mInflater.inflate(R.layout.list_item_fund, viewGroup, false);
+        View fundItemView = mInflater.inflate(mItemLayout, viewGroup, false);
         return new FundListItem(fundItemView);
     }
 

@@ -163,7 +163,7 @@ public class SettingsFragment extends Fragment {
         // Fund allocation percentage settings
         LinearLayoutManager allocationLayoutMgr = new LinearLayoutManager(mContext);
         mAllocationRV.setLayoutManager(allocationLayoutMgr);
-        FundListAdapter adapter = new FundListAdapter(mContext, mAllocation, null);
+        FundListAdapter adapter = new FundListAdapter(mContext, mAllocation, null, R.layout.list_item_fund);
         mAllocationRV.setAdapter(adapter);
 
         // Edit user name

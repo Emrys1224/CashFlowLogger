@@ -1,0 +1,57 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="2dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingStart="15dp"
+    android:paddingLeft="15dp"
+    android:paddingEnd="0dp"
+    android:paddingRight="0dp"
+    android:id="@+id/linearLayout">
+
+    <TextView
+        android:id="@+id/label_fund"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_txt_fund_name"
+        android:textSize="@dimen/txtSize_label"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_conversion_absoluteHeight="29dp"
+        tools:layout_conversion_absoluteWidth="161dp" />
+
+    <TextView
+        android:id="@+id/amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:text="@string/dummy_total_percentage"
+        android:textSize="@dimen/txtSize_list_item"
+        app:layout_constraintBottom_toBottomOf="@+id/label_fund"
+        app:layout_constraintEnd_toStartOf="@+id/button3"
+        app:layout_constraintTop_toTopOf="@+id/label_fund"
+        tools:layout_conversion_absoluteHeight="32dp"
+        tools:layout_conversion_absoluteWidth="161dp" />
+
+    <Button
+        android:background="@drawable/btn_cancel"
+        android:padding="2dp"
+        android:textColor="@color/btn_text"
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:text="@string/btn_delete"
+        app:layout_constraintBottom_toBottomOf="@+id/amount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/amount"
+        tools:layout_conversion_absoluteHeight="39dp"
+        tools:layout_conversion_absoluteWidth="73dp" />
+
+</android.support.constraint.ConstraintLayout>
