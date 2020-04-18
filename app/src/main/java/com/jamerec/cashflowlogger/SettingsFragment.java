@@ -27,6 +27,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -110,7 +111,14 @@ public class SettingsFragment extends Fragment {
         mDurationDaily = settingPref.getBoolean(SettingsActivity.DAILY, false);
         mDurationWeekly = settingPref.getBoolean(SettingsActivity.WEEKLY, false);
         mDurationMonthly = settingPref.getBoolean(SettingsActivity.MONTHLY, false);
-        mAllocation = mDB.getFundsAllocationPercentage();
+
+        // Get the active funds
+        mAllocation = new ArrayList<>();
+        List<FundAllocationPercentage> fundsList = mDB.getFundsAllocationPercentage();
+        for (FundAllocationPercentage fundAllocation : fundsList) {
+            if (fundAllocation.getPercentAllocation() > 0)
+                mAllocation.add(fundAllocation);
+        }
 
         // Initialize setting values widgets
         mUserNameTV = view.findViewById(R.id.setting_username);
@@ -284,7 +292,7 @@ public class SettingsFragment extends Fragment {
                 settingsEditor.putString(SettingsActivity.CURRENCY, mCurrency);
                 settingsEditor.putBoolean(SettingsActivity.DAILY, mDurationDaily);
                 settingsEditor.putBoolean(SettingsActivity.WEEKLY, mDurationWeekly);
-                settingsEditor.putBoolean(SettingsActivity.MONTHLY,mDurationMonthly);
+                settingsEditor.putBoolean(SettingsActivity.MONTHLY, mDurationMonthly);
                 // set the CashFlowReportService here
 
                 if (mIsAllocationChanged) mDB.editFundsAllocationPercentage(mAllocation);

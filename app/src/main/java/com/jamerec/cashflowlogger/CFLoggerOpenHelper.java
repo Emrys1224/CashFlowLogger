@@ -742,7 +742,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 " JOIN " + FundsEntry.TABLE_NAME +
                 " ON " + FundsEntry.COL_ID + " = " + FundsAllocationEntry.COL_FUND_ID +
                 " WHERE " + FundsAllocationEntry.COL_DATE + "  =" +
-                " (SELECT MAX(" + FundsAllocationEntry.COL_DATE + ") FROM " + FundsAllocationEntry.TABLE_NAME + ");";
+                " (SELECT MAX(" + FundsAllocationEntry.COL_DATE + ")" +
+                "  FROM " + FundsAllocationEntry.TABLE_NAME + ")";
 
         Cursor allocationCursor = null;
         if (mReadableDB == null) mReadableDB = getReadableDatabase();

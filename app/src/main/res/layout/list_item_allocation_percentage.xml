@@ -1,6 +1,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="2dp"
@@ -9,8 +10,7 @@
     android:paddingStart="15dp"
     android:paddingLeft="15dp"
     android:paddingEnd="0dp"
-    android:paddingRight="0dp"
-    android:id="@+id/linearLayout">
+    android:paddingRight="0dp">
 
     <TextView
         android:id="@+id/label_fund"
@@ -33,21 +33,21 @@
         android:text="@string/dummy_total_percentage"
         android:textSize="@dimen/txtSize_list_item"
         app:layout_constraintBottom_toBottomOf="@+id/label_fund"
-        app:layout_constraintEnd_toStartOf="@+id/button3"
+        app:layout_constraintEnd_toStartOf="@+id/btn_delete"
         app:layout_constraintTop_toTopOf="@+id/label_fund"
         tools:layout_conversion_absoluteHeight="32dp"
         tools:layout_conversion_absoluteWidth="161dp" />
 
     <Button
-        android:background="@drawable/btn_cancel"
-        android:padding="2dp"
-        android:textColor="@color/btn_text"
-        android:id="@+id/button3"
+        android:id="@+id/btn_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/btn_cancel"
         android:minWidth="0dp"
         android:minHeight="0dp"
+        android:padding="2dp"
         android:text="@string/btn_delete"
+        android:textColor="@color/btn_text"
         app:layout_constraintBottom_toBottomOf="@+id/amount"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/amount"

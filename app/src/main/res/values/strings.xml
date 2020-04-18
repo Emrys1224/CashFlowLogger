@@ -110,6 +110,7 @@
     <string name="btn_change">Change</string>
     <string name="hint_change_allocation">Click the fund item to edit allocation percentage or enter a fund name below to add fund</string>
     <string name="btn_delete">Delete</string>
+    <string name="dummy_title">Title</string>
     <string-array name="hour_12">
         <item>01</item>
         <item>02</item>

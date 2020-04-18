@@ -3,9 +3,11 @@ package com.jamerec.cashflowlogger;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
@@ -33,7 +35,7 @@ public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundLi
     @Override
     public FundListItem onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View fundItemView = mInflater.inflate(mItemLayout, viewGroup, false);
-        return new FundListItem(fundItemView);
+        return new FundListItem(fundItemView, mListener);
     }
 
     @Override
@@ -57,16 +59,6 @@ public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundLi
 
         fundListItem.mFundName.setText(name);
         fundListItem.mFundAmount.setText(amount);
-
-        // Implement a ClickListener if the caller has FundItemClickListener.
-        if (mListener == null) return;
-        fundListItem.mItemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mListener.onFundItemClicked(
-                        fundListItem.mItemView, fundListItem.getAdapterPosition());
-            }
-        });
     }
 
     @Override
@@ -74,17 +66,36 @@ public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundLi
         return mFundsList.size();
     }
 
-    static class FundListItem extends RecyclerView.ViewHolder {
+    static class FundListItem extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        private final String TAG = getClass().getSimpleName();
+
+        private FundItemClickListener mListener;
         final View mItemView;
         final TextView mFundName;
         final TextView mFundAmount;
+        final Button mDeleteBtn;
 
-        FundListItem(@NonNull View itemView) {
+        FundListItem(@NonNull View itemView, FundItemClickListener listener) {
             super(itemView);
 
+            this.mListener = listener;
             this.mItemView = itemView;
             this.mFundName = itemView.findViewById(R.id.label_fund);
             this.mFundAmount = itemView.findViewById(R.id.amount);
+            this.mDeleteBtn = itemView.findViewById(R.id.btn_delete);
+
+            if (listener == null) return;
+            this.mItemView.setOnClickListener(this);
+
+            if (this.mDeleteBtn != null)
+                this.mDeleteBtn.setOnClickListener(this);
+
+        }
+
+        @Override
+        public void onClick(View v) {
+            mListener.onFundItemClicked(mItemView, getAdapterPosition());
         }
     }
 

@@ -76,103 +76,29 @@
             app:layout_constraintEnd_toEndOf="@+id/disp_allocation" />
 
         <TextView
-            android:id="@+id/label_fund_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/label_fund_name"
-            android:textSize="@dimen/txtSize_label"
-            app:layout_constraintBottom_toBottomOf="@+id/input_fund_name"
-            app:layout_constraintStart_toStartOf="@+id/disp_allocation"
-            app:layout_constraintTop_toTopOf="@+id/input_fund_name" />
-
-        <EditText
-            android:id="@+id/input_fund_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginLeft="32dp"
-            android:layout_marginTop="@dimen/spacingTop_fieldGrp"
-            android:autofillHints=""
-            android:hint="@string/hint_fund_name"
-            android:imeOptions="actionDone"
-            android:inputType="text|textCapWords"
-            android:maxLines="1"
-            android:textSize="@dimen/txtSize_label"
-            app:layout_constraintEnd_toEndOf="@+id/disp_allocation"
-            app:layout_constraintStart_toEndOf="@+id/label_fund_name"
-            app:layout_constraintTop_toBottomOf="@+id/label_total_percentage" />
-
-        <TextView
-            android:id="@+id/label_percent_allocation"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="@string/label_percent_allocation"
-            android:textSize="@dimen/txtSize_label"
-            app:layout_constraintEnd_toEndOf="@+id/label_fund_name"
-            app:layout_constraintStart_toStartOf="@+id/label_fund_name"
-            app:layout_constraintTop_toBottomOf="@+id/input_fund_name" />
-
-        <EditText
-            android:id="@+id/input_percent_allocation"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:autofillHints=""
-            android:gravity="end"
-            android:hint="@string/hint_percentage"
-            android:imeOptions="actionDone"
-            android:inputType="text|textCapWords"
-            android:maxLines="1"
-            android:textSize="@dimen/txtSize_label"
-            app:layout_constraintBottom_toBottomOf="@+id/label_percent_allocation"
-            app:layout_constraintStart_toStartOf="@+id/input_fund_name"
-            app:layout_constraintTop_toTopOf="@+id/label_percent_allocation" />
-
-        <TextView
-            android:id="@+id/percent_sign"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/percent_sign"
-            android:textSize="@dimen/txtSize_label"
-            app:layout_constraintBaseline_toBaselineOf="@+id/input_percent_allocation"
-            app:layout_constraintStart_toEndOf="@+id/input_percent_allocation" />
-
-        <TextView
             android:id="@+id/err_allocation"
             style="@style/error_msg"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="20dp"
             android:text="@string/dummy_err_msg"
             app:layout_constraintEnd_toEndOf="@+id/disp_allocation"
             app:layout_constraintStart_toStartOf="@+id/disp_allocation"
-            app:layout_constraintTop_toBottomOf="@+id/label_percent_allocation" />
-
-        <Button
-            android:id="@+id/btn_change"
-            style="@style/btn_detail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacingTop_button"
-            android:layout_marginBottom="@dimen/spacingBottom_buttonGrp"
-            android:text="@string/btn_change"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btn_save"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="@+id/disp_allocation"
-            app:layout_constraintTop_toBottomOf="@+id/err_allocation" />
-
+            app:layout_constraintTop_toBottomOf="@+id/label_total_percentage" />
 
         <Button
             android:id="@+id/btn_save"
             style="@style/btn_detail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingTop_button"
+            android:layout_marginBottom="@dimen/spacingBottom_buttonGrp"
             android:text="@string/btn_save"
-            app:layout_constraintBaseline_toBaselineOf="@+id/btn_change"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_cancel"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/btn_change" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/err_allocation" />
 
         <Button
             android:id="@+id/btn_cancel"
@@ -181,7 +107,7 @@
             android:layout_height="wrap_content"
             android:text="@string/btn_cancel"
             app:layout_constraintBaseline_toBaselineOf="@+id/btn_save"
-            app:layout_constraintEnd_toEndOf="@+id/disp_allocation"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/btn_save" />
 

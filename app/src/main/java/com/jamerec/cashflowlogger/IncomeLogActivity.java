@@ -76,7 +76,7 @@ public class IncomeLogActivity extends AppCompatActivity
     }
 
     /**
-     * Create fund allocation based on the settings in SharedPreference.
+     * Create fund allocation based on the settings in database.
      */
     private void allocateFundsAutomatically() {
         mFundsList = new ArrayList<>();
