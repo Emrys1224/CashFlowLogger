@@ -246,6 +246,6 @@ public class PasswordSettingFragment extends Fragment implements View.OnClickLis
         }
 
         ((SettingsActivity) Objects.requireNonNull(getActivity()))
-                .loadFragment(new SettingsFragment());
+                .loadFragment(new SettingsFragment(), "SettingsFragment");
     }
 }

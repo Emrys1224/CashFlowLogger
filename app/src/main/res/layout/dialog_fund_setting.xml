@@ -18,13 +18,27 @@
         android:id="@+id/label_fund_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacingTop_fieldGrp"
+        android:layout_marginTop="25dp"
         android:text="@string/label_fund_name"
         android:textSize="@dimen/txtSize_label"
         app:layout_constraintStart_toStartOf="@+id/title_fund_dialog"
         app:layout_constraintTop_toBottomOf="@+id/title_fund_dialog" />
 
-    <AutoCompleteTextView
+    <TextView
+        android:id="@+id/fund_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:text="@string/dummy_fund"
+        android:textSize="@dimen/txtSize_label"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/label_fund_name"
+        app:layout_constraintStart_toStartOf="@+id/input_percent_allocation"
+        app:layout_constraintTop_toTopOf="@+id/label_fund_name" />
+
+    <EditText
         android:id="@+id/input_fund_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -48,6 +62,7 @@
         app:layout_constraintEnd_toEndOf="@+id/label_fund_name"
         app:layout_constraintStart_toStartOf="@+id/label_fund_name"
         app:layout_constraintTop_toBottomOf="@+id/input_fund_name" />
+
 
     <EditText
         android:id="@+id/input_percent_allocation"
@@ -96,19 +111,19 @@
         android:padding="5dp"
         android:text="@string/btn_cancel"
         android:textColor="@color/btn_text"
-        app:layout_constraintBaseline_toBaselineOf="@+id/btn_change"
-        app:layout_constraintEnd_toStartOf="@+id/btn_change" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/btn_action"
+        app:layout_constraintEnd_toStartOf="@+id/btn_action" />
 
     <Button
-        android:id="@+id/btn_change"
+        android:id="@+id/btn_action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/spacingTop_fromHeading"
         android:background="@drawable/btn_tag"
         android:minWidth="0dp"
         android:minHeight="0dp"
         android:padding="5dp"
-        android:text="@string/btn_change"
+        android:text="@string/btn_action"
         android:textColor="@color/btn_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/err_allocation" />

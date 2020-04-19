@@ -225,7 +225,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 ((SettingsActivity) Objects.requireNonNull(getActivity()))
-                        .loadFragment(new PasswordSettingFragment());
+                        .loadFragment(new PasswordSettingFragment(), "PasswordSettingFragment");
             }
         });
 
@@ -257,7 +257,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 ((SettingsActivity) (Objects.requireNonNull(getActivity())))
-                        .loadFragment(new AllocationSettingFragment());
+                        .loadFragment(new AllocationSettingFragment(), "AllocationSettingFragment");
             }
         });
 

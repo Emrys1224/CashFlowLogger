@@ -7,6 +7,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +24,14 @@ import java.util.Objects;
  */
 public class AllocationSettingFragment
         extends Fragment
-        implements FundListAdapter.FundItemClickListener, FundSettingDialog.FundSetListener {
+        implements FundListAdapter.FundItemClickListener {
 
     private final String TAG = getClass().getSimpleName();
+
+    // Constants for sending fund info to FundSettingDialog
+    static final String ACTION = "action";
+    static final String FUND_NAME = "fund_name";
+    static final String PERCENTAGE = "percentage";
 
     private Context mContext;
     private CFLoggerOpenHelper mDB;
@@ -38,8 +44,12 @@ public class AllocationSettingFragment
     private TextView mErrAllocationTV;
 
     // Button widgets
+    private TextView mAddFundBtn;
     private Button mSaveBtn;
     private Button mCancelBtn;
+
+    private FundListAdapter mAdapter;
+    private int mIndexFundSelected;
 
     public AllocationSettingFragment() {
         // Required empty public constructor
@@ -55,15 +65,11 @@ public class AllocationSettingFragment
         mDB = new CFLoggerOpenHelper(mContext);
         mAllocationDB = mDB.getFundsAllocationPercentage();
         mActiveAllocation = new ArrayList<>();
-        List<String> fundNameList = new ArrayList<>();     // to be used as suggestion item for fund name input
 
         for (FundAllocationPercentage fundAllocation : mAllocationDB) {
             // Active funds only
             if (fundAllocation.getPercentAllocation() > 0)
                 mActiveAllocation.add(fundAllocation);
-
-            // Add all fund names including the inactive funds
-            fundNameList.add(fundAllocation.getFundName());
         }
 
         // Initialize display widgets
@@ -72,15 +78,30 @@ public class AllocationSettingFragment
         mErrAllocationTV = view.findViewById(R.id.err_allocation);
 
         // Initialize button widgets
+        mAddFundBtn = view.findViewById(R.id.btn_add_fund);
         mSaveBtn = view.findViewById(R.id.btn_save);
         mCancelBtn = view.findViewById(R.id.btn_cancel);
 
         // Fund allocation percentage settings
         LinearLayoutManager allocationLayoutMgr = new LinearLayoutManager(mContext);
         mAllocationRV.setLayoutManager(allocationLayoutMgr);
-        FundListAdapter adapter = new FundListAdapter(
+        mAdapter = new FundListAdapter(
                 mContext, mActiveAllocation, this, R.layout.list_item_allocation_percentage);
-        mAllocationRV.setAdapter(adapter);
+        mAllocationRV.setAdapter(mAdapter);
+
+        // Plus icon for 'Add a Fund' button
+        mAddFundBtn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_add,0,0,0);
+        mAddFundBtn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onClick(View v) {
+                mIndexFundSelected = -1;
+
+                FundSettingDialog fundSettingDialog = new FundSettingDialog();
+                fundSettingDialog.show(
+                        Objects.requireNonNull(getFragmentManager()), "Tag");
+            }
+        });
 
         return view;
     }
@@ -88,16 +109,51 @@ public class AllocationSettingFragment
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onFundItemClicked(View v, int position) {
+
+        // Remove this fund allocation
+        if (v.getId() == R.id.btn_delete) {
+            mIndexFundSelected = -1;
+            return;
+        }
+
+        mIndexFundSelected = position;
+
+        // Details of fund to edit
         String fundName = mActiveAllocation.get(position).getFundName();
         int percentage = mActiveAllocation.get(position).getPercentAllocation();
+        Bundle fundInfo = new Bundle();
+        fundInfo.putString(FUND_NAME, fundName);
+        fundInfo.putInt(PERCENTAGE, percentage);
 
         FundSettingDialog fundSettingDialog = new FundSettingDialog();
+        fundSettingDialog.setArguments(fundInfo);
         fundSettingDialog.show(
                 Objects.requireNonNull(getFragmentManager()), "Tag");
     }
 
-    @Override
-    public void setFundAllocation() {
+    public void updateFund(String fundName, int allocationPercentage) {
+        Log.d(TAG, "Fund Name: " + fundName + "\nPercent Allocation: " + allocationPercentage);
 
+        if (mIndexFundSelected >= 0) {
+            FundAllocationPercentage fundSetting = mActiveAllocation.get(mIndexFundSelected);
+            fundSetting.updatePercentAllocation(allocationPercentage);
+
+        } else {
+            mActiveAllocation.add(new FundAllocationPercentage(fundName, allocationPercentage));
+        }
+
+        mAdapter.notifyDataSetChanged();
+
+        int percentTotal = 0;
+        for (FundAllocationPercentage fundAllocation : mActiveAllocation) {
+            percentTotal += fundAllocation.getPercentAllocation();
+        }
+
+        mTotalPercentageTV.setText(String.format("%s%%", String.valueOf(percentTotal)));
+
+        if (percentTotal == 100)
+            mTotalPercentageTV.setTextColor(getResources().getColor(R.color.colorPrimary));
+        else
+            mTotalPercentageTV.setTextColor(getResources().getColor(R.color.colorAccent));
     }
 }

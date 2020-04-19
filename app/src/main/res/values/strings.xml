@@ -107,10 +107,17 @@
     <string name="label_total">Total</string>
     <string name="dummy_total_percentage">100%</string>
     <string name="heading_allocation_setting">Fund Allocation Setting</string>
-    <string name="btn_change">Change</string>
-    <string name="hint_change_allocation">Click the fund item to edit allocation percentage or enter a fund name below to add fund</string>
+    <string name="hint_change_allocation">Click the fund item to edit</string>
     <string name="btn_delete">Delete</string>
     <string name="dummy_title">Title</string>
+    <string name="btn_action">Action</string>
+    <string name="title_edit_allocation">Edit Allocation Setting</string>
+    <string name="btn_apply">Apply</string>
+    <string name="title_add_fund">Add New Fund</string>
+    <string name="btn_add">Add</string>
+    <string name="err_msg_fund_name_empty">* Fund name cannot be empty\n</string>
+    <string name="err_msg_allocation_range">* Allocation percentage must be between 1% to 100%</string>
+    <string name="btn_add_fund">Add a Fund</string>
     <string-array name="hour_12">
         <item>01</item>
         <item>02</item>

@@ -48,9 +48,23 @@
             android:id="@+id/disp_allocation"
             android:layout_width="@dimen/width_inputField"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hint_allocation_edit" />
+
+        <TextView
+            android:id="@+id/btn_add_fund"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/btn_add_fund"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="@dimen/txtSize_label"
+            app:layout_constraintStart_toStartOf="@+id/disp_allocation"
+            app:layout_constraintTop_toBottomOf="@+id/disp_allocation" />
 
         <TextView
             android:id="@+id/label_total_percentage"
@@ -62,7 +76,7 @@
             android:text="@string/label_total"
             android:textSize="@dimen/txtSize_label"
             app:layout_constraintStart_toStartOf="@+id/disp_allocation"
-            app:layout_constraintTop_toBottomOf="@+id/disp_allocation" />
+            app:layout_constraintTop_toBottomOf="@+id/btn_add_fund" />
 
         <TextView
             android:id="@+id/disp_total_percentage"
