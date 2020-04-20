@@ -29,7 +29,7 @@ public class IncomeDetailsConfirmationFragment extends Fragment
     private Button mBtnEdit;
 
     private Context mContext;
-    private ArrayList<FundItem> mFundList;
+    private ArrayList<FundAllocationAmount> mFundList;
     private OnConfirmIncomeLogListener logListener;
 
     public IncomeDetailsConfirmationFragment() {
@@ -70,7 +70,7 @@ public class IncomeDetailsConfirmationFragment extends Fragment
         mCategoriesRV = view.findViewById(R.id.list_funds);
         LinearLayoutManager layoutMgr = new LinearLayoutManager(mContext);
         mCategoriesRV.setLayoutManager(layoutMgr);
-        FundListAdapter adapter = new FundListAdapter(mContext, mFundList, null);
+        FundListAdapter adapter = new FundListAdapter(mContext, mFundList, null, R.layout.list_item_fund);
         mCategoriesRV.setAdapter(adapter);
 
         mBtnLog = view.findViewById(R.id.btn_allocate);

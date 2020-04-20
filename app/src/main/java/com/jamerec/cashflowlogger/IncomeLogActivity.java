@@ -10,7 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 public class IncomeLogActivity extends AppCompatActivity
         implements
@@ -20,33 +20,25 @@ public class IncomeLogActivity extends AppCompatActivity
 
     private final String TAG = getClass().getSimpleName();
 
-    private FragmentManager mFragmentManager;
-
     // Income details
     private String mIncomeSource;
     private PhCurrency mIncomeAmount;
-    private ArrayList<FundItem> mFundsList;
+    private ArrayList<FundAllocationAmount> mFundsList;
 
     private  CFLoggerOpenHelper mDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mDB = new CFLoggerOpenHelper(this);
-
-        mFragmentManager = getSupportFragmentManager();
-
-        // Get the account balance, list of income sources and the list of funds from DB here....
-        // Account balance dummy data
         loadFragment(new IncomeDetailFragment());
     }
 
     public void loadFragment(Fragment detailFragment) {
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-
-        fragmentTransaction.replace(android.R.id.content, detailFragment);
-        fragmentTransaction.commit();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(android.R.id.content, detailFragment)
+                .commit();
     }
 
     @Override
@@ -77,22 +69,22 @@ public class IncomeLogActivity extends AppCompatActivity
     }
 
     @Override
-    public void submitFundAllocation(ArrayList<FundItem> fundList) {
+    public void submitFundAllocation(ArrayList<FundAllocationAmount> fundList) {
         this.mFundsList = fundList;
 
         confirmIncomeLogging();
     }
 
     /**
-     * Create fund allocation based on the settings in SharedPreference.
+     * Create fund allocation based on the settings in database.
      */
     private void allocateFundsAutomatically() {
         mFundsList = new ArrayList<>();
 
-        Map<String, Integer> fundsAllocationPercentage = mDB.getFundsAllocationPercentage();
-        for (Map.Entry<String, Integer> fundAllocation : fundsAllocationPercentage.entrySet()) {
-            String fundName = fundAllocation.getKey();
-            int percentAllocation = fundAllocation.getValue();
+        List<FundAllocationPercentage> fundsAllocationPercentage = mDB.getFundsAllocationPercentage();
+        for (FundAllocationPercentage fundAllocation : fundsAllocationPercentage) {
+            String fundName = fundAllocation.getFundName();
+            int percentAllocation = fundAllocation.getPercentAllocation();
 
             if (percentAllocation > 0) {
                 double allocationDecimal = percentAllocation / 100D;
@@ -100,7 +92,7 @@ public class IncomeLogActivity extends AppCompatActivity
                 PhCurrency fundAmount = new PhCurrency(mIncomeAmount);
                 fundAmount.multiplyBy(allocationDecimal);
 
-                mFundsList.add(new FundItem(fundName, fundAmount));
+                mFundsList.add(new FundAllocationAmount(fundName, fundAmount));
             }
         }
     }

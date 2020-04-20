@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".AllocationSettingFragment">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/heading_allocation_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingTop_ofHeading"
+            android:text="@string/heading_allocation_setting"
+            android:textColor="@color/txtColor_heading"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/label_fund_allocation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingTop_fromHeading"
+            android:text="@string/label_fund_allocation"
+            android:textSize="@dimen/txtSize_label"
+            app:layout_constraintStart_toStartOf="@+id/disp_allocation"
+            app:layout_constraintTop_toBottomOf="@+id/heading_allocation_setting" />
+
+        <TextView
+            android:id="@+id/hint_allocation_edit"
+            style="@style/message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/hint_change_allocation"
+            app:layout_constraintEnd_toEndOf="@+id/disp_allocation"
+            app:layout_constraintStart_toStartOf="@+id/disp_allocation"
+            app:layout_constraintTop_toBottomOf="@+id/label_fund_allocation" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/disp_allocation"
+            android:layout_width="@dimen/width_inputField"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/hint_allocation_edit" />
+
+        <TextView
+            android:id="@+id/btn_add_fund"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/btn_add_fund"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="@dimen/txtSize_label"
+            app:layout_constraintStart_toStartOf="@+id/disp_allocation"
+            app:layout_constraintTop_toBottomOf="@+id/disp_allocation" />
+
+        <TextView
+            android:id="@+id/label_total_percentage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="@dimen/spacingTop_fieldGrp"
+            android:text="@string/label_total"
+            android:textSize="@dimen/txtSize_label"
+            app:layout_constraintStart_toStartOf="@+id/disp_allocation"
+            app:layout_constraintTop_toBottomOf="@+id/btn_add_fund" />
+
+        <TextView
+            android:id="@+id/disp_total_percentage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="60dp"
+            android:layout_marginRight="60dp"
+            android:text="@string/dummy_total_percentage"
+            android:textSize="@dimen/txtSize_detail"
+            app:layout_constraintBaseline_toBaselineOf="@+id/label_total_percentage"
+            app:layout_constraintEnd_toEndOf="@+id/disp_allocation" />
+
+        <TextView
+            android:id="@+id/err_allocation"
+            style="@style/error_msg"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/dummy_err_msg"
+            app:layout_constraintEnd_toEndOf="@+id/disp_allocation"
+            app:layout_constraintStart_toStartOf="@+id/disp_allocation"
+            app:layout_constraintTop_toBottomOf="@+id/label_total_percentage" />
+
+        <Button
+            android:id="@+id/btn_save"
+            style="@style/btn_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacingTop_button"
+            android:layout_marginBottom="@dimen/spacingBottom_buttonGrp"
+            android:text="@string/btn_save"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_cancel"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/err_allocation" />
+
+        <Button
+            android:id="@+id/btn_cancel"
+            style="@style/btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_cancel"
+            app:layout_constraintBaseline_toBaselineOf="@+id/btn_save"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/btn_save" />
+
+    </android.support.constraint.ConstraintLayout>
+</android.support.v4.widget.NestedScrollView>

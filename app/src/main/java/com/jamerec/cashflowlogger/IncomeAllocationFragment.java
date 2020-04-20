@@ -17,7 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 
 /**
@@ -40,7 +40,7 @@ public class IncomeAllocationFragment extends Fragment
     private OnSubmitFundAllocationListener submitListener;
     private PhCurrency mIncomeAmount;
     private PhCurrency mRemainingAmount;
-    private ArrayList<FundItem> mFundsList;
+    private ArrayList<FundAllocationAmount> mFundsList;
     private RecyclerView.Adapter mFundListAdapter;
     private RecyclerView.LayoutManager mLayoutMgr;
     private int mFundSelectedIndex;
@@ -77,11 +77,9 @@ public class IncomeAllocationFragment extends Fragment
 
         // Get the list of funds for manual allocation
         CFLoggerOpenHelper dataBase = new CFLoggerOpenHelper(mContext);
-        Map<String, Integer> fundsAllocationPercentage = dataBase.getFundsAllocationPercentage();
-        for (Map.Entry<String, Integer> fundAllocation : fundsAllocationPercentage.entrySet()) {
-            String fundName = fundAllocation.getKey();
-
-            mFundsList.add(new FundItem(fundName, new PhCurrency()));
+        List<String> fundsList = dataBase.getFundsList();
+        for (String fundName : fundsList) {
+            mFundsList.add(new FundAllocationAmount(fundName, new PhCurrency()));
         }
 
         // Initialize widgets
@@ -97,7 +95,7 @@ public class IncomeAllocationFragment extends Fragment
         mFundAllocationRV.setHasFixedSize(true);
         mLayoutMgr = new LinearLayoutManager(mContext);
         mFundAllocationRV.setLayoutManager(mLayoutMgr);
-        mFundListAdapter = new FundListAdapter(mContext, mFundsList, this);
+        mFundListAdapter = new FundListAdapter(mContext, mFundsList, this, R.layout.list_item_fund);
         mFundAllocationRV.setAdapter(mFundListAdapter);
 
         // Setup display text
@@ -149,7 +147,7 @@ public class IncomeAllocationFragment extends Fragment
                 int fundsWithAllocation = 0;
                 PhCurrency totalAllocatedAmount = new PhCurrency();
 
-                for (FundItem fundItem : mFundsList) {
+                for (FundAllocationAmount fundItem : mFundsList) {
                     PhCurrency fundValue = fundItem.getAmount();
 
                     if (fundValue.isZero()) continue;
@@ -195,7 +193,7 @@ public class IncomeAllocationFragment extends Fragment
                 }
 
                 // Change input display value to the next fund with ₱0.00 value.
-                for (FundItem fundItem : mFundsList) {
+                for (FundAllocationAmount fundItem : mFundsList) {
                     if (fundItem.getAmount().isZero()) {
                         mFundSelectedIndex = mFundsList.indexOf(fundItem);
                         mFundNameTV.setText(fundItem.getName());
@@ -214,7 +212,7 @@ public class IncomeAllocationFragment extends Fragment
     public void onFundItemClicked(View v, int position) {
         // Select a fund to set the allocated amount.
         mFundSelectedIndex = position;
-        FundItem fundItem = mFundsList.get(mFundSelectedIndex);
+        FundAllocationAmount fundItem = mFundsList.get(mFundSelectedIndex);
 
         // Add the amount of this fund back to the remaining amount to be allocated.
         mRemainingAmount.add(fundItem.getAmount());
@@ -237,7 +235,7 @@ public class IncomeAllocationFragment extends Fragment
          *
          * @param fundList list of fund with its amount allocation.
          */
-        void submitFundAllocation(ArrayList<FundItem> fundList);
+        void submitFundAllocation(ArrayList<FundAllocationAmount> fundList);
     }
 
 }

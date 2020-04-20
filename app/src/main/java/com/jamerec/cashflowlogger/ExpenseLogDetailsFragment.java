@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -57,9 +56,9 @@ public class ExpenseLogDetailsFragment extends Fragment
     private AutoCompleteTextView mSizeATV;
     private EditText mQuantityET;
     private TextView mTotalPriceTV;
-    private Spinner mFundSelectionS;
+    private Spinner mFundSelectionSpr;
     private RecyclerView mTagsRV;
-    private EditText mTagsET;
+    private AutoCompleteTextView mTagsATV;
     private EditText mRemarksET;
 
     // Error Messages Widgets
@@ -140,10 +139,10 @@ public class ExpenseLogDetailsFragment extends Fragment
         mQuantityET = view.findViewById(R.id.input_quantity);
         mQuantityErMsgTV = view.findViewById(R.id.err_msg_quantity);
         mTotalPriceTV = view.findViewById(R.id.disp_total_price);
-        mFundSelectionS = view.findViewById(R.id.selection_fund);
+        mFundSelectionSpr = view.findViewById(R.id.selection_fund);
         mFundErrMsgTV = view.findViewById(R.id.err_msg_fund);
-        mTagsRV = view.findViewById(R.id.disp_tags);
-        mTagsET = view.findViewById(R.id.input_tags);
+        mTagsRV = view.findViewById(R.id.disp_allocation);
+        mTagsATV = view.findViewById(R.id.input_tags);
         mRemarksET = view.findViewById(R.id.input_remarks);
         mBtnLog = view.findViewById(R.id.btn_log);
         mBtnCancel = view.findViewById(R.id.btn_cancel);
@@ -167,7 +166,7 @@ public class ExpenseLogDetailsFragment extends Fragment
 
         // Set up fund selection dropdown
         mFundSelectionAdapter = new ArrayAdapter<>(mContext, R.layout.spinner_item, funds);
-        mFundSelectionS.setAdapter(mFundSelectionAdapter);
+        mFundSelectionSpr.setAdapter(mFundSelectionAdapter);
 
         // Set up tags display.
         FlexboxLayoutManager flexBoxLayoutMgr = new FlexboxLayoutManager(mContext);
@@ -215,7 +214,7 @@ public class ExpenseLogDetailsFragment extends Fragment
                 }
         );
 
-        // Add autocomplete suggestion item for mBrandATV.
+        // Add autocomplete suggestion item for mItemATV.
         ArrayAdapter<String> itemAdapter =
                 new ArrayAdapter<>(
                         mContext, android.R.layout.simple_list_item_1,
@@ -223,6 +222,33 @@ public class ExpenseLogDetailsFragment extends Fragment
                 );
         mItemATV.setThreshold(1);
         mItemATV.setAdapter(itemAdapter);
+
+        // Add autocomplete suggestion item for mBrandATV.
+        ArrayAdapter<String> brandAdapter =
+                new ArrayAdapter<>(
+                        mContext, android.R.layout.simple_list_item_1,
+                        mDB.getBrandList()
+                );
+        mBrandATV.setThreshold(1);
+        mBrandATV.setAdapter(brandAdapter);
+
+        // Add autocomplete suggestion item for mSizeATV.
+        ArrayAdapter<String> sizeAdapter =
+                new ArrayAdapter<>(
+                        mContext, android.R.layout.simple_list_item_1,
+                        mDB.getSizesList()
+                );
+        mSizeATV.setThreshold(1);
+        mSizeATV.setAdapter(sizeAdapter);
+
+        // Add autocomplete suggestion item for mSizeATV.
+        ArrayAdapter<String> tagsAdapter =
+                new ArrayAdapter<>(
+                        mContext, android.R.layout.simple_list_item_1,
+                        mDB.getTagsList()
+                );
+        mTagsATV.setThreshold(1);
+        mTagsATV.setAdapter(tagsAdapter);
 
         // Set/update product name.
         mItemATV.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -241,9 +267,6 @@ public class ExpenseLogDetailsFragment extends Fragment
 
                 // Retain the view focus and show the error message
                 if (validateItemName() == FAILED) return true;
-
-                // Set/update the items for auto suggest and item tags in other input fields
-                setAutoSuggestions();
 
                 return false;
             }
@@ -265,7 +288,6 @@ public class ExpenseLogDetailsFragment extends Fragment
 
                     // Retain the view focus and show the error message
                     validateItemName();
-                    setAutoSuggestions();
                 }
             }
         });
@@ -424,7 +446,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         });
 
         // Set/update the fund from where to deduct this purchased item.
-        mFundSelectionS.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mFundSelectionSpr.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 // Check that initial execution of this method is done during
@@ -439,7 +461,7 @@ public class ExpenseLogDetailsFragment extends Fragment
                         mExpenseItem.setFund(selectedFund);
 //                    Log.d(TAG, mExpenseItem.toString());
 
-                    mTagsET.requestFocus();
+                    mTagsATV.requestFocus();
 
                 } else {
                     // Initial execution of this function after creation of this fragment
@@ -451,9 +473,9 @@ public class ExpenseLogDetailsFragment extends Fragment
             public void onNothingSelected(AdapterView<?> parent) { /* Do Nothing */ }
         });
 
-        mFundSelectionS.setFocusable(true);
-        mFundSelectionS.setFocusableInTouchMode(true);
-        mFundSelectionS.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        mFundSelectionSpr.setFocusable(true);
+        mFundSelectionSpr.setFocusableInTouchMode(true);
+        mFundSelectionSpr.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
@@ -475,10 +497,10 @@ public class ExpenseLogDetailsFragment extends Fragment
         });
 
         // Update product tags.
-        mTagsET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mTagsATV.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                String tag = mTagsET.getText().toString();
+                String tag = mTagsATV.getText().toString();
 
                 if (tag.isEmpty()) {
                     mRemarksET.requestFocus();
@@ -491,15 +513,15 @@ public class ExpenseLogDetailsFragment extends Fragment
 //                    Log.d(TAG, mExpenseItem.toString());
                 }
 
-                mTagsET.setText("");
+                mTagsATV.setText("");
 
                 return true;    // Keep focus for adding additional tags.
             }
         });
-        mTagsET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        mTagsATV.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                String tag = mTagsET.getText().toString();
+                String tag = mTagsATV.getText().toString();
 
                 if (tag.isEmpty()) return;    // Do nothing
 
@@ -509,7 +531,7 @@ public class ExpenseLogDetailsFragment extends Fragment
 //                    Log.d(TAG, mExpenseItem.toString());
                 }
 
-                mTagsET.setText("");
+                mTagsATV.setText("");
             }
         });
 
@@ -548,7 +570,7 @@ public class ExpenseLogDetailsFragment extends Fragment
         mPricePCI.setAmount(mExpenseItem.getItemPrice());
         mSizeATV.setText(mExpenseItem.getSize().toString());
         mTotalPriceTV.setText(mExpenseItem.getTotalPrice().toString());
-        mFundSelectionS.setSelection(mFundSelectionAdapter.getPosition(mExpenseItem.getFund()));
+        mFundSelectionSpr.setSelection(mFundSelectionAdapter.getPosition(mExpenseItem.getFund()));
         mTagItemAdapter.notifyDataSetChanged();
         mRemarksET.setText(mExpenseItem.getRemarks());
         try {
@@ -610,7 +632,7 @@ public class ExpenseLogDetailsFragment extends Fragment
     private void hideSoftKeyboard() {
         InputMethodManager imm = (InputMethodManager)
                 mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(mFundSelectionS.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mFundSelectionSpr.getWindowToken(), 0);
     }
 
     /**
@@ -631,6 +653,9 @@ public class ExpenseLogDetailsFragment extends Fragment
         // Clear error message.
         mItemErrMsgTV.setText("");
         mItemErrMsgTV.setVisibility(View.GONE);
+
+        // Update tags display as per product stored in database.
+        mTagItemAdapter.notifyDataSetChanged();
 
         return PASSED;
     }
@@ -754,36 +779,9 @@ public class ExpenseLogDetailsFragment extends Fragment
         mQuantityErMsgTV.setVisibility(View.GONE);
 
         // Show fund selection dropdown.
-        mFundSelectionS.performClick();
+        mFundSelectionSpr.performClick();
 
         return PASSED;
-    }
-
-    /**
-     * Sets/updates the auto suggest items input fields and the tags displayed
-     * that are associated with the given expense item.
-     */
-    private void setAutoSuggestions() {
-        // Update tags display as per product stored in database.
-        mTagItemAdapter.notifyDataSetChanged();
-
-        // Add autocomplete suggestion item for mBrandATV.
-        ArrayAdapter<String> brandAdapter =
-                new ArrayAdapter<>(
-                        mContext, android.R.layout.simple_list_item_1,
-                        mDB.getBrandList(mExpenseItem)
-                );
-        mBrandATV.setThreshold(1);
-        mBrandATV.setAdapter(brandAdapter);
-
-        // Add autocomplete suggestion item for mSizeATV.
-        ArrayAdapter<String> sizeAdapter =
-                new ArrayAdapter<>(
-                        mContext, android.R.layout.simple_list_item_1,
-                        mDB.getSizesList(mExpenseItem)
-                );
-        mSizeATV.setThreshold(1);
-        mSizeATV.setAdapter(sizeAdapter);
     }
 
     /**

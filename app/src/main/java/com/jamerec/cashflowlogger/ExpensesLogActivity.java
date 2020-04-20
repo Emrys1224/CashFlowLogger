@@ -1,6 +1,7 @@
 package com.jamerec.cashflowlogger;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -17,30 +18,25 @@ public class ExpensesLogActivity extends AppCompatActivity
 
     private ExpenseItem mExpenseItem;
 
-    private FragmentManager mFragmentManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mFragmentManager = getSupportFragmentManager();
-
         loadFragment(new ExpenseLogDetailsFragment());
     }
 
     public void loadFragment(Fragment detailFragment) {
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-
-        fragmentTransaction.replace(android.R.id.content, detailFragment);
-        fragmentTransaction.commit();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(android.R.id.content, detailFragment)
+                .commit();
     }
 
     @Override
-    public void submitExpenseDetails(ExpenseItem expenseItem) {
+    public void submitExpenseDetails(@NonNull ExpenseItem expenseItem) {
         mExpenseItem = expenseItem;
 
         // submit details....
-        Log.d(TAG, expenseItem.toString());
+//        Log.d(TAG, expenseItem.toString());
 
         Bundle expenseDetails = new Bundle();
         expenseDetails.putParcelable("expenseItem", expenseItem);

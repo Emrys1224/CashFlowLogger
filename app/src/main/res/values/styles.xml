@@ -40,10 +40,19 @@
         <item name="android:textColor">@color/txtColor_detail</item>
     </style>
 
+    <style name="message">
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">@dimen/txtSize_err_msg</item>
+        <item name="paddingStart">15dp</item>
+        <item name="android:paddingLeft">15dp</item>
+    </style>
+
     <style name="error_msg">
         <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:visibility">gone</item>
         <item name="android:textSize">@dimen/txtSize_err_msg</item>
-        <item name="android:visibility">visible</item>
+        <item name="paddingStart">5dp</item>
+        <item name="android:paddingLeft">5dp</item>
     </style>
 
     <style name="spinner">
@@ -53,5 +62,13 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="clickable_textview">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/design_default_color_primary_dark</item>
+        <item name="android:textSize">@dimen/clickable_text</item>
+        <item name="android:clickable">true</item>
+    </style>
 
 </resources>

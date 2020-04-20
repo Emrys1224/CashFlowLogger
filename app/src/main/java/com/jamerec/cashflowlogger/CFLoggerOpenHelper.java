@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -186,7 +185,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
      * @param amount       the amount of income to be logged
      * @param fundsList    the list of funds and the allocation amount for each fund
      */
-    void logIncome(String incomeSource, PhCurrency amount, ArrayList<FundItem> fundsList) {
+    void logIncome(String incomeSource, PhCurrency amount, ArrayList<FundAllocationAmount> fundsList) {
         try {
             if (mReadableDB == null) mReadableDB = getReadableDatabase();
             if (mWritableDB == null) mWritableDB = getWritableDatabase();
@@ -221,7 +220,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             // * Update the `funds_balance` table by calling updateFundBalance() as
             //   per the allocation amount from 'fundsList' ArrayList and the id retrieved from
             //   updateCashBalance().
-            for (FundItem fundAllocation : fundsList) {
+            for (FundAllocationAmount fundAllocation : fundsList) {
                 long fundId = queryId(FundsEntry.TABLE_NAME, fundAllocation.getName());
                 updateFundBalance(fundId, balanceUpdateId, fundAllocation.getAmount());
             }
@@ -724,8 +723,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
      *
      * @return list of funds and percentage allocation
      */
-    Map<String, Integer> getFundsAllocationPercentage() {
-        Map<String, Integer> fundsAllocationPercentage = new HashMap<>();
+    List<FundAllocationPercentage> getFundsAllocationPercentage() {
+        List<FundAllocationPercentage> fundsAllocationPercentage = new ArrayList<>();
 
         // Funds Allocation Preference List query:
         /* SELECT
@@ -743,7 +742,8 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 " JOIN " + FundsEntry.TABLE_NAME +
                 " ON " + FundsEntry.COL_ID + " = " + FundsAllocationEntry.COL_FUND_ID +
                 " WHERE " + FundsAllocationEntry.COL_DATE + "  =" +
-                " (SELECT MAX(" + FundsAllocationEntry.COL_DATE + ") FROM " + FundsAllocationEntry.TABLE_NAME + ");";
+                " (SELECT MAX(" + FundsAllocationEntry.COL_DATE + ")" +
+                "  FROM " + FundsAllocationEntry.TABLE_NAME + ")";
 
         Cursor allocationCursor = null;
         if (mReadableDB == null) mReadableDB = getReadableDatabase();
@@ -755,7 +755,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
                 int percentAllocation = allocationCursor.getInt(
                         allocationCursor.getColumnIndex(FundsAllocationEntry.COL_PERCENT_ALLOCATION));
 
-                fundsAllocationPercentage.put(fundName, percentAllocation);
+                fundsAllocationPercentage.add(new FundAllocationPercentage(fundName, percentAllocation));
             }
 
         } finally {
@@ -773,7 +773,7 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
      * @return true if update is successful;
      *         false if the allocation sum is not 100 percent
      */
-    boolean editFundsAllocationPercentage(@NonNull Map<String, Integer> fundsAllocationPercentage) {
+    boolean editFundsAllocationPercentage(@NonNull List<FundAllocationPercentage> fundsAllocationPercentage) {
         boolean editSuccess = false;
         try {
             if (mReadableDB == null) mReadableDB = getReadableDatabase();
@@ -790,9 +790,9 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
             // Iterate through the list of fund-percent allocation pair and
             //   insert an entry accordingly.
             int percentSum = 0;     // track running sum making sure it is 100
-            for (Map.Entry<String, Integer> allocationEntry : fundsAllocationPercentage.entrySet()) {
-                String fundName = allocationEntry.getKey();
-                int percentAllocation = allocationEntry.getValue();
+            for (FundAllocationPercentage allocationEntry : fundsAllocationPercentage) {
+                String fundName = allocationEntry.getFundName();
+                int percentAllocation = allocationEntry.getPercentAllocation();
 
                 // Get the id of the fund and insert new entry if it does not exist.
                 long fundId = queryId(FundsEntry.TABLE_NAME, fundName);
@@ -905,12 +905,12 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
      */
     List<String> getFundsList() {
         List<String> fundsList = new ArrayList<>();
-        Map<String, Integer> fundAllocations = getFundsAllocationPercentage();
+        List<FundAllocationPercentage> fundAllocations = getFundsAllocationPercentage();
 
         // Populate list with the active funds
-        for (Map.Entry<String, Integer> fundAllocation : fundAllocations.entrySet()) {
-            String fundName = fundAllocation.getKey();
-            int percentAllocation = fundAllocation.getValue();
+        for (FundAllocationPercentage fundAllocation : fundAllocations) {
+            String fundName = fundAllocation.getFundName();
+            int percentAllocation = fundAllocation.getPercentAllocation();
 
             // Check if fund is active
             if (percentAllocation > 0)
@@ -924,57 +924,26 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
      * Returns the list of brand that was recorded for this product to be used for
      *  auto suggest feature of the 'Brand' input field.
      *
-     * @param product the name of item/service purchased
      * @return        the list of brand that was recorded for this product
      */
-    List<String> getBrandList(ExpenseItem product) {
+    List<String> getBrandList() {
         List<String> brandsList = new ArrayList<>();
-
-        if (product == null) return brandsList;
-
-        String productName = product.getItemName();
-        if (productName.isEmpty()) return brandsList;
 
         // Check for database initialization
         if (mReadableDB == null) mReadableDB = getReadableDatabase();
 
-        // Result column name
-        String colBrandName = "Brand_Name";
-
         // Brands List SQL query:
-        /*  SELECT DISTINCT
-                brand.name AS Brand_Name
-
-            FROM   product_variant
-
-            JOIN brand   ON product_variant.brand_id   = brand.id
-
-            WHERE product_variant.product_id =
-                (SELECT product.id
-                 FROM   product
-                 WHERE  product.name = 'Product Name');
+        /*  SELECT name FROM brand;
          */
         String brandsQuery = "" +
-                " SELECT DISTINCT " + BrandEntry.TABLE_NAME + "." + BrandEntry.COL_NAME +
-                " AS " + colBrandName +
-                " FROM " + ProductVariantEntry.TABLE_NAME +
-                "" +
-                " JOIN " + BrandEntry.TABLE_NAME +
-                " ON " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_BRAND_ID +
-                " = " + BrandEntry.TABLE_NAME + "." + BrandEntry.COL_ID +
-                "" +
-                " WHERE " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_PRODUCT_ID + " = " +
-                "  (SELECT " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_ID +
-                "   FROM " + ProductEntry.TABLE_NAME +
-                "   WHERE " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_NAME +
-                "      = '" + productName + "')";
+                "SELECT " + BrandEntry.COL_NAME + " FROM " + BrandEntry.TABLE_NAME;
 
         Cursor brandsCursor = null;
         try {
             brandsCursor = mReadableDB.rawQuery(brandsQuery, null);
             while (brandsCursor.moveToNext()) {
                 String brandName = brandsCursor.getString(
-                        brandsCursor.getColumnIndex(colBrandName));
+                        brandsCursor.getColumnIndex(BrandEntry.COL_NAME));
                 brandsList.add(brandName);
             }
 
@@ -989,16 +958,10 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
      * Returns the list of packaging/order size that was recorded for an item/service
      *  (if you know what I mean) to be used in auto suggest feature of 'Item Size' input field.
      *
-     * @param product the name of item/service purchased
      * @return        the list of sizes that was recorded for this product
      */
-    List<String> getSizesList(ExpenseItem product) {
+    List<String> getSizesList() {
         List<String> sizesList = new ArrayList<>();
-
-        if (product == null) return sizesList;
-
-        String productName = product.getItemName();
-        if (productName.isEmpty()) return sizesList;
 
         // Check for database initialization
         if (mReadableDB == null) mReadableDB = getReadableDatabase();
@@ -1009,42 +972,29 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         String colUnit = "Unit";
 
         // Sizes List SQL Query:
-        /*
-          SELECT DISTINCT
-            product_size.size        AS Size_Real,
-            fraction_text.val_as_txt AS Size_Txt,
-            unit.name                AS Unit
+        /* SELECT
+             product_size.size        AS Size_Real,
+             fraction_text.val_as_txt AS Size_Txt,
+             unit.name                AS Unit
 
-          FROM product_variant
+             FROM product_size
 
-          JOIN      product_size   ON product_variant.product_size_id = product_size.id
-          JOIN      unit           ON product_size.unit_id            = unit.id
-          LEFT JOIN fraction_text  ON product_size.size_txt           = fraction_text.id
-
-          WHERE product_variant.product_id =
-            (SELECT product.id FROM product WHERE product.name = 'Product Name');
+             JOIN      unit           ON product_size.unit_id            = unit.id
+             LEFT JOIN fraction_text  ON product_size.size_txt           = fraction_text.id;
          */
         String sizesQuery = "" +
                 " SELECT DISTINCT" +
                 " " + ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_SIZE + " AS " + colSizeReal + "," +
                 " " + FractionTextEntry.TABLE_NAME + "." + FractionTextEntry.COL_VAL_AS_TXT + " AS " + colSizeTxt + "," +
                 " " + UnitEntry.TABLE_NAME + "." + UnitEntry.COL_NAME + " AS " + colUnit +
-                " FROM " + ProductVariantEntry.TABLE_NAME +
+                " FROM " + ProductSizeEntry.TABLE_NAME +
                 "" +
-                " JOIN " + ProductSizeEntry.TABLE_NAME +
-                " ON " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_PRODUCT_SIZE_ID +
-                " = " + ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_ID +
                 " JOIN " + UnitEntry.TABLE_NAME +
                 " ON " + ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_UNIT_ID +
                 " = " + UnitEntry.TABLE_NAME + "." + UnitEntry.COL_ID +
                 " LEFT JOIN " + FractionTextEntry.TABLE_NAME +
                 " ON " + ProductSizeEntry.TABLE_NAME + "." + ProductSizeEntry.COL_SIZE_TXT +
-                " = " + FractionTextEntry.TABLE_NAME + "." + FractionTextEntry.COL_ID +
-                "" +
-                " WHERE " + ProductVariantEntry.TABLE_NAME + "." + ProductVariantEntry.COL_PRODUCT_ID + " = " +
-                " (SELECT " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_ID +
-                " FROM " + ProductEntry.TABLE_NAME +
-                " WHERE " + ProductEntry.TABLE_NAME + "." + ProductEntry.COL_NAME + " = '" + productName + "')";
+                " = " + FractionTextEntry.TABLE_NAME + "." + FractionTextEntry.COL_ID;
 
         Cursor sizesCursor = null;
         try {
@@ -1086,6 +1036,34 @@ public class CFLoggerOpenHelper extends SQLiteOpenHelper {
         }
 
         return sizesList;
+    }
+
+    List<String> getTagsList() {
+        List<String> tagsList = new ArrayList<>();
+
+        // Check for database initialization
+        if (mReadableDB == null) mReadableDB = getReadableDatabase();
+
+        // Brands List SQL query:
+        /*  SELECT name FROM tag;
+         */
+        String tagsQuery = "" +
+                "SELECT " + TagEntry.COL_NAME + " FROM " + TagEntry.TABLE_NAME;
+
+        Cursor tagsCursor = null;
+        try {
+            tagsCursor = mReadableDB.rawQuery(tagsQuery, null);
+            while (tagsCursor.moveToNext()) {
+                String brandName = tagsCursor.getString(
+                        tagsCursor.getColumnIndex(BrandEntry.COL_NAME));
+                tagsList.add(brandName);
+            }
+
+        } finally {
+            if (tagsCursor != null) tagsCursor.close();
+        }
+
+        return tagsList;
     }
 
     /**
