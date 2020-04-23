@@ -2,8 +2,10 @@ package com.jamerec.cashflowlogger;
 
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,18 +20,28 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class IncomeAllocationFragment extends Fragment
+public class FundAllocationFragment extends Fragment
         implements FundListAdapter.FundItemClickListener {
 
     private final String TAG = getClass().getSimpleName();
+
+    // Argument keys
+    final static String TITLE = "title";
+    final static String SOURCE = "source";
+    final static String AMOUNT = "amount";
+    final static String FUND_LIST = "fund_list";
+
     private Context mContext;
 
     private NestedScrollView mWindow;
+    private TextView mTitleTV;
+    private TextView mSourceTV;
     private TextView mRemainingAmountTV;
     private TextView mFundNameTV;
     private TextView mErrorMsgTV;
@@ -38,14 +50,14 @@ public class IncomeAllocationFragment extends Fragment
     private Button mBtnAddAllocation;
 
     private OnSubmitFundAllocationListener submitListener;
-    private PhCurrency mIncomeAmount;
+    private PhCurrency mAmount;
     private PhCurrency mRemainingAmount;
     private ArrayList<FundAllocationAmount> mFundsList;
     private RecyclerView.Adapter mFundListAdapter;
     private RecyclerView.LayoutManager mLayoutMgr;
     private int mFundSelectedIndex;
 
-    public IncomeAllocationFragment() {
+    public FundAllocationFragment() {
         // Required empty public constructor
     }
 
@@ -61,6 +73,7 @@ public class IncomeAllocationFragment extends Fragment
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -69,21 +82,48 @@ public class IncomeAllocationFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_income_allocation, container, false);
 
         mContext = getContext();
-        mIncomeAmount = getArguments() != null ?
-                (PhCurrency) getArguments().getParcelable("incomeAmount") : new PhCurrency();
-        mRemainingAmount = new PhCurrency(mIncomeAmount);
-        mFundsList = new ArrayList<>();
-        mFundSelectedIndex = 0;
 
-        // Get the list of funds for manual allocation
-        CFLoggerOpenHelper dataBase = new CFLoggerOpenHelper(mContext);
-        List<String> fundsList = dataBase.getFundsList();
-        for (String fundName : fundsList) {
-            mFundsList.add(new FundAllocationAmount(fundName, new PhCurrency()));
-        }
+        // Get allocation details
+        Bundle details = getArguments();
+        if (details == null)
+            throw new IllegalStateException(
+                    Objects.requireNonNull(getActivity())
+                            .getClass().getSimpleName() +
+                            " must set the arguments for Fund Allocation.");
+        String title = details.getString(TITLE);
+        String source = details.getString(SOURCE);
+        mAmount = details.getParcelable(AMOUNT);
+        mFundsList = details.getParcelableArrayList(FUND_LIST);
+
+        // Missing argument
+        if (title == null)
+            throw new IllegalStateException(
+                    Objects.requireNonNull(getActivity())
+                            .getClass().getSimpleName() +
+                            " must set TITLE argument for Fund Allocation.");
+        if (source == null)
+            throw new IllegalStateException(
+                    Objects.requireNonNull(getActivity())
+                            .getClass().getSimpleName() +
+                            " must set SOURCE argument for Fund Allocation.");
+        if (mAmount == null)
+            throw new IllegalStateException(
+                    Objects.requireNonNull(getActivity())
+                            .getClass().getSimpleName() +
+                            " must set AMOUNT argument for Fund Allocation.");
+        if (mFundsList == null)
+            throw new IllegalStateException(
+                    Objects.requireNonNull(getActivity())
+                            .getClass().getSimpleName() +
+                            " must set FUND_LIST argument for Fund Allocation.");
+
+        mRemainingAmount = new PhCurrency(mAmount);
+        mFundSelectedIndex = 0;
 
         // Initialize widgets
         mWindow = view.findViewById(R.id.scroll_view);
+        mTitleTV = view.findViewById(R.id.heading_title);
+        mSourceTV = view.findViewById(R.id.disp_source);
         mRemainingAmountTV = view.findViewById(R.id.txt_remaining);
         mFundNameTV = view.findViewById(R.id.item_fund_name);
         mFundAllocationRV = view.findViewById(R.id.list_funds);
@@ -99,7 +139,9 @@ public class IncomeAllocationFragment extends Fragment
         mFundAllocationRV.setAdapter(mFundListAdapter);
 
         // Setup display text
-        mRemainingAmountTV.setText(mIncomeAmount.toString());
+        mTitleTV.setText(title);
+        mSourceTV.setText(source);
+        mRemainingAmountTV.setText(mAmount.toString());
         mFundNameTV.setText(
                 mFundsList.get(mFundSelectedIndex).getName());
         mErrorMsgTV.setText("");
@@ -117,6 +159,7 @@ public class IncomeAllocationFragment extends Fragment
         });
 
         mBtnAddAllocation.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(View v) {
                 // Fund allocation is done.
@@ -126,7 +169,7 @@ public class IncomeAllocationFragment extends Fragment
                     return;
                 }
 
-                if (mAllocateAmountPCI.getText().length() <= 0 ||
+                if (Objects.requireNonNull(mAllocateAmountPCI.getText()).length() <= 0 ||
                         mAllocateAmountPCI.getAmount().isZero()) {
                     mBtnAddAllocation.setEnabled(false);
                     mErrorMsgTV.setText(getString(R.string.err_msg_amountZero));
@@ -164,7 +207,7 @@ public class IncomeAllocationFragment extends Fragment
                 // Notify that the income amount has not all been  allocated  while
                 // all funds have amount allocation already.
                 if (fundsWithAllocation == mFundsList.size() - 1 &&
-                        totalAllocatedAmount.compareTo(mIncomeAmount) < 0) {
+                        totalAllocatedAmount.compareTo(mAmount) < 0) {
                     mErrorMsgTV.setText(getString(R.string.err_msg_allocationIncomplete));
                     mErrorMsgTV.setVisibility(View.VISIBLE);
                     return;
@@ -175,7 +218,7 @@ public class IncomeAllocationFragment extends Fragment
                 mFundListAdapter.notifyDataSetChanged();
 
                 // Update remaining amount display
-                mRemainingAmount.setValue(mIncomeAmount);
+                mRemainingAmount.setValue(mAmount);
                 mRemainingAmount.subtract(totalAllocatedAmount);
                 mRemainingAmountTV.setText(mRemainingAmount.toString());
 
@@ -224,6 +267,26 @@ public class IncomeAllocationFragment extends Fragment
         mFundNameTV.setText(fundItem.getName());
         mAllocateAmountPCI.setEnabled(true);
         mWindow.fullScroll(View.FOCUS_DOWN);
+    }
+
+    /**
+     * Sets the details for allocation in the funds. This should be set before loading this Fragment.
+     * Failure to do so will cause this Fragment to throw an IllegalStateException (see onCreateView())
+     *
+     * @param title     the header to be displayed which depends on which Activity loaded this Fragment
+     * @param source    of the amount to be allocated
+     * @param amount    of the money to be allocated
+     * @param fundList  the funds where the amount can be distributed
+     */
+    void setDetails(String title, String source, PhCurrency amount, ArrayList<FundAllocationAmount> fundList) {
+        // Details for allocation
+        Bundle detail = new Bundle();
+        detail.putString(TITLE, title);
+        detail.putString(SOURCE, source);
+        detail.putParcelable(AMOUNT, amount);
+        detail.putParcelableArrayList(FUND_LIST, fundList);
+
+        this.setArguments(detail);
     }
 
     /**

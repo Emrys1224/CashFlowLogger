@@ -30,8 +30,9 @@
             android:text="@string/label_source"
             android:textColor="@color/txtColor_label"
             android:textSize="@dimen/txtSize_label"
-            app:layout_constraintBaseline_toBaselineOf="@+id/disp_source"
-            app:layout_constraintStart_toStartOf="@+id/label_amount" />
+            app:layout_constraintBottom_toBottomOf="@+id/disp_source"
+            app:layout_constraintStart_toStartOf="@+id/label_amount"
+            app:layout_constraintTop_toTopOf="@+id/disp_source" />
 
         <TextView
             android:id="@+id/disp_source"

@@ -118,6 +118,7 @@
     <string name="err_msg_fund_name_empty">* Fund name cannot be empty\n</string>
     <string name="err_msg_allocation_range">* Allocation percentage must be between 1% to 100%</string>
     <string name="btn_add_fund">Add a Fund</string>
+    <string name="err_msg_delete_not_allowed">Deleting fund if there is only one is not allowed</string>
     <string-array name="hour_12">
         <item>01</item>
         <item>02</item>

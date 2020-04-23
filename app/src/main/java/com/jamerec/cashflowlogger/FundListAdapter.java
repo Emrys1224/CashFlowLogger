@@ -71,7 +71,6 @@ public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundLi
         private final String TAG = getClass().getSimpleName();
 
         private FundItemClickListener mListener;
-        final View mItemView;
         final TextView mFundName;
         final TextView mFundAmount;
         final Button mDeleteBtn;
@@ -80,13 +79,12 @@ public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundLi
             super(itemView);
 
             this.mListener = listener;
-            this.mItemView = itemView;
             this.mFundName = itemView.findViewById(R.id.label_fund);
             this.mFundAmount = itemView.findViewById(R.id.amount);
             this.mDeleteBtn = itemView.findViewById(R.id.btn_delete);
 
             if (listener == null) return;
-            this.mItemView.setOnClickListener(this);
+            this.mFundName.setOnClickListener(this);
 
             if (this.mDeleteBtn != null)
                 this.mDeleteBtn.setOnClickListener(this);
@@ -94,8 +92,8 @@ public class FundListAdapter extends RecyclerView.Adapter<FundListAdapter.FundLi
         }
 
         @Override
-        public void onClick(View v) {
-            mListener.onFundItemClicked(mItemView, getAdapterPosition());
+        public void onClick(View view) {
+            mListener.onFundItemClicked(view, getAdapterPosition());
         }
     }
 

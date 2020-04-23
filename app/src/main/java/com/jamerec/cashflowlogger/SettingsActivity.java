@@ -5,10 +5,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+
+import java.util.ArrayList;
 
 public class SettingsActivity
         extends AppCompatActivity
-        implements FundSettingDialog.FundSetListener {
+        implements FundSettingDialog.FundSetListener,
+        FundAllocationFragment.OnSubmitFundAllocationListener {
+
+    private final String TAG = getClass().getSimpleName();
 
     final static String SETTING_PREF = "com.jamerec.cashflowlogger.settingpref";
     final static String USER_NAME = "user_name";
@@ -41,5 +47,10 @@ public class SettingsActivity
         if (allocationFragment != null && allocationFragment.isVisible()) {
             allocationFragment.updateFund(fundName, allocationPercentage);
         }
+    }
+
+    @Override
+    public void submitFundAllocation(ArrayList<FundAllocationAmount> fundList) {
+        Log.d(TAG, "FundAllocationFragment.OnSubmitFundAllocationListener triggered");
     }
 }

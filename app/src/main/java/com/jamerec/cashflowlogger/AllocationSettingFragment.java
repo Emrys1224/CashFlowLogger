@@ -90,7 +90,7 @@ public class AllocationSettingFragment
         mAllocationRV.setAdapter(mAdapter);
 
         // Plus icon for 'Add a Fund' button
-        mAddFundBtn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_add,0,0,0);
+        mAddFundBtn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_add, 0, 0, 0);
         mAddFundBtn.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
@@ -108,19 +108,51 @@ public class AllocationSettingFragment
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
-    public void onFundItemClicked(View v, int position) {
+    public void onFundItemClicked(View v, int index) {
 
         // Remove this fund allocation
         if (v.getId() == R.id.btn_delete) {
-            mIndexFundSelected = -1;
+            Log.d(TAG, "mActiveAllocation.size() = " + mActiveAllocation.size());
+
+            // Prohibit fund deletion when there is only one fund
+            if (mActiveAllocation.size() <= 1) {
+                mErrAllocationTV.setText(R.string.err_msg_delete_not_allowed);
+                mErrAllocationTV.setVisibility(View.VISIBLE);
+                return;
+            }
+            mErrAllocationTV.setVisibility(View.GONE);
+
+            // Divide the Fund Balance of this deleted fund into the remaining funds
+            // or choose a fund where to transfer this amount.
+            String fundToRemove = mActiveAllocation.get(index).getFundName();
+            ArrayList<FundAllocationAmount> fundsAllocation = new ArrayList<>();
+            for (FundAllocationPercentage allocationPercentage : mActiveAllocation) {
+                String fundName = allocationPercentage.getFundName();
+                if (!fundName.equals(fundToRemove))
+                    fundsAllocation.add(new FundAllocationAmount(fundName, new PhCurrency()));
+            }
+
+            FundAllocationFragment fundAllocationFragment = new FundAllocationFragment();
+            fundAllocationFragment.setDetails(
+                    getResources().getString(R.string.heading_allocation_setting),
+                    fundToRemove, new PhCurrency(12345678), fundsAllocation);
+
+            ((SettingsActivity) Objects.requireNonNull(getActivity()))
+                    .loadFragment(fundAllocationFragment, "FundAllocationFragment");
+
+//            mIndexFundSelected = -1;
+//            mActiveAllocation.remove(position);
+//            mAdapter.notifyDataSetChanged();
+//            updateTotalPercentage();
+
             return;
         }
 
-        mIndexFundSelected = position;
+        mIndexFundSelected = index;
 
         // Details of fund to edit
-        String fundName = mActiveAllocation.get(position).getFundName();
-        int percentage = mActiveAllocation.get(position).getPercentAllocation();
+        String fundName = mActiveAllocation.get(index).getFundName();
+        int percentage = mActiveAllocation.get(index).getPercentAllocation();
         Bundle fundInfo = new Bundle();
         fundInfo.putString(FUND_NAME, fundName);
         fundInfo.putInt(PERCENTAGE, percentage);
@@ -143,7 +175,10 @@ public class AllocationSettingFragment
         }
 
         mAdapter.notifyDataSetChanged();
+        updateTotalPercentage();
+    }
 
+    private void updateTotalPercentage() {
         int percentTotal = 0;
         for (FundAllocationPercentage fundAllocation : mActiveAllocation) {
             percentTotal += fundAllocation.getPercentAllocation();
